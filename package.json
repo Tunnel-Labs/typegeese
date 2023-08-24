@@ -1,0 +1,13 @@
+{
+  "name": "typegeese",
+  "dependencies": {
+    "@typegoose/typegoose": "^11.4.1",
+		"deepmerge-ts": "5.1.0",
+		"filter-obj": "5.1.0",
+		"map-obj": "5.0.2",
+		"type-fest": "4.2.0"
+  },
+	"devDependencies": {
+		"lionconfig": "^3.0.1"
+	}
+}
