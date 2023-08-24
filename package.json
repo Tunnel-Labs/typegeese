@@ -1,5 +1,8 @@
 {
   "name": "typegeese",
+	"version": "1.0.0",
+	"type": "module",
+	"exports": "./src/index.ts",
   "dependencies": {
     "@typegoose/typegoose": "^11.4.1",
 		"deepmerge-ts": "5.1.0",

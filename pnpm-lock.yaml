@@ -8,6 +8,9 @@ dependencies:
   '@typegoose/typegoose':
     specifier: ^11.4.1
     version: 11.4.1(mongoose@7.4.4)
+  deepmerge-ts:
+    specifier: 5.1.0
+    version: 5.1.0
   filter-obj:
     specifier: 5.1.0
     version: 5.1.0
@@ -2406,7 +2409,6 @@ packages:
   /deepmerge-ts@5.1.0:
     resolution: {integrity: sha512-eS8dRJOckyo9maw9Tu5O5RUi/4inFLrnoLkBe3cPfDMx3WZioXtmOew4TXQaxq7Rhl4xjDtR7c6x8nNTxOvbFw==}
     engines: {node: '>=16.0.0'}
-    dev: true
 
   /deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}

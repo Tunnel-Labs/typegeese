@@ -1,6 +1,6 @@
 import type { UnionToIntersection } from 'type-fest';
 
-import type { SelectInput } from '../select.js';
+import type { SelectInput } from './select.js';
 
 export interface SelectionDefinition<
 	_Select,
