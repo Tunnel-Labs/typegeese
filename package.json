@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"type": "module",
 	"exports": "./src/index.ts",
+	"scripts": {
+		"build": "ts-node ./scripts/build.ts"
+	},
   "dependencies": {
     "@typegoose/typegoose": "^11.4.1",
 		"deepmerge-ts": "5.1.0",
@@ -11,6 +14,7 @@
 		"type-fest": "4.2.0"
   },
 	"devDependencies": {
-		"lionconfig": "^3.0.1"
+		"lionconfig": "^3.0.1",
+		"typescript": "^5.1.6"
 	}
 }
