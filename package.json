@@ -1,20 +1,25 @@
 {
-  "name": "typegeese",
+	"name": "typegeese",
 	"version": "1.0.0",
 	"type": "module",
 	"exports": "./src/index.ts",
 	"scripts": {
 		"build": "ts-node ./scripts/build.ts"
 	},
-  "dependencies": {
-    "@typegoose/typegoose": "^11.4.1",
+	"peerDependencies": {
+		"mongoose": "^7",
+		"@typegoose/typegoose": "^11"
+	},
+	"dependencies": {
 		"deepmerge-ts": "5.1.0",
 		"filter-obj": "5.1.0",
 		"map-obj": "5.0.2",
 		"type-fest": "4.2.0"
-  },
+	},
 	"devDependencies": {
+		"@typegoose/typegoose": "^11.4.1",
 		"lionconfig": "^3.0.1",
+		"mongoose": "^7.4.4",
 		"typescript": "^5.1.6"
 	}
 }
