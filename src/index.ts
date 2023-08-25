@@ -1,6 +1,7 @@
 export type { CreateInput } from "./types/create.js";
 export type { OnForeignModelDeletedActions } from "./types/delete.js";
 export type { Deprecated } from "./types/deprecated.js";
+export type { FindInput } from "./types/find.js";
 export type { Ref } from "./types/ref.js";
 export type { ForeignRef, ModelRef, VirtualForeignRef } from "./types/refs.js";
 export type { SelectInput, SelectOutput } from "./types/select.js";
