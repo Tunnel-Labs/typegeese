@@ -6,8 +6,15 @@
 		"rootDir": "src",
 		"experimentalDecorators": true,
 		"paths": {
-			"~/*": ["./src/*"]
+			"~/*": [
+				"./src/*"
+			]
 		}
 	},
-	"include": ["./src"]
+	"include": [
+		"./src"
+	],
+	"references": [
+		{ "path": "./tsconfig.test.json" }
+	]
 }
