@@ -7,17 +7,16 @@
 		"build": "ts-node ./scripts/build.ts"
 	},
 	"peerDependencies": {
-		"mongoose": "^7",
-		"@typegoose/typegoose": "^11"
+		"mongoose": "^7"
 	},
 	"dependencies": {
+		"@typegoose/typegoose": "^11.4.1",
 		"deepmerge-ts": "^5.1.0",
 		"filter-obj": "^5.1.0",
 		"map-obj": "^5.0.2",
 		"type-fest": "^4.2.0"
 	},
 	"devDependencies": {
-		"@typegoose/typegoose": "^11.4.1",
 		"lionconfig": "^3.1.0",
 		"mongoose": "^7.4.4",
 		"typescript": "^5.2.2"
