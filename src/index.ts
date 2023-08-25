@@ -14,6 +14,7 @@ export type {
   WithOptions,
 } from "./types/selections.js";
 export { defineOnForeignModelDeletedActions } from "./utils/delete.js";
+export { deprecated } from "./utils/deprecated.js";
 export { defineMigration } from "./utils/migration.js";
 export { ModelSchema } from "./utils/model.js";
 export { useForeignRefs } from "./utils/ref.js";
