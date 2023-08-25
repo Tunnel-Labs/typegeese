@@ -1,6 +1,6 @@
 {
 	"name": "typegeese",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"type": "module",
 	"exports": "./src/index.ts",
 	"scripts": {
@@ -11,15 +11,15 @@
 		"@typegoose/typegoose": "^11"
 	},
 	"dependencies": {
-		"deepmerge-ts": "5.1.0",
-		"filter-obj": "5.1.0",
-		"map-obj": "5.0.2",
-		"type-fest": "4.2.0"
+		"deepmerge-ts": "^5.1.0",
+		"filter-obj": "^5.1.0",
+		"map-obj": "^5.0.2",
+		"type-fest": "^4.2.0"
 	},
 	"devDependencies": {
 		"@typegoose/typegoose": "^11.4.1",
-		"lionconfig": "^3.0.1",
+		"lionconfig": "^3.1.0",
 		"mongoose": "^7.4.4",
-		"typescript": "^5.1.6"
+		"typescript": "^5.2.2"
 	}
 }
