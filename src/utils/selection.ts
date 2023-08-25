@@ -100,13 +100,10 @@ export function defineSelectionMappings<Model>(): {
 	const set = (
 		selectionsCallback: (context: SelectionContext) => Promise<any>
 	): any =>
-		// We create a try-catch wrapper around the selections in case it depends on seeding from the non-active website
 		async function selectionsCallbackWrapper(context: SelectionContext) {
 			try {
 				return await selectionsCallback(context);
 			} catch {
-				// TODO: display the following error when on the other website
-				// log.error('Error initializing selections:', error)
 				return {};
 			}
 		} as any;
