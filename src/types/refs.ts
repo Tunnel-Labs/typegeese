@@ -24,7 +24,7 @@ export interface ForeignRef<
 			? Field
 			: never]: ForeignModel[Field];
 	}
-> extends Ref<ForeignModel> {}
+> extends Opaque<Ref<ForeignModel>, 'ForeignRef'> {}
 
 /**
 	A virtual foreign ref refers to a virtual field
