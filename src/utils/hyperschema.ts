@@ -2,9 +2,14 @@ import {
   GetSchemaKeyFromHyperschema,
   NormalizedHyperschema,
 } from "~/types/hyperschema.js";
-import { getModelWithString, pre, post } from "@typegoose/typegoose";
+import {
+  getModelWithString,
+  pre,
+  post,
+  getModelForClass,
+} from "@typegoose/typegoose";
 import mapObject from "map-obj";
-import { PreMiddlewareFunction, Query } from "mongoose";
+import { Mongoose, PreMiddlewareFunction, Query } from "mongoose";
 import { applyHyperschemaMigrationsToDocument } from "~/utils/migration.js";
 import { getVersionFromSchema } from "~/utils/version.js";
 
@@ -40,8 +45,19 @@ export function normalizeHyperschema<Hyperschema>(
     const onForeignModelDeletedActions =
       hyperschema[onForeignModelDeletedActionsKey as keyof typeof hyperschema];
 
+    const schemaOptionsKey =
+      Object.keys(hyperschema).find(
+        (key) => key === "schemaOptions" || key.endsWith("_schemaOptions")
+      ) ?? "schemaOptions";
+
+    const schemaOptions =
+      hyperschema[schemaOptionsKey as keyof typeof hyperschema] ?? {};
+
     const schemaKey = Object.keys(hyperschema).find(
-      (key) => key !== migrationKey && key !== onForeignModelDeletedActionsKey
+      (key) =>
+        key !== migrationKey &&
+        key !== onForeignModelDeletedActionsKey &&
+        key !== schemaOptionsKey
     );
     if (schemaKey === undefined) {
       throw new Error(
@@ -54,6 +70,7 @@ export function normalizeHyperschema<Hyperschema>(
     return {
       schema,
       schemaName: schemaKey,
+      schemaOptions,
       migration,
       onForeignModelDeletedActions,
     } as any;
@@ -64,7 +81,13 @@ export function normalizeHyperschema<Hyperschema>(
 
 export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
   unnormalizedHyperschemas: Hyperschemas,
-  meta?: any
+  {
+    mongoose,
+    meta,
+  }: {
+    mongoose: Mongoose;
+    meta?: any;
+  }
 ): {
   [HyperschemaKey in keyof Hyperschemas as GetSchemaKeyFromHyperschema<
     Hyperschemas[HyperschemaKey]
@@ -79,6 +102,16 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
       return [normalizedHyperschema.schemaName, normalizedHyperschema];
     }
   );
+
+  // Register the models for each schema
+  for (const { schema, schemaName } of Object.values(hyperschemas)) {
+    getModelForClass(schema, {
+      existingMongoose: mongoose,
+      schemaOptions: {
+        collection: schemaName,
+      },
+    });
+  }
 
   const parentModelOnDeleteActions: {
     childModelName: string;
@@ -163,13 +196,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
     const preDeleteOne: PreMiddlewareFunction<Query<any, any>> = function (
       next
     ) {
-      const parentModel = getModelWithString(parentModelName);
-      if (parentModel === undefined) {
-        throw new Error(
-          `Typegeese model "${parentModelName}" has not been loaded`
-        );
-      }
-
+      const parentModel = getModelWithString(parentModelName)!;
       const isDeleteRestricted = onModelDeletedActions.some(
         ({ action }) => action === "Restrict"
       );
@@ -179,14 +206,14 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
         parentModel
           .findOne(this.getQuery(), { _id: 1 })
           .exec()
-          .then((model) => {
+          .then((model: any) => {
             console.error(
               `Deleting "${parentModelName} ${
                 model._id as string
               }" is restricted.`
             );
           })
-          .catch((error) => {
+          .catch((error: any) => {
             console.error(error);
           });
       } else {
@@ -198,13 +225,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
             Promise.all(
               onModelDeletedActions.map(
                 async ({ action, childModelName, childModelField }) => {
-                  const childModel = getModelWithString(childModelName);
-                  if (childModel === undefined) {
-                    throw new Error(
-                      `Typegeese model "${childModelName}" has not been loaded`
-                    );
-                  }
-
+                  const childModel = getModelWithString(childModelName)!;
                   if (action === "Cascade") {
                     await childModel.deleteMany({
                       [childModelField]: model._id,
@@ -248,7 +269,6 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
     >();
 
     const hyperschemaModel = getModelWithString(hyperschema.schemaName)!;
-
     const selectVersion = function (this: any) {
       this.select("_version");
     };
