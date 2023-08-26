@@ -3,7 +3,7 @@ import { versionStringToVersionNumber } from "~/utils/version.js";
 
 export interface ModelSchema {
 	_id: string;
-	__version: number;
+	_version: number;
 }
 
 export function ModelSchema<V extends string>(version: V) {
@@ -21,7 +21,7 @@ export function ModelSchema<V extends string>(version: V) {
       default: versionNumber,
       required: true,
     })
-    public __version!: V extends "v0" ? 0 : number;
+    public _version!: V extends "v0" ? 0 : number;
   }
 
   return Schema;

@@ -242,12 +242,12 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
   // Register a migration hook for all the hyperschemas
   for (const hyperschema of Object.values(hyperschemas)) {
-    // Make sure that we always select the `__version` field (since we need this field in our migration hook)
+    // Make sure that we always select the `_version` field (since we need this field in our migration hook)
     pre("findOne", function () {
-      (this as any).select("__version");
+      (this as any).select("_version");
     });
     pre("find", function () {
-      (this as any).select("__version");
+      (this as any).select("_version");
     });
 
     function migrate(this: any, result: any, next: any) {
@@ -255,38 +255,51 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
       const migrateDocumentPromises: Promise<void>[] = [];
 
       for (const result of resultArray) {
-        if (result.__version === undefined) {
-          throw new Error("The `__version` field must be present");
+        if (result._id === undefined) {
+          throw new Error("The `_id` field must be present");
         }
 
-        if (result.__version !== getVersionFromSchema(hyperschema.schema)) {
+        if (result._version === undefined) {
+          throw new Error("The `_version` field must be present");
+        }
+
+        if (result._version !== getVersionFromSchema(hyperschema.schema)) {
           /**
 						Keeps track of the all the properties that have been updated so we can update the result array with them (if they have been selected).
 					*/
-          const updatedProperties: Record<string, any> = {};
           migrateDocumentPromises.push(
             applyHyperschemaMigrationsToDocument({
               meta,
-              documentVersion: result.__version,
+              documentVersion: result._version,
               hyperschema,
               updatedProperties,
             })
           );
-
-          for (const [propertyKey, propertyValue] of Object.entries(
-            updatedProperties
-          )) {
-            if (this._userProvidedFields[propertyKey]) {
-              result[propertyKey] = propertyValue;
-            }
-          }
         }
       }
 
       if (migrateDocumentPromises.length === 0) {
         next();
       } else {
-        Promise.all(migrateDocumentPromises).then(next);
+        Promise.all(migrateDocumentPromises)
+          .then(async () => {
+            for (const [propertyKey, propertyValue] of Object.entries(
+              updatedProperties
+            )) {
+              // Only add the property to the result if it has been included in the projection
+              if (this._userProvidedFields[propertyKey]) {
+                result[propertyKey] = propertyValue;
+              }
+            }
+
+            // Update the documents in MongoDB
+            migrateDocumentPromises.push(
+              Model.findByIdAndUpdate(result._id, {
+                $set: updatedProperties,
+              })
+            );
+          })
+          .then(next);
       }
     }
 

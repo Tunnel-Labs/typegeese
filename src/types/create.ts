@@ -4,7 +4,7 @@ import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 // prettier-ignore
 export type CreateInput<Model> = {
 	[K in keyof Model as
-		K extends '__version'
+		K extends '_version'
 			? never
 		: Model[K] extends Deprecated[]
 			? K

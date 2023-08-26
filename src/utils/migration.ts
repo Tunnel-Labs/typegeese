@@ -52,7 +52,7 @@ export function defineMigration<
   PreviousHyperschema,
   CurrentSchema extends ModelSchema,
 >(
-  ...args: IsEqual<CurrentSchema["__version"], 0> extends true
+  ...args: IsEqual<CurrentSchema["_version"], 0> extends true
     ? [previousHyperschema: null]
     : [
         previousHyperschema: PreviousHyperschema,
