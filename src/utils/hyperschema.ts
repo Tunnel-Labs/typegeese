@@ -71,10 +71,12 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 } {
   const hyperschemas = mapObject(
     unnormalizedHyperschemas,
-    (key, unnormalizedHyperschema) => [
-      key as string,
-      normalizeHyperschema(unnormalizedHyperschema),
-    ]
+    (_key, unnormalizedHyperschema) => {
+      const normalizedHyperschema = normalizeHyperschema(
+        unnormalizedHyperschema
+      );
+      return [normalizedHyperschema.schemaName, normalizedHyperschema];
+    }
   );
 
   const parentModelOnDeleteActions: {
