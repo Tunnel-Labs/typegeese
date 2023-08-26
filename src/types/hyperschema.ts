@@ -10,17 +10,22 @@ export type GetSchemaKeyFromHyperschema<Hyperschema> = Exclude<
   | `${string}_onForeignModelDeletedActions`
 >;
 
-type GetMigrationKeyFromHyperschema<Hyperschema> =
-  Extract<keyof Hyperschema, "migration" | `${string}_migration`>;
+type GetMigrationKeyFromHyperschema<Hyperschema> = Extract<
+  keyof Hyperschema,
+  "migration" | `${string}_migration`
+>;
 
 export type GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema> = Extract<
   keyof Hyperschema,
   "onForeignModelDeletedActions" | `${string}_onForeignModelDeletedActions`
 >;
 
+export type InstanceTypeOrSelf<T extends abstract new (...args: any) => any> =
+  T extends abstract new (...args: any) => infer R ? R : T;
+
 export type GetSchemaFromHyperschema<Hyperschema> =
   GetSchemaKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
-    ? Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]
+    ? InstanceTypeOrSelf<Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]>
     : "Could not determine schema key from hyperschema";
 
 export type GetMigrationFromHyperschema<Hyperschema> =
