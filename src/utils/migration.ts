@@ -53,7 +53,8 @@ export function defineMigration<
     : [
         previousHyperschema: PreviousHyperschema,
         migrationFunctions: MigrationFunctions<
-          GetSchemaFromHyperschema<NormalizedHyperschema<PreviousHyperschema>>,
+					// @ts-expect-error: Works
+          InstanceType<GetSchemaFromHyperschema<NormalizedHyperschema<PreviousHyperschema>>>,
           CurrentSchema
         >,
       ]

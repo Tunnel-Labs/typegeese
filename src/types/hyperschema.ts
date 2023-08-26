@@ -1,7 +1,3 @@
-import type { Schema } from "mongoose";
-import { Promisable } from "type-fest";
-import { MigrationData } from "~/types/migration.js";
-
 export type GetSchemaKeyFromHyperschema<Hyperschema> = Exclude<
   keyof Hyperschema,
   | "migration"
@@ -22,18 +18,19 @@ export type GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema> = Extract<
 
 export type GetSchemaFromHyperschema<Hyperschema> =
   GetSchemaKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
-    ? Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]
-    : "Could not determine schema key from hyperschema";
+    ? // TODO: figure out why this is needed
+      Exclude<Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>], string>
+    : never;
 
 export type GetMigrationFromHyperschema<Hyperschema> =
   GetMigrationKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
     ? Hyperschema[GetMigrationKeyFromHyperschema<Hyperschema>]
-    : "Could not determine migration key from hyperschema";
+    : never;
 
 export type GetOnForeignModelDeletedFromHyperschema<Hyperschema> =
   GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
     ? Hyperschema[GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema>]
-    : "Could not determine 'onForeignModelDeletedActions' key from hyperschema";
+    : never;
 
 export type NormalizedHyperschema<Hyperschema> = {
   schema: GetSchemaFromHyperschema<Hyperschema>;
