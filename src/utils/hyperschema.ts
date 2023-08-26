@@ -272,7 +272,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
               meta,
               documentVersion: result._version,
               hyperschema,
-              updatedProperties,
+              updatedProperties: {},
             })
           );
         }
@@ -282,23 +282,25 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
         next();
       } else {
         Promise.all(migrateDocumentPromises)
-          .then(async () => {
-            for (const [propertyKey, propertyValue] of Object.entries(
-              updatedProperties
-            )) {
-              // Only add the property to the result if it has been included in the projection
-              if (this._userProvidedFields[propertyKey]) {
-                result[propertyKey] = propertyValue;
-              }
-            }
+          .then(async (migrateDocumentResults) =>
+            Promise.all(
+              migrateDocumentResults.map(async ({ updatedProperties }) => {
+                for (const [propertyKey, propertyValue] of Object.entries(
+                  updatedProperties
+                )) {
+                  // Only add the property to the result if it has been included in the projection
+                  if (this._userProvidedFields[propertyKey]) {
+                    result[propertyKey] = propertyValue;
+                  }
+                }
 
-            // Update the documents in MongoDB
-            migrateDocumentPromises.push(
-              Model.findByIdAndUpdate(result._id, {
-                $set: updatedProperties,
+                // Update the documents in MongoDB
+                return Model.findByIdAndUpdate(result._id, {
+                  $set: updatedProperties,
+                });
               })
-            );
-          })
+            )
+          )
           .then(next);
       }
     }

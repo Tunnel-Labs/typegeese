@@ -46,6 +46,8 @@ export async function applyHyperschemaMigrationsToDocument({
     const value = await (getProperty as any).call({ _id: document._id });
     updatedProperties[property] = value;
   }
+
+  return { updatedProperties };
 }
 
 export function defineMigration<
