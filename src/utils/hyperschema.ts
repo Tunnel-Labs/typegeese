@@ -103,16 +103,6 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
     }
   );
 
-  // Register the models for each schema
-  for (const { schema, schemaName } of Object.values(hyperschemas)) {
-    getModelForClass(schema, {
-      existingMongoose: mongoose,
-      schemaOptions: {
-        collection: schemaName,
-      },
-    });
-  }
-
   const parentModelOnDeleteActions: {
     childModelName: string;
     childModelField: string;
@@ -268,7 +258,6 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
       Promise<{ updatedProperties: Record<string, unknown> }>
     >();
 
-    const hyperschemaModel = getModelWithString(hyperschema.schemaName)!;
     const selectVersion = function (this: any) {
       this.select("_version");
     };
@@ -332,6 +321,9 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
                   }
                 }
 
+                const hyperschemaModel = getModelWithString(
+                  hyperschema.schemaName
+                )!;
                 // Update the documents in MongoDB
                 await hyperschemaModel.findOneAndUpdate(
                   {
@@ -353,6 +345,16 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
     post("findOne", migrate)(hyperschema.schema as any);
     post("find", migrate)(hyperschema.schema as any);
+  }
+
+  // Register the models for each schema (this is intentionally done after processing all the schemas so that all the hooks have been registered by now)
+  for (const { schema, schemaName } of Object.values(hyperschemas)) {
+    getModelForClass(schema, {
+      existingMongoose: mongoose,
+      schemaOptions: {
+        collection: schemaName,
+      },
+    });
   }
 
   return hyperschemas as any;
