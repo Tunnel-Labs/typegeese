@@ -331,14 +331,19 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
                     // We explicitly specify `_version` here in case the document has already been migrated by another process
                     _version: result._version,
                   },
-                  { $set: updatedProperties }
+                  {
+                    $set: {
+                      ...updatedProperties,
+                      _version: getVersionFromSchema(hyperschema.schema),
+                    },
+                  }
                 );
 
                 documentIdToMigrationPromise.delete(result._id);
               })
             )
           )
-          .then(next)
+          .then(() => next())
           .catch((error) => next(error));
       }
     }
