@@ -274,7 +274,10 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
           migrateDocumentPromises.push(
             applyHyperschemaMigrationsToDocument({
               meta,
-              documentVersion: result._version,
+              documentMetadata: {
+                _id: result._id,
+                _version: result._version,
+              },
               hyperschema,
               updatedProperties: {},
             })

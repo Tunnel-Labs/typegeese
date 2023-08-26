@@ -14,29 +14,32 @@ import { ModelSchema } from "~/classes/index.js";
 */
 export async function applyHyperschemaMigrationsToDocument({
   meta,
-  documentVersion,
+  documentMetadata,
   hyperschema,
   updatedProperties,
 }: {
   meta: any;
-  documentVersion: number;
+  documentMetadata: {
+    _id: string;
+    _version: number;
+  };
   hyperschema: NormalizedHyperschema<any>;
   updatedProperties: Record<string, unknown>;
 }): Promise<{ updatedProperties: Record<string, unknown> }> {
   const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
 
   // If the hyperschema version is greater than the document version, then we should apply the previous hyperschema migration before the current one
-  if (hyperschemaVersion > documentVersion) {
+  if (hyperschemaVersion > documentMetadata._version) {
     applyHyperschemaMigrationsToDocument({
       meta,
       updatedProperties,
       hyperschema: hyperschema.migration.previousHyperschema,
-      documentVersion,
+      documentMetadata,
     });
   }
 
-  const document = hyperschema.migration.migrationFunctions.call({
-    Model: getModelWithString(hyperschema.schemaName),
+  const document = await hyperschema.migration.getDocument({
+    _id: documentMetadata._id,
   });
 
   // Applying the hyperschema's migrations
