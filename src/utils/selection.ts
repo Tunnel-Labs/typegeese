@@ -8,7 +8,7 @@ import type {
 	SelectionDefinition
 } from '../types/selections.js';
 
-type ExpandSelections<
+export type ExpandSelections<
 	SelectionMappings extends Record<string, Record<string, unknown>>
 > = {
 	[Key in keyof SelectionMappings]: RecursivelyExpandSelection<

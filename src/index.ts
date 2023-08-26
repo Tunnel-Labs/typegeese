@@ -1,21 +1,15 @@
 // This line is needed in order to prevent "type not portable" errors
-export type * from '@typegoose/typegoose/lib/types.js'
-export type { CreateInput } from "./types/create.js";
-export type { OnForeignModelDeletedActions } from "./types/delete.js";
-export type { Deprecated } from "./types/deprecated.js";
-export type { FindInput } from "./types/find.js";
+export type * from "@typegoose/typegoose/lib/types.js";
+
+export type * from "./types/create.js";
+export type * from "./types/delete.js";
+export type * from "./types/deprecated.js";
+export type * from "./types/find.js";
 export type { Ref } from "./types/ref.js";
-export type { ForeignRef, ModelRef, VirtualForeignRef } from "./types/refs.js";
-export type { SelectInput, SelectOutput } from "./types/select.js";
-export type {
-  ExpandMapping,
-  InferSelectionDefinition,
-  RecursivelyExpandSelection,
-  SelectionContext,
-  SelectionDefinition,
-  SelectionSelect,
-  WithOptions,
-} from "./types/selections.js";
+export type * from "./types/refs.js";
+export type * from "./types/select.js";
+export type * from "./types/selections.js";
+
 export { defineOnForeignModelDeletedActions } from "./utils/delete.js";
 export { deprecated } from "./utils/deprecated.js";
 export { defineMigration } from "./utils/migration.js";

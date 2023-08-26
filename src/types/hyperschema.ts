@@ -10,7 +10,7 @@ export type GetSchemaKeyFromHyperschema<Hyperschema> = Exclude<
   | `${string}_onForeignModelDeletedActions`
 >;
 
-type GetMigrationKeyFromHyperschema<Hyperschema> = Extract<
+export type GetMigrationKeyFromHyperschema<Hyperschema> = Extract<
   keyof Hyperschema,
   "migration" | `${string}_migration`
 >;

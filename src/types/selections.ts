@@ -33,7 +33,7 @@ export type WithOptions<
 	  }
 	: never;
 
-type Selections<SelectionMappingObject> = keyof {
+export type Selections<SelectionMappingObject> = keyof {
 	[K in keyof SelectionMappingObject as K extends `$${string}`
 		? K
 		: never]: true;
