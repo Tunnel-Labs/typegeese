@@ -6,6 +6,6 @@ Opinionated schema types and utilities built on top of the amazing [Typegoose](<
 
 ## Terminology
 
-**Hyperschema:** An object containing a schema, migrations, and delete behavior.
+**Hyperschema:** An object containing a schema, migrations, and the  on foreign model delete actions.
 
 **Hypermodel:** A model augmented with migrations and delete behavior.
