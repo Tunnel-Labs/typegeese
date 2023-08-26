@@ -22,7 +22,7 @@ export async function applyHyperschemaMigrationsToDocument({
   documentVersion: number;
   hyperschema: NormalizedHyperschema<any>;
   updatedProperties: Record<string, unknown>;
-}) {
+}): Promise<{ updatedProperties: Record<string, unknown> }> {
   const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
 
   // If the hyperschema version is greater than the document version, then we should apply the previous hyperschema migration before the current one

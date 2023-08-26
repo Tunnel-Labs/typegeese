@@ -242,6 +242,8 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
   // Register a migration hook for all the hyperschemas
   for (const hyperschema of Object.values(hyperschemas)) {
+    const hyperschemaModel = getModelWithString(hyperschema.schemaName)!;
+
     // Make sure that we always select the `_version` field (since we need this field in our migration hook)
     pre("findOne", function () {
       (this as any).select("_version");
@@ -252,7 +254,9 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
     function migrate(this: any, result: any, next: any) {
       const resultArray = Array.isArray(result) ? result : [result];
-      const migrateDocumentPromises: Promise<void>[] = [];
+      const migrateDocumentPromises: Promise<{
+        updatedProperties: Record<string, unknown>;
+      }>[] = [];
 
       for (const result of resultArray) {
         if (result._id === undefined) {
@@ -295,7 +299,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
                 }
 
                 // Update the documents in MongoDB
-                return Model.findByIdAndUpdate(result._id, {
+                return hyperschemaModel.findByIdAndUpdate(result._id, {
                   $set: updatedProperties,
                 });
               })
