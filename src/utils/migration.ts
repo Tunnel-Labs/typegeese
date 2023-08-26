@@ -1,28 +1,83 @@
-import { pre } from "@typegoose/typegoose";
-import { Migrations } from "../types/migration.js";
+import { DocumentType } from "@typegoose/typegoose";
+import { MigrationData, MigrationFunctions } from "../types/migration.js";
+import {
+  NormalizeHyperschema,
+  NormalizedHyperschema,
+} from "../types/hyperschema.js";
+import { getVersionFromSchema } from "~/utils/schema.js";
+import { normalizeHyperschema } from "~/utils/hyperschema.js";
+import { IsEqual } from "type-fest";
+import { ModelSchema } from "../classes/index.js";
 
-export function defineMigration<PreviousModel, CurrentModel>(
-  migrations: Migrations<PreviousModel, CurrentModel>
-): ClassDecorator {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- will be `null` for v0
-  if (migrations === null) {
-    return () => {
-      /* noop */
+/**
+	Applies the migrations of hyperschemas in order
+
+	@param args
+	@param args.newerHyperschema - The newer version of the hyperschema to migrate the document to
+*/
+export async function migrateDocument({
+  hyperschema,
+  document,
+}: {
+  document: DocumentType<{ _version: number }>;
+  hyperschema: NormalizedHyperschema;
+}) {
+  const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
+  const documentVersion = document._version;
+
+  // If the hyperschema version is greater than the document version, then we should apply the previous hyperschema migration before the current one
+  if (hyperschemaVersion > documentVersion) {
+    migrateDocument({
+      hyperschema: hyperschema.migration.previousHyperschema,
+      document,
+    });
+  }
+
+	// Applying the hyperschema's migrations
+  for (const [property, getProperty] of Object.entries(
+    hyperschema.migration.migrationFunctions
+  )) {
+    if ((document as any)[property] === undefined) {
+      // eslint-disable-next-line no-await-in-loop -- We set properties one at a time to avoid race conditions
+      (document as any)[property] = await getProperty.call(document);
+    }
+  }
+}
+
+export function defineMigration<
+  PreviousHyperschema,
+  CurrentSchema extends ModelSchema,
+>(
+  ...args: IsEqual<CurrentSchema["_version"], 0> extends true
+    ? [previousHyperschema: null]
+    : [
+        previousHyperschema: PreviousHyperschema,
+        migrationFunctions: MigrationFunctions<
+          NormalizeHyperschema<PreviousHyperschema>,
+          CurrentSchema
+        >,
+      ]
+): MigrationData {
+  if (args[0] === null) {
+    return {
+      migrationFunctions: {},
+      previousHyperschema: null!,
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types -- Type of `ClassDecorator`
-  return <TFunction extends Function>(schema: TFunction) => {
-    // When reading an older model from the database, we need to set the newly added properties to their default values
-    pre("validate", async function () {
-      for (const [property, getProperty] of Object.entries(migrations)) {
-        if ((this as any)[property] === undefined) {
-          // eslint-disable-next-line no-await-in-loop -- We set properties one at a time to avoid race conditions
-          (this as any)[property] = await getProperty(this);
-        }
-      }
-    })(schema);
+  const [previousHyperschema, migrationFunctions] = args;
+  if (previousHyperschema === undefined) {
+    throw new Error("The previous hyperschema must be provided");
+  }
 
-    return schema;
+  if (migrationFunctions === undefined) {
+    throw new Error("Migration functions must be provided");
+  }
+  const previousNormalizedHyperschema =
+    normalizeHyperschema(previousHyperschema);
+
+  return {
+    previousHyperschema: previousNormalizedHyperschema as any,
+    migrationFunctions: migrationFunctions as any,
   };
 }

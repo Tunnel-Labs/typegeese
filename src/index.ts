@@ -19,9 +19,8 @@ export type {
 export { defineOnForeignModelDeletedActions } from "./utils/delete.js";
 export { deprecated } from "./utils/deprecated.js";
 export { defineMigration } from "./utils/migration.js";
-export { ModelSchema } from "./utils/model.js";
+export { ModelSchema } from "./classes/index.js";
 export { useForeignRefs } from "./utils/ref.js";
-export { loadAugmentedSchemas } from "./utils/schema.js";
 export { applySelect } from "./utils/select.js";
 export {
   createSelectionFunction,

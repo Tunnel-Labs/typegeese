@@ -1,6 +1,7 @@
 import type { DocumentType } from "@typegoose/typegoose";
 import type { Promisable } from "type-fest";
 import { Deprecated } from "./deprecated.js";
+import { NormalizedHyperschema } from "~/types/hyperschema.js";
 
 export type Diff<T, V> = {
   [P in Exclude<keyof T, keyof V>]: T[P];
@@ -39,7 +40,7 @@ export interface NotSupersetError<Message, _Keys> {
 }
 
 // prettier-ignore
-export type Migrations<PreviousModel, CurrentModel> =
+export type MigrationFunctions<PreviousModel, CurrentModel> =
 	'_version' extends keyof CurrentModel
 		? CurrentModel['_version'] extends 'v0'
 			? null
@@ -51,3 +52,8 @@ export type Migrations<PreviousModel, CurrentModel> =
 			}
 		: NotSupersetError<'The current model must be a superset of the previous model in order to be backwards-compatible; the following keys are incompatible:', NonSupersetKeys<PreviousModel, CurrentModel>>
 	: never
+
+export interface MigrationData {
+  previousHyperschema: NormalizedHyperschema;
+  migrationFunctions: Record<string, (this: DocumentType<any>) => void>;
+}
