@@ -249,13 +249,13 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
     const hyperschemaModel = getModelWithString(hyperschema.schemaName)!;
 
+    const selectVersion = function (this: any) {
+      this.select("_version");
+    };
+
     // Make sure that we always select the `_version` field (since we need this field in our migration hook)
-    pre("findOne", function () {
-      (this as any).select("_version");
-    });
-    pre("find", function () {
-      (this as any).select("_version");
-    });
+    pre("find", selectVersion)(hyperschema.schema as any);
+    pre("findOne", selectVersion)(hyperschema.schema as any);
 
     function migrate(this: any, result: any, next: any) {
       const resultArray = Array.isArray(result) ? result : [result];
