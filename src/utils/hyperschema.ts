@@ -242,8 +242,11 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
   // Register a migration hook for all the hyperschemas
   for (const hyperschema of Object.values(hyperschemas)) {
-    // Make sure that we always select the `__version` field (since we use this field in our migration hook)
+    // Make sure that we always select the `__version` field (since we need this field in our migration hook)
     pre("findOne", function () {
+      (this as any).select("__version");
+    });
+    pre("find", function () {
       (this as any).select("__version");
     });
 
