@@ -50,8 +50,7 @@ export function defineMigration<
     : [
         previousHyperschema: PreviousHyperschema,
         migrationFunctions: MigrationFunctions<
-          // @ts-expect-error: Works
-          InstanceType<NormalizedHyperschema<PreviousHyperschema>["schema"]>,
+          NormalizedHyperschema<PreviousHyperschema>["schema"],
           CurrentSchema
         >,
       ]
