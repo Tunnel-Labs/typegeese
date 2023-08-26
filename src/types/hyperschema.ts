@@ -11,12 +11,10 @@ export type GetSchemaKeyFromHyperschema<Hyperschema> = Exclude<
 >;
 
 type GetMigrationKeyFromHyperschema<Hyperschema> =
-  // @ts-expect-error: Works
   Extract<keyof Hyperschema, "migration" | `${string}_migration`>;
 
 export type GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema> = Extract<
   keyof Hyperschema,
-  // @ts-expect-error: Works
   "onForeignModelDeletedActions" | `${string}_onForeignModelDeletedActions`
 >;
 
