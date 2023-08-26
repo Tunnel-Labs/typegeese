@@ -286,9 +286,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
       if (migrateDocumentPromises.length === 0) {
         next();
       } else {
-        Promise.all(migrateDocumentPromises)
-          .then(() => this.save())
-          .then(next);
+        Promise.all(migrateDocumentPromises).then(next);
       }
     }
 

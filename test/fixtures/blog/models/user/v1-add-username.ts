@@ -1,8 +1,13 @@
-import { ModelSchema, VirtualForeignRef, defineMigration, prop } from "~/index.js";
+import {
+  ModelSchema,
+  VirtualForeignRef,
+  defineMigration,
+  prop,
+} from "~/index.js";
 
 import { virtualForeignRef } from "../../utils/refs.js";
 import { Post } from "../post/$schema.js";
-import * as UserV0 from './v0.js'
+import * as UserV0 from "./v0.js";
 
 export class User extends ModelSchema("v0") {
   @prop({
@@ -28,4 +33,12 @@ export class User extends ModelSchema("v0") {
 }
 
 export const migration = defineMigration<typeof UserV0, User>(UserV0, {
-})
+  async getDocument({ _id }) {
+    return getModelForClass(User).findOne({ _id });
+  },
+  migrations: {
+    async username() {
+      this.username = this.email.split("@")[0];
+    },
+  },
+});

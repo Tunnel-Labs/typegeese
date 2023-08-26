@@ -9,3 +9,76 @@ Opinionated schema types and utilities built on top of the amazing [Typegoose](<
 **Hyperschema:** An object containing a schema, migrations, and the  on foreign model delete actions.
 
 **Hypermodel:** A model augmented with migrations and delete behavior.
+
+## Migrations
+
+Typegeese comes with support for built-in schema migrations.
+
+```typescript
+// user/v0.ts
+import { ModelSchema, VirtualForeignRef, prop } from "~/index.js";
+
+import { virtualForeignRef } from "../../utils/refs.js";
+import { Post } from "../post/$schema.js";
+
+export class User extends ModelSchema("v0") {
+  @prop({
+    type: () => String,
+    required: true,
+  })
+  public email!: string;
+
+  @prop({
+    type: () => String,
+    required: false,
+  })
+  public name?: string;
+
+  @prop(virtualForeignRef("User", "Post", "author"))
+  public posts!: VirtualForeignRef<User, Post, "author">[];
+}
+```
+
+```typescript
+// user/v1.ts
+import { ModelSchema, VirtualForeignRef, prop } from "~/index.js";
+
+import { virtualForeignRef } from "../../utils/refs.js";
+import { Post } from "../post/$schema.js";
+import * as UserV0 from './v0.ts'
+
+export class User extends ModelSchema("v0") {
+  @prop({
+    type: () => String,
+    required: true,
+  })
+  public email!: string;
+
+  @prop({
+    type: () => String,
+    required: false,
+  })
+  public name?: string;
+
+  @prop({
+    type: () => String,
+    required: true,
+  })
+  public username!: string;
+
+  @prop(virtualForeignRef("User", "Post", "author"))
+  public posts!: VirtualForeignRef<User, Post, "author">[];
+}
+
+export const migration = defineMigration<typeof UserV0, User>(UserV0, {
+  // The read-only document to use for the migration
+  async getDocument({ _id }) {
+    return getModelForClass('User').findOne({ _id });
+  },
+  migrations: {
+    async username() {
+      this.username = this.email.split("@")[0];
+    },
+  },
+});
+```
