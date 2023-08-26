@@ -20,13 +20,9 @@ export type GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema> = Extract<
   "onForeignModelDeletedActions" | `${string}_onForeignModelDeletedActions`
 >;
 
-export type InstanceTypeOrSelf<T extends abstract new (...args: any) => any> =
-  T extends abstract new (...args: any) => infer R ? R : T;
-
 export type GetSchemaFromHyperschema<Hyperschema> =
   GetSchemaKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
-    ? // @ts-expect-error: idk why this works but `InstanceType` doesn't
-      InstanceTypeOrSelf<Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]>
+    ? Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]
     : "Could not determine schema key from hyperschema";
 
 export type GetMigrationFromHyperschema<Hyperschema> =
