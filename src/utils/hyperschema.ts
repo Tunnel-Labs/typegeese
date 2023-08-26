@@ -326,7 +326,8 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
               })
             )
           )
-          .then(next);
+          .then(next)
+          .catch((error) => next(error));
       }
     }
 
