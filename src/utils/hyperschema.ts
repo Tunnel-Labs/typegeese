@@ -52,6 +52,7 @@ export function normalizeHyperschema<Hyperschema>(
 
     return {
       schema,
+      schemaName: schemaKey,
       migration,
       onForeignModelDeletedActions,
     } as any;
@@ -65,7 +66,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 ): {
   [HyperschemaKey in keyof Hyperschemas as GetSchemaKeyFromHyperschema<
     Hyperschemas[HyperschemaKey]
-  >]: NormalizedHyperschema<Hyperschemas[HyperschemaKey]>
+  >]: NormalizedHyperschema<Hyperschemas[HyperschemaKey]>;
 } {
   const hyperschemas = mapObject(
     unnormalizedHyperschemas,
