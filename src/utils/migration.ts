@@ -38,6 +38,7 @@ export async function applyHyperschemaMigrationsToDocument({
     });
   }
 
+	// To prevent `getDocument` from triggering the migration hook and ending in an infinite loop, we wrap the _id in a `String` object.
   const document = await hyperschema.migration.getDocument.call(
     { meta },
     { _id: documentMetadata._id }

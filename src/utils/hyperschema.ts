@@ -242,6 +242,11 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
   // Register a migration hook for all the hyperschemas
   for (const hyperschema of Object.values(hyperschemas)) {
+    const documentIdToMigrationPromise: Record<
+      string,
+      Promise<{ updatedProperties: Record<string, unknown> }>
+    > = {};
+
     const hyperschemaModel = getModelWithString(hyperschema.schemaName)!;
 
     // Make sure that we always select the `_version` field (since we need this field in our migration hook)
@@ -268,20 +273,27 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
         }
 
         if (result._version !== getVersionFromSchema(hyperschema.schema)) {
-          /**
-						Keeps track of the all the properties that have been updated so we can update the result array with them (if they have been selected).
-					*/
-          migrateDocumentPromises.push(
-            applyHyperschemaMigrationsToDocument({
+          if (documentIdToMigrationPromise[result._id] !== undefined) {
+            // Prevents an infinite loop with this migration hook
+            continue;
+          } else {
+            const migrationPromise = applyHyperschemaMigrationsToDocument({
               meta,
               documentMetadata: {
                 _id: result._id,
                 _version: result._version,
               },
               hyperschema,
+              /**
+								Keeps track of the all the properties that have been updated so we can update the result array with them (if they have been selected).
+							*/
               updatedProperties: {},
-            })
-          );
+            });
+
+            documentIdToMigrationPromise[result._id] = migrationPromise;
+
+            migrateDocumentPromises.push(migrationPromise);
+          }
         }
       }
 
@@ -302,9 +314,14 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
                 }
 
                 // Update the documents in MongoDB
-                return hyperschemaModel.findByIdAndUpdate(result._id, {
-                  $set: updatedProperties,
-                });
+                return hyperschemaModel.findOneAndUpdate(
+                  {
+                    _id: result._id,
+                    // We explicitly specify `_version` here in case the document has already been migrated by another process
+                    _version: result._version,
+                  },
+                  { $set: updatedProperties }
+                );
               })
             )
           )
