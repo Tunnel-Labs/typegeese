@@ -38,15 +38,16 @@ export async function applyHyperschemaMigrationsToDocument({
     });
   }
 
-  const document = await hyperschema.migration.getDocument({
-    _id: documentMetadata._id,
-  });
+  const document = await hyperschema.migration.getDocument.call(
+    { meta },
+    { _id: documentMetadata._id }
+  );
 
   // Applying the hyperschema's migrations
   for (const [property, getProperty] of Object.entries(
     hyperschema.migration.migrationFunctions
   )) {
-    const value = await (getProperty as any).call({ _id: document._id });
+    const value = await (getProperty as any).call(document);
     updatedProperties[property] = value;
   }
 
