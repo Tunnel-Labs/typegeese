@@ -12,7 +12,7 @@ Opinionated schema types and utilities built on top of the amazing [Typegoose](<
 
 ## Migrations
 
-Typegeese comes with support for built-in schema migrations.
+Typegeese comes with support for built-in schema migrations. It does this by adding a `_version` property to every document that tracks the document's current schema version.
 
 ```typescript
 // user/v0.ts
