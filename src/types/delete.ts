@@ -1,6 +1,6 @@
 import type { IsAny } from 'type-fest';
 
-import type { ForeignRef } from '../types/refs.js';
+import type { ForeignRef } from '~/types/refs.js';
 
 // prettier-ignore
 export type OnForeignModelDeletedActions<Model> = {

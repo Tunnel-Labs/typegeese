@@ -1,5 +1,5 @@
-import type { Deprecated } from '../types/deprecated.js';
-import type { ForeignRef, VirtualForeignRef } from '../types/refs.js';
+import type { Deprecated } from '~/types/deprecated.js';
+import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 
 // prettier-ignore
 export type SelectInput<Model> = {

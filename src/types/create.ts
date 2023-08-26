@@ -1,10 +1,10 @@
-import type { Deprecated } from './deprecated.js';
-import type { ForeignRef, VirtualForeignRef } from './refs.js';
+import type { Deprecated } from '~/types/deprecated.js';
+import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 
 // prettier-ignore
 export type CreateInput<Model> = {
 	[K in keyof Model as
-		K extends '_version'
+		K extends '__version'
 			? never
 		: Model[K] extends Deprecated[]
 			? K

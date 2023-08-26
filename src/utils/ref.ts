@@ -1,4 +1,4 @@
-import type { ModelRef } from "../types/refs.js";
+import type { ModelRef } from "~/types/refs.js";
 
 export function useForeignRefs<Models>() {
   function foreignRef<T extends keyof Models>(

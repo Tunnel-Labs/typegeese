@@ -1,43 +1,50 @@
-import { DocumentType } from "@typegoose/typegoose";
-import { MigrationData, MigrationFunctions } from "../types/migration.js";
-import { NormalizedHyperschema } from "../types/hyperschema.js";
-import { getVersionFromSchema } from "~/utils/schema.js";
+import { getModelWithString } from "@typegoose/typegoose";
+import { MigrationConfig, MigrationData } from "~/types/migration.js";
+import { NormalizedHyperschema } from "~/types/hyperschema.js";
+import { getVersionFromSchema } from "~/utils/version.js";
 import { normalizeHyperschema } from "~/utils/hyperschema.js";
 import { IsEqual } from "type-fest";
-import { ModelSchema } from "../classes/index.js";
+import { ModelSchema } from "~/classes/index.js";
 
 /**
 	Applies the migrations of hyperschemas in order
 
 	@param args
-	@param args.newerHyperschema - The newer version of the hyperschema to migrate the document to
+	@param args.result - The result returned from mongoose (the raw object; only updated if the projections include those results)
 */
-export async function migrateDocument({
+export async function applyHyperschemaMigrationsToDocument({
+  meta,
+  documentVersion,
   hyperschema,
-  document,
+  updatedProperties,
 }: {
-  document: DocumentType<{ _version: number }>;
+  meta: any;
+  documentVersion: number;
   hyperschema: NormalizedHyperschema<any>;
+  updatedProperties: Record<string, unknown>;
 }) {
   const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
-  const documentVersion = document._version;
 
   // If the hyperschema version is greater than the document version, then we should apply the previous hyperschema migration before the current one
   if (hyperschemaVersion > documentVersion) {
-    migrateDocument({
+    applyHyperschemaMigrationsToDocument({
+      meta,
+      updatedProperties,
       hyperschema: hyperschema.migration.previousHyperschema,
-      document,
+      documentVersion,
     });
   }
+
+  const document = hyperschema.migration.migrationFunctions.call({
+    Model: getModelWithString(hyperschema.schemaName),
+  });
 
   // Applying the hyperschema's migrations
   for (const [property, getProperty] of Object.entries(
     hyperschema.migration.migrationFunctions
   )) {
-    if ((document as any)[property] === undefined) {
-      // eslint-disable-next-line no-await-in-loop -- We set properties one at a time to avoid race conditions
-      (document as any)[property] = await (getProperty as any).call(document);
-    }
+    const value = await (getProperty as any).call({ _id: document._id });
+    updatedProperties[property] = value;
   }
 }
 
@@ -45,11 +52,12 @@ export function defineMigration<
   PreviousHyperschema,
   CurrentSchema extends ModelSchema,
 >(
-  ...args: IsEqual<CurrentSchema["_version"], 0> extends true
+  ...args: IsEqual<CurrentSchema["__version"], 0> extends true
     ? [previousHyperschema: null]
     : [
         previousHyperschema: PreviousHyperschema,
-        migrationFunctions: MigrationFunctions<
+        migrationConfig: MigrationConfig<
+          // @ts-expect-error: is assignable
           NormalizedHyperschema<PreviousHyperschema>["schema"],
           CurrentSchema
         >,
@@ -57,24 +65,27 @@ export function defineMigration<
 ): MigrationData {
   if (args[0] === null) {
     return {
+      async getDocument() {},
       migrationFunctions: {},
       previousHyperschema: null!,
     };
   }
 
-  const [previousHyperschema, migrationFunctions] = args;
+  const [previousHyperschema, migrationConfig] = args;
   if (previousHyperschema === undefined) {
     throw new Error("The previous hyperschema must be provided");
   }
 
-  if (migrationFunctions === undefined) {
-    throw new Error("Migration functions must be provided");
+  if (migrationConfig === undefined) {
+    throw new Error("Migration configuration must be provided");
   }
+
   const previousNormalizedHyperschema =
     normalizeHyperschema(previousHyperschema);
 
   return {
+    getDocument: migrationConfig.getDocument,
     previousHyperschema: previousNormalizedHyperschema as any,
-    migrationFunctions: migrationFunctions as any,
+    migrationFunctions: migrationConfig.migrations as any,
   };
 }

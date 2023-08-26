@@ -1,11 +1,12 @@
 import {
-  GetSchemaFromHyperschema,
   GetSchemaKeyFromHyperschema,
   NormalizedHyperschema,
-} from "../types/hyperschema.js";
-import { getModelWithString, pre } from "@typegoose/typegoose";
+} from "~/types/hyperschema.js";
+import { getModelWithString, pre, post } from "@typegoose/typegoose";
 import mapObject from "map-obj";
 import { PreMiddlewareFunction, Query } from "mongoose";
+import { applyHyperschemaMigrationsToDocument } from "~/utils/migration.js";
+import { getVersionFromSchema } from "~/utils/version.js";
 
 export function normalizeHyperschema<Hyperschema>(
   hyperschema: Hyperschema
@@ -62,7 +63,8 @@ export function normalizeHyperschema<Hyperschema>(
 }
 
 export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
-  unnormalizedHyperschemas: Hyperschemas
+  unnormalizedHyperschemas: Hyperschemas,
+  meta?: any
 ): {
   [HyperschemaKey in keyof Hyperschemas as GetSchemaKeyFromHyperschema<
     Hyperschemas[HyperschemaKey]
@@ -239,8 +241,56 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
   }
 
   // Register a migration hook for all the hyperschemas
-  for (const { schema } of Object.values(hyperschemas)) {
-    pre("validate", function () {})(schema as any);
+  for (const hyperschema of Object.values(hyperschemas)) {
+    // Make sure that we always select the `__version` field (since we use this field in our migration hook)
+    pre("findOne", function () {
+      (this as any).select("__version");
+    });
+
+    function migrate(this: any, result: any, next: any) {
+      const resultArray = Array.isArray(result) ? result : [result];
+      const migrateDocumentPromises: Promise<void>[] = [];
+
+      for (const result of resultArray) {
+        if (result.__version === undefined) {
+          throw new Error("The `__version` field must be present");
+        }
+
+        if (result.__version !== getVersionFromSchema(hyperschema.schema)) {
+          /**
+						Keeps track of the all the properties that have been updated so we can update the result array with them (if they have been selected).
+					*/
+          const updatedProperties: Record<string, any> = {};
+          migrateDocumentPromises.push(
+            applyHyperschemaMigrationsToDocument({
+              meta,
+              documentVersion: result.__version,
+              hyperschema,
+              updatedProperties,
+            })
+          );
+
+          for (const [propertyKey, propertyValue] of Object.entries(
+            updatedProperties
+          )) {
+            if (this._userProvidedFields[propertyKey]) {
+              result[propertyKey] = propertyValue;
+            }
+          }
+        }
+      }
+
+      if (migrateDocumentPromises.length === 0) {
+        next();
+      } else {
+        Promise.all(migrateDocumentPromises)
+          .then(() => this.save())
+          .then(next);
+      }
+    }
+
+    post("findOne", migrate)(hyperschema.schema as any);
+    post("find", migrate)(hyperschema.schema as any);
   }
 
   return hyperschemas as any;

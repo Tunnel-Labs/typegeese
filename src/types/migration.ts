@@ -1,7 +1,8 @@
 import type { DocumentType } from "@typegoose/typegoose";
 import type { Promisable } from "type-fest";
-import { Deprecated } from "./deprecated.js";
-import { NormalizedHyperschema } from "~/types/hyperschema.js";
+import type { Deprecated } from "~/types/deprecated.js";
+import type { NormalizedHyperschema } from "~/types/hyperschema.js";
+import type { ModelSchema } from "~/classes/index.js";
 
 export type Diff<T, V> = {
   [P in Exclude<keyof T, keyof V>]: T[P];
@@ -13,7 +14,7 @@ export type IsSupersetKey<
 	CurrentModel,
 	Key extends keyof CurrentModel
 > =
-	Key extends '_version'
+	Key extends '__version'
 		? true
 		: Key extends keyof PreviousModel
 			? CurrentModel[Key] extends Deprecated<infer T>
@@ -41,8 +42,8 @@ export interface NotSupersetError<Message, _Keys> {
 
 // prettier-ignore
 export type MigrationFunctions<PreviousModel, CurrentModel> =
-	'_version' extends keyof CurrentModel
-		? CurrentModel['_version'] extends 'v0'
+	'__version' extends keyof CurrentModel
+		? CurrentModel['__version'] extends 'v0'
 			? null
 		: NonSupersetKeys<PreviousModel, CurrentModel> extends never
 		? {
@@ -56,4 +57,16 @@ export type MigrationFunctions<PreviousModel, CurrentModel> =
 export interface MigrationData {
   previousHyperschema: NormalizedHyperschema<any>;
   migrationFunctions: Record<string, (this: DocumentType<any>) => void>;
+  getDocument: (this: { meta: any }, args: { _id: any }) => Promise<any>;
+}
+
+export interface MigrationConfig<
+  PreviousSchema extends ModelSchema,
+  CurrentSchema,
+> {
+  getDocument(
+    this: { meta: any },
+    args: { _id: PreviousSchema["_id"] }
+  ): Promise<any>;
+  migrations: MigrationFunctions<PreviousSchema, CurrentSchema>;
 }

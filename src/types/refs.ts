@@ -1,4 +1,4 @@
-import type { Ref } from './ref.js';
+import type { Ref } from '~/types/ref.js';
 import type { Opaque } from 'type-fest';
 
 // eslint-disable-next-line @typescript-eslint/ban-types -- All we need is the `name` parameter

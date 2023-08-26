@@ -1,12 +1,12 @@
 import { deepmerge } from 'deepmerge-ts';
 import type { Promisable, UnionToIntersection } from 'type-fest';
 
-import type { SelectInput } from '../types/select.js';
+import type { SelectInput } from '~/types/select.js';
 import type {
 	RecursivelyExpandSelection,
 	SelectionContext,
 	SelectionDefinition
-} from '../types/selections.js';
+} from '~/types/selections.js';
 
 export type ExpandSelections<
 	SelectionMappings extends Record<string, Record<string, unknown>>

@@ -2,7 +2,7 @@ import { getModelWithString } from '@typegoose/typegoose';
 import { includeKeys } from 'filter-obj';
 import mapObject, { mapObjectSkip } from 'map-obj';
 
-import type { SelectInput } from '../types/select.js';
+import type { SelectInput } from '~/types/select.js';
 
 /**
 	@example ```javascript
