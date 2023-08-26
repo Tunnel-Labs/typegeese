@@ -25,6 +25,7 @@ export type InstanceTypeOrSelf<T extends abstract new (...args: any) => any> =
 
 export type GetSchemaFromHyperschema<Hyperschema> =
   GetSchemaKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
+		// @ts-expect-error: idk why this works but `InstanceType` doesn't
     ? InstanceTypeOrSelf<Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]>
     : "Could not determine schema key from hyperschema";
 
