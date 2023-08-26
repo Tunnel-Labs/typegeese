@@ -19,9 +19,8 @@ export type GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema> = Extract<
 export type GetSchemaFromHyperschema<Hyperschema> =
   GetSchemaKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
     ? InstanceType<
-        // We need `Exclude<_, string>` because of the `schemaName` property
         // @ts-expect-error: Works
-        Exclude<Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>], string>
+        Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]
       >
     : never;
 
