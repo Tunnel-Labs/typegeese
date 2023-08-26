@@ -242,10 +242,10 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
   // Register a migration hook for all the hyperschemas
   for (const hyperschema of Object.values(hyperschemas)) {
-    const documentIdToMigrationPromise: Record<
+    const documentIdToMigrationPromise = new Map<
       string,
       Promise<{ updatedProperties: Record<string, unknown> }>
-    > = {};
+    >();
 
     const hyperschemaModel = getModelWithString(hyperschema.schemaName)!;
 
@@ -273,7 +273,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
         }
 
         if (result._version !== getVersionFromSchema(hyperschema.schema)) {
-          if (documentIdToMigrationPromise[result._id] !== undefined) {
+          if (documentIdToMigrationPromise.has(result._id)) {
             // Prevents an infinite loop with this migration hook
             continue;
           } else {
@@ -290,8 +290,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
               updatedProperties: {},
             });
 
-            documentIdToMigrationPromise[result._id] = migrationPromise;
-
+            documentIdToMigrationPromise.set(result._id, migrationPromise);
             migrateDocumentPromises.push(migrationPromise);
           }
         }
@@ -314,7 +313,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
                 }
 
                 // Update the documents in MongoDB
-                return hyperschemaModel.findOneAndUpdate(
+                await hyperschemaModel.findOneAndUpdate(
                   {
                     _id: result._id,
                     // We explicitly specify `_version` here in case the document has already been migrated by another process
@@ -322,6 +321,8 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
                   },
                   { $set: updatedProperties }
                 );
+
+                documentIdToMigrationPromise.delete(result._id);
               })
             )
           )
