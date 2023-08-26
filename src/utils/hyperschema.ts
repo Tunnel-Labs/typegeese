@@ -65,9 +65,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 ): {
   [HyperschemaKey in keyof Hyperschemas as GetSchemaKeyFromHyperschema<
     Hyperschemas[HyperschemaKey]
-  >]: NormalizedHyperschema<
-    GetSchemaFromHyperschema<Hyperschemas[HyperschemaKey]>
-  >;
+  >]: NormalizedHyperschema<Hyperschemas[HyperschemaKey]>
 } {
   const hyperschemas = mapObject(
     unnormalizedHyperschemas,

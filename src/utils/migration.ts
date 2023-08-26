@@ -1,9 +1,6 @@
 import { DocumentType } from "@typegoose/typegoose";
 import { MigrationData, MigrationFunctions } from "../types/migration.js";
-import {
-  GetSchemaFromHyperschema,
-  NormalizedHyperschema,
-} from "../types/hyperschema.js";
+import { NormalizedHyperschema } from "../types/hyperschema.js";
 import { getVersionFromSchema } from "~/utils/schema.js";
 import { normalizeHyperschema } from "~/utils/hyperschema.js";
 import { IsEqual } from "type-fest";
@@ -53,8 +50,8 @@ export function defineMigration<
     : [
         previousHyperschema: PreviousHyperschema,
         migrationFunctions: MigrationFunctions<
-					// @ts-expect-error: Works
-          InstanceType<GetSchemaFromHyperschema<NormalizedHyperschema<PreviousHyperschema>>>,
+          // @ts-expect-error: Works
+          InstanceType<NormalizedHyperschema<PreviousHyperschema>["schema"]>,
           CurrentSchema
         >,
       ]

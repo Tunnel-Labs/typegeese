@@ -18,7 +18,7 @@ export type GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema> = Extract<
 
 export type GetSchemaFromHyperschema<Hyperschema> =
   GetSchemaKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
-    ? // TODO: figure out why this is needed
+    ? // We need `Exclude<_, string>` because of the `schemaName` property
       Exclude<Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>], string>
     : never;
 
