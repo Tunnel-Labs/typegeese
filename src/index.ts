@@ -1,3 +1,5 @@
+// This line is needed in order to prevent "type not portable" errors
+export type * from '@typegoose/typegoose/lib/types.js'
 export type { CreateInput } from "./types/create.js";
 export type { OnForeignModelDeletedActions } from "./types/delete.js";
 export type { Deprecated } from "./types/deprecated.js";
