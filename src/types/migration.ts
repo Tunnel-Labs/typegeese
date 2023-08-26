@@ -54,6 +54,6 @@ export type MigrationFunctions<PreviousModel, CurrentModel> =
 	: never
 
 export interface MigrationData {
-  previousHyperschema: NormalizedHyperschema;
+  previousHyperschema: NormalizedHyperschema<any>;
   migrationFunctions: Record<string, (this: DocumentType<any>) => void>;
 }

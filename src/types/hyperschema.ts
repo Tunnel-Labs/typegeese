@@ -25,8 +25,8 @@ export type InstanceTypeOrSelf<T extends abstract new (...args: any) => any> =
 
 export type GetSchemaFromHyperschema<Hyperschema> =
   GetSchemaKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
-		// @ts-expect-error: idk why this works but `InstanceType` doesn't
-    ? InstanceTypeOrSelf<Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]>
+    ? // @ts-expect-error: idk why this works but `InstanceType` doesn't
+      InstanceTypeOrSelf<Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]>
     : "Could not determine schema key from hyperschema";
 
 export type GetMigrationFromHyperschema<Hyperschema> =
@@ -39,14 +39,9 @@ export type GetOnForeignModelDeletedFromHyperschema<Hyperschema> =
     ? Hyperschema[GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema>]
     : "Could not determine 'onForeignModelDeletedActions' key from hyperschema";
 
-export type NormalizeHyperschema<Hyperschema> = {
+export type NormalizedHyperschema<Hyperschema> = {
   schema: GetSchemaFromHyperschema<Hyperschema>;
   migration: GetMigrationFromHyperschema<Hyperschema>;
   onForeignModelDeletedActions: GetOnForeignModelDeletedFromHyperschema<Hyperschema>;
+  schemaName: string;
 };
-
-export interface NormalizedHyperschema {
-  schema: Schema;
-  migration: MigrationData;
-  onForeignModelDeletedActions: Record<string, () => Promisable<void>>;
-}

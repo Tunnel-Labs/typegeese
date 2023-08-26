@@ -1,14 +1,15 @@
 import {
   GetSchemaFromHyperschema,
   GetSchemaKeyFromHyperschema,
-  NormalizeHyperschema,
+  NormalizedHyperschema,
 } from "../types/hyperschema.js";
 import { getModelWithString, pre } from "@typegoose/typegoose";
+import mapObject from "map-obj";
 import { PreMiddlewareFunction, Query } from "mongoose";
 
 export function normalizeHyperschema<Hyperschema>(
   hyperschema: Hyperschema
-): NormalizeHyperschema<Hyperschema> {
+): NormalizedHyperschema<Hyperschema> {
   if (typeof hyperschema === "object" && hyperschema !== null) {
     const migrationKey = Object.keys(hyperschema).find(
       (key) => key === "migration" || key.endsWith("_migration")
@@ -60,17 +61,22 @@ export function normalizeHyperschema<Hyperschema>(
 }
 
 export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
-  hyperschemas: Hyperschemas
+  unnormalizedHyperschemas: Hyperschemas
 ): {
   [HyperschemaKey in keyof Hyperschemas as GetSchemaKeyFromHyperschema<
     Hyperschemas[HyperschemaKey]
-  >]: {
-    schema: GetSchemaFromHyperschema<Hyperschemas[HyperschemaKey]>;
-    onForeignModelDeletedActions: any;
-    migration: any;
-    schemaName: string;
-  };
+  >]: NormalizedHyperschema<
+    GetSchemaFromHyperschema<Hyperschemas[HyperschemaKey]>
+  >;
 } {
+  const hyperschemas = mapObject(
+    unnormalizedHyperschemas,
+    (key, unnormalizedHyperschema) => [
+      key as string,
+      normalizeHyperschema(unnormalizedHyperschema),
+    ]
+  );
+
   const parentModelOnDeleteActions: {
     childModelName: string;
     childModelField: string;
@@ -78,39 +84,13 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
     action: "Cascade" | "SetNull" | "Restrict";
   }[] = [];
 
-  const schemaMap: Record<
-    string,
-    {
-      schema: any;
-      schemaName: string;
-      onForeignModelDeletedActions: any;
-      migration: any;
-    }
-  > = {};
-
-  for (const [hyperschemaIdentifier, hyperschema] of Object.entries(
-    hyperschemas
-  )) {
-    const schema = getSchemaFromHyperschema(hyperschema);
-    const schemaKey = getSchemaKeyFromHyperschema(hyperschema);
-    const migration = getMigrationFromHyperschema(hyperschema);
-    const onForeignModelDeletedActions =
-      getOnForeignModelDeletedActionsFromHyperschema(hyperschema);
-
-    schemaMap[hyperschemaIdentifier] = {
-      schema,
-      schemaName: schemaKey,
-      onForeignModelDeletedActions,
-      migration,
-    };
-  }
-
   // Loop through each schema assuming they are the child model
-  for (const [
-    schemaName,
-    // TODO: implement migrations
-    { onForeignModelDeletedActions, schema },
-  ] of Object.entries(schemaMap)) {
+  for (const // TODO: implement migrations
+    {
+      onForeignModelDeletedActions,
+      schema,
+      schemaName,
+    } of Object.values(hyperschemas)) {
     const childModelName = schemaName;
 
     const propMap = Reflect.getOwnMetadata(
@@ -172,7 +152,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
   }
 
   // We loop through all schemas a second time and this time, assume they are the parent model being deleted
-  for (const [schemaName, { schema }] of Object.entries(schemaMap)) {
+  for (const { schema, schemaName } of Object.values(hyperschemas)) {
     const parentModelName = schemaName;
     const onModelDeletedActions =
       onParentModelDeletedActions[parentModelName] ?? [];
@@ -249,94 +229,18 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
       }
     };
 
-    pre("deleteOne", preDeleteOne, { document: false, query: true })(schema);
+    pre("deleteOne", preDeleteOne, { document: false, query: true })(
+      schema as any
+    );
     pre("findOneAndDelete", preDeleteOne, { document: false, query: true })(
-      schema
+      schema as any
     );
   }
 
   // Register a migration hook for all the hyperschemas
-  for (const hyperschema of Object.values(hyperschemas)) {
-    pre("validate", function () {})(hyperschema.schema);
+  for (const { schema } of Object.values(hyperschemas)) {
+    pre("validate", function () {})(schema as any);
   }
 
-  return schemaMap as any;
-}
-
-function getMigrationKeyFromHyperschema(hyperschema: any): string {
-  const migrationKey = Object.keys(hyperschema).find(
-    (key) => key === "migration" || key.endsWith("_migration")
-  );
-
-  if (migrationKey === undefined) {
-    throw new Error(
-      `Could not find the "migration" key for hyperschema: ${JSON.stringify(
-        hyperschema
-      )}`
-    );
-  }
-
-  return migrationKey;
-}
-
-function getMigrationFromHyperschema(hyperschema: any) {
-  const migrationKey = getMigrationKeyFromHyperschema(hyperschema);
-
-  const migration = hyperschema[migrationKey as keyof typeof hyperschema];
-
-  return migration;
-}
-
-function getOnForeignModelDeletedActionsKeyFromHyperschema(
-  hyperschema: any
-): string {
-  const onForeignModelDeletedActionsKey = Object.keys(hyperschema).find(
-    (key) =>
-      key === "onForeignModelDeletedActions" ||
-      key.endsWith("_onForeignModelDeletedActions")
-  );
-  if (onForeignModelDeletedActionsKey === undefined) {
-    throw new Error(
-      `Could not find the "onForeignModelDeletedActions" key from "${JSON.stringify(
-        hyperschema
-      )}"`
-    );
-  }
-
-  return onForeignModelDeletedActionsKey;
-}
-
-function getOnForeignModelDeletedActionsFromHyperschema(hyperschema: any) {
-  const onForeignModelDeletedActionsKey =
-    getOnForeignModelDeletedActionsKeyFromHyperschema(hyperschema);
-
-  const onForeignModelDeletedActions =
-    hyperschema[onForeignModelDeletedActionsKey as keyof typeof hyperschema];
-
-  return onForeignModelDeletedActions;
-}
-
-function getSchemaKeyFromHyperschema(hyperschema: any): string {
-  const migrationKey = getMigrationKeyFromHyperschema(hyperschema);
-  const onForeignModelDeletedActionsKey =
-    getOnForeignModelDeletedActionsKeyFromHyperschema(hyperschema);
-
-  const schemaKey = Object.keys(hyperschema).find(
-    (key) => key !== migrationKey && key !== onForeignModelDeletedActionsKey
-  );
-  if (schemaKey === undefined) {
-    throw new Error(
-      `Could not find the schema key in "${JSON.stringify(hyperschema)}"`
-    );
-  }
-
-  return schemaKey;
-}
-
-function getSchemaFromHyperschema(hyperschema: any) {
-  const schemaKey = getSchemaKeyFromHyperschema(hyperschema);
-
-  const schema = hyperschema[schemaKey as keyof typeof hyperschema];
-
-  return schema;
+  return hyperschemas as any;
 }

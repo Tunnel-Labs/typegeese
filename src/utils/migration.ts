@@ -2,7 +2,6 @@ import { DocumentType } from "@typegoose/typegoose";
 import { MigrationData, MigrationFunctions } from "../types/migration.js";
 import {
   GetSchemaFromHyperschema,
-  NormalizeHyperschema,
   NormalizedHyperschema,
 } from "../types/hyperschema.js";
 import { getVersionFromSchema } from "~/utils/schema.js";
@@ -21,7 +20,7 @@ export async function migrateDocument({
   document,
 }: {
   document: DocumentType<{ _version: number }>;
-  hyperschema: NormalizedHyperschema;
+  hyperschema: NormalizedHyperschema<any>;
 }) {
   const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
   const documentVersion = document._version;
@@ -40,7 +39,7 @@ export async function migrateDocument({
   )) {
     if ((document as any)[property] === undefined) {
       // eslint-disable-next-line no-await-in-loop -- We set properties one at a time to avoid race conditions
-      (document as any)[property] = await getProperty.call(document);
+      (document as any)[property] = await (getProperty as any).call(document);
     }
   }
 }
@@ -54,7 +53,7 @@ export function defineMigration<
     : [
         previousHyperschema: PreviousHyperschema,
         migrationFunctions: MigrationFunctions<
-          GetSchemaFromHyperschema<NormalizeHyperschema<PreviousHyperschema>>,
+          GetSchemaFromHyperschema<NormalizedHyperschema<PreviousHyperschema>>,
           CurrentSchema
         >,
       ]
