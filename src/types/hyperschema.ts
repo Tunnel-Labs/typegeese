@@ -3,7 +3,7 @@ import { Promisable } from "type-fest";
 import { MigrationData } from "~/types/migration.js";
 
 export type GetSchemaKeyFromHyperschema<Hyperschema> = Exclude<
-  Hyperschema,
+  keyof Hyperschema,
   | "migration"
   | "onForeignModelDeletedActions"
   | `${string}_migration`
@@ -12,10 +12,10 @@ export type GetSchemaKeyFromHyperschema<Hyperschema> = Exclude<
 
 type GetMigrationKeyFromHyperschema<Hyperschema> =
   // @ts-expect-error: Works
-  Pick<Hyperschema, "migration" | `${string}_migration`>;
+  Pick<keyof Hyperschema, "migration" | `${string}_migration`>;
 
 export type GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema> = Pick<
-  Hyperschema,
+  keyof Hyperschema,
   // @ts-expect-error: Works
   "onForeignModelDeletedActions" | `${string}_onForeignModelDeletedActions`
 >;

@@ -1,6 +1,7 @@
 import { DocumentType } from "@typegoose/typegoose";
 import { MigrationData, MigrationFunctions } from "../types/migration.js";
 import {
+  GetSchemaFromHyperschema,
   NormalizeHyperschema,
   NormalizedHyperschema,
 } from "../types/hyperschema.js";
@@ -33,7 +34,7 @@ export async function migrateDocument({
     });
   }
 
-	// Applying the hyperschema's migrations
+  // Applying the hyperschema's migrations
   for (const [property, getProperty] of Object.entries(
     hyperschema.migration.migrationFunctions
   )) {
@@ -53,7 +54,7 @@ export function defineMigration<
     : [
         previousHyperschema: PreviousHyperschema,
         migrationFunctions: MigrationFunctions<
-          NormalizeHyperschema<PreviousHyperschema>,
+          GetSchemaFromHyperschema<NormalizeHyperschema<PreviousHyperschema>>,
           CurrentSchema
         >,
       ]
