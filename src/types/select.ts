@@ -26,7 +26,7 @@ export type SelectInput<Model> = {
 };
 
 // prettier-ignore
-export type SelectOutput<Model, Select extends SelectInput<Model>> = { _id: string } & {
+export type SelectOutput<Model, Select extends SelectInput<Model>> = { _id: string, _version: string } & {
 	[K in keyof Select]
 		: Select[K] extends true
 			? K extends keyof Model
