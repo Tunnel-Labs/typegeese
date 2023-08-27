@@ -1,5 +1,5 @@
-import type { Deprecated } from '~/types/deprecated.js';
-import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
+import type { Deprecated } from "~/types/deprecated.js";
+import type { ForeignRef, VirtualForeignRef } from "~/types/refs.js";
 
 // prettier-ignore
 export type SelectInput<Model> = {
@@ -24,6 +24,11 @@ export type SelectInput<Model> = {
 
 		: true
 };
+
+export type SelectOutputWithoutVersion<
+  Model,
+  Select extends SelectInput<Model>,
+> = Omit<SelectOutput<Model, Select>, "_version">;
 
 // prettier-ignore
 export type SelectOutput<Model, Select extends SelectInput<Model>> = { _id: string, _version: string } & {

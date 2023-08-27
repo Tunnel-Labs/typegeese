@@ -259,6 +259,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
     >();
 
     const selectVersion = function (this: any) {
+			// TODO: we also have to select the `_version` key in nested `populate` calls
       this.select("_version");
     };
 
@@ -283,6 +284,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
           throw new Error("The `_version` field must be present");
         }
 
+				// TODO: we also have to check nested properties from `populate` calls
         if (result._version !== getVersionFromSchema(hyperschema.schema)) {
           if (documentIdToMigrationPromise.has(result._id)) {
             // Prevents an infinite loop with this migration hook
