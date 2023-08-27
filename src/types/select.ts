@@ -25,13 +25,13 @@ export type SelectInput<Model> = {
 		: true
 };
 
-export type SelectOutputWithoutVersion<
+export type SelectOutputWithVersion<
   Model,
   Select extends SelectInput<Model>,
-> = SelectOutput<Model, Select, false>;
+> = SelectOutput<Model, Select, true>;
 
 // prettier-ignore
-export type SelectOutput<Model, Select extends SelectInput<Model>, WithVersion extends boolean = true> = { _id: string } & (WithVersion extends true ? { _version: string } : {}) & {
+export type SelectOutput<Model, Select extends SelectInput<Model>, WithVersion extends boolean = false> = { _id: string } & (WithVersion extends true ? { _version: string } : {}) & {
 	[K in keyof Select]
 		: Select[K] extends true
 			? K extends keyof Model
