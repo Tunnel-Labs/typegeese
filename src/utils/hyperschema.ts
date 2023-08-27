@@ -273,6 +273,8 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
       }>[] = [];
 
       for (const result of resultArray) {
+				if (result === undefined || result === null) continue;
+
         if (result._id === undefined) {
           throw new Error("The `_id` field must be present");
         }
