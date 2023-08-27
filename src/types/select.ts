@@ -28,10 +28,10 @@ export type SelectInput<Model> = {
 export type SelectOutputWithoutVersion<
   Model,
   Select extends SelectInput<Model>,
-> = Omit<SelectOutput<Model, Select>, "_version">;
+> = SelectOutput<Model, Select, false>;
 
 // prettier-ignore
-export type SelectOutput<Model, Select extends SelectInput<Model>> = { _id: string, _version: string } & {
+export type SelectOutput<Model, Select extends SelectInput<Model>, WithVersion extends boolean = true> = { _id: string } & (WithVersion extends true ? { _version: string } : {}) & {
 	[K in keyof Select]
 		: Select[K] extends true
 			? K extends keyof Model
@@ -46,30 +46,30 @@ export type SelectOutput<Model, Select extends SelectInput<Model>> = { _id: stri
 				? NonNullable<Model[K]> extends VirtualForeignRef<any, infer Nested, infer _ForeignField>[]
 					? null extends Model[K]
 						// @ts-expect-error: works
-						? SelectOutput<Nested, NestedSelect>[] | null
+						? SelectOutput<Nested, NestedSelect, WithVersion>[] | null
 						// @ts-expect-error: works
-						: SelectOutput<Nested, NestedSelect>[]
+						: SelectOutput<Nested, NestedSelect, WithVersion>[]
 
 				: NonNullable<Model[K]> extends ForeignRef<any, infer Nested, any>[]
 					? null extends Model[K]
 						// @ts-expect-error: works
-						? SelectOutput<Nested, NestedSelect>[] | null
+						? SelectOutput<Nested, NestedSelect, WithVersion>[] | null
 						// @ts-expect-error: works
-						: SelectOutput<Nested, NestedSelect>[]
+						: SelectOutput<Nested, NestedSelect, WithVersion>[]
 
 				: NonNullable<Model[K]> extends VirtualForeignRef<any, infer Nested, infer _ForeignField>
 						? null extends Model[K]
 							// @ts-expect-error: works
-							? SelectOutput<Nested, NestedSelect> | null
+							? SelectOutput<Nested, NestedSelect, WithVersion> | null
 							// @ts-expect-error: works
-							: SelectOutput<Nested, NestedSelect>
+							: SelectOutput<Nested, NestedSelect, WithVersion>
 
 				: NonNullable<Model[K]> extends ForeignRef<any, infer Nested, any>
 					? null extends Model[K]
 						// @ts-expect-error: works
-						? SelectOutput<Nested, NestedSelect> | null
+						? SelectOutput<Nested, NestedSelect, WithVersion> | null
 						// @ts-expect-error: works
-						: SelectOutput<Nested, NestedSelect>
+						: SelectOutput<Nested, NestedSelect, WithVersion>
 
 				: never
 
