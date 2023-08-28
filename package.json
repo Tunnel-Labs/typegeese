@@ -4,7 +4,8 @@
 	"type": "module",
 	"exports": "./src/index.ts",
 	"scripts": {
-		"build": "ts-node ./scripts/build.ts"
+		"build": "ts-node ./scripts/build.ts",
+		"test": "vitest run"
 	},
 	"peerDependencies": {
 		"mongoose": "^7"
@@ -21,6 +22,7 @@
 		"lionconfig": "^3.1.1",
 		"mongoose": "^7.4.4",
 		"onetime": "^6.0.0",
+		"rollup-plugin-tilde-imports": "^1.0.1",
 		"typescript": "^5.2.2",
 		"vitest": "^0.34.3"
 	}
