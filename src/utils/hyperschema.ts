@@ -12,6 +12,8 @@ import mapObject from "map-obj";
 import { Mongoose, PreMiddlewareFunction, Query } from "mongoose";
 import { applyHyperschemaMigrationsToDocument } from "~/utils/migration.js";
 import { getVersionFromSchema } from "~/utils/version.js";
+import { recursivelyAddSelectVersionToPopulateObject } from "~/utils/populate.js";
+import { PopulateObject } from "~/types/populate.js";
 
 export function normalizeHyperschema<Hyperschema>(
   hyperschema: Hyperschema
@@ -259,22 +261,39 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
     >();
 
     const selectVersion = function (this: any) {
-			// TODO: we also have to select the `_version` key in nested `populate` calls
       this.select("_version");
+
+      // We also have to make sure the `_version` key is selected in nested `populate` calls
+      for (const populateObject of Object.values(
+        this._mongooseOptions.populate ?? {}
+      )) {
+        recursivelyAddSelectVersionToPopulateObject(
+          populateObject as PopulateObject
+        );
+      }
     };
 
     // Make sure that we always select the `_version` field (since we need this field in our migration hook)
     pre("find", selectVersion)(hyperschema.schema as any);
     pre("findOne", selectVersion)(hyperschema.schema as any);
 
-    function migrate(this: any, result: any, next: any) {
-      const resultArray = Array.isArray(result) ? result : [result];
+    async function migrate({
+      modelName,
+      result,
+    }: {
+      modelName: string;
+      result:
+        | { _id: string; _version: number }
+        | Array<{ _id: string; _version: number }>;
+    }) {
+      const resultArray: Record<number, { _id: string; _version: number }> =
+        Array.isArray(result) ? result : [result];
       const migrateDocumentPromises: Promise<{
         updatedProperties: Record<string, unknown>;
       }>[] = [];
 
-      for (const result of resultArray) {
-				if (result === undefined || result === null) continue;
+      for (const [resultArrayIndex, result] of Object.entries(resultArray)) {
+        if (result === undefined || result === null) continue;
 
         if (result._id === undefined) {
           throw new Error("The `_id` field must be present");
@@ -284,7 +303,33 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
           throw new Error("The `_version` field must be present");
         }
 
-				// TODO: we also have to check nested properties from `populate` calls
+        // We check to see if the result has any nested documents that need to be migrated
+        for (const [propertyKey, propertyValue] of Object.entries(result)) {
+          if (
+            typeof propertyValue === "object" &&
+            propertyValue !== null &&
+            "_version" in propertyValue
+          ) {
+            const nestedModel = getModelWithString(modelName);
+            if (nestedModel === undefined) {
+              throw new Error(`Could not find model "${modelName}"`);
+            }
+
+            const nestedModelName =
+              nestedModel.schema.paths[propertyKey]?.options?.ref;
+            if (nestedModelName === undefined) {
+              throw new Error(
+                `Could not find model name for property "${propertyKey}" on model "${modelName}"`
+              );
+            }
+
+            await migrate({
+              modelName: nestedModelName,
+              result: propertyValue as any,
+            });
+          }
+        }
+
         if (result._version !== getVersionFromSchema(hyperschema.schema)) {
           if (documentIdToMigrationPromise.has(result._id)) {
             // Prevents an infinite loop with this migration hook
@@ -304,56 +349,80 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
             });
 
             documentIdToMigrationPromise.set(result._id, migrationPromise);
-            migrateDocumentPromises.push(migrationPromise);
+            migrateDocumentPromises[Number(resultArrayIndex)] =
+              migrationPromise;
           }
         }
       }
 
       if (migrateDocumentPromises.length === 0) {
-        next();
+        return;
       } else {
-        Promise.all(migrateDocumentPromises)
-          .then(async (migrateDocumentResults) =>
-            Promise.all(
-              migrateDocumentResults.map(async ({ updatedProperties }) => {
-                for (const [propertyKey, propertyValue] of Object.entries(
-                  updatedProperties
-                )) {
-                  // Only add the property to the result if it has been included in the projection
-                  if (this._userProvidedFields[propertyKey]) {
-                    result[propertyKey] = propertyValue;
-                  }
-                }
+        const migrateDocumentResults = await Promise.all(
+          migrateDocumentPromises
+        );
 
-                const hyperschemaModel = getModelWithString(
-                  hyperschema.schemaName
-                )!;
-                // Update the documents in MongoDB
-                await hyperschemaModel.findOneAndUpdate(
-                  {
-                    _id: result._id,
-                    // We explicitly specify `_version` here in case the document has already been migrated by another process
-                    _version: result._version,
+        await Promise.all(
+          migrateDocumentResults.map(
+            async (migrateDocumentResult, resultArrayIndex) => {
+              if (migrateDocumentResult === undefined) return;
+
+              const result = resultArray[resultArrayIndex];
+              // TODO: this should error
+              if (result === undefined) return;
+
+              const { updatedProperties } = migrateDocumentResult;
+
+              for (const [propertyKey, propertyValue] of Object.entries(
+                updatedProperties
+              )) {
+                // TODO: only add the property to the result if it has been included in the projection
+                // if (this._userProvidedFields[propertyKey]) {
+                (result as any)[propertyKey] = propertyValue;
+                // }
+              }
+
+              const hyperschemaModel = getModelWithString(
+                hyperschema.schemaName
+              )!;
+              // Update the documents in MongoDB
+              await hyperschemaModel.findOneAndUpdate(
+                {
+                  _id: result._id,
+                  // We explicitly specify `_version` here in case the document has already been migrated by another process
+                  _version: result._version,
+                },
+                {
+                  $set: {
+                    ...updatedProperties,
+                    _version: getVersionFromSchema(hyperschema.schema),
                   },
-                  {
-                    $set: {
-                      ...updatedProperties,
-                      _version: getVersionFromSchema(hyperschema.schema),
-                    },
-                  }
-                );
+                }
+              );
 
-                documentIdToMigrationPromise.delete(result._id);
-              })
-            )
+              documentIdToMigrationPromise.delete(result._id);
+            }
           )
-          .then(() => next())
-          .catch((error) => next(error));
+        );
       }
     }
 
-    post("findOne", migrate)(hyperschema.schema as any);
-    post("find", migrate)(hyperschema.schema as any);
+    post("findOne", function (result, next) {
+      migrate({
+        modelName: hyperschema.schemaName,
+        result,
+      })
+        .then(() => next())
+        .catch((error) => next(error));
+    })(hyperschema.schema as any);
+    post("find", function (result, next) {
+      migrate({
+        modelName: hyperschema.schemaName,
+        result,
+      })
+        .then(() => next())
+        .catch((error) => next(error));
+    })(hyperschema.schema as any);
   }
 
   // Register the models for each schema (this is intentionally done after processing all the schemas so that all the hooks have been registered by now)
