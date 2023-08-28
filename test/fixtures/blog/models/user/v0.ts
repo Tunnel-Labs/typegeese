@@ -1,7 +1,7 @@
-import { ModelSchema, VirtualForeignRef, prop } from "~/index.js";
+import { ModelSchema, PropType, VirtualForeignRef, prop } from "~/index.js";
 
 import { virtualForeignRef } from "../../utils/refs.js";
-import { Post } from "../post/$schema.js";
+import type { Comment, Post } from "../$schemas.js";
 
 export class User extends ModelSchema("v0") {
   @prop({
@@ -16,6 +16,9 @@ export class User extends ModelSchema("v0") {
   })
   public name?: string;
 
-  @prop(virtualForeignRef("User", "Post", "author"))
+  @prop(virtualForeignRef("Post", "author", "_id"), PropType.ARRAY)
   public posts!: VirtualForeignRef<User, Post, "author">[];
+
+  @prop(virtualForeignRef("Comment", "author", "_id"), PropType.ARRAY)
+  public authoredComments!: VirtualForeignRef<User, Comment, "author">[];
 }

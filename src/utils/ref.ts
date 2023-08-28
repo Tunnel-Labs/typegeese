@@ -1,9 +1,23 @@
-import type { ModelRef } from "~/types/refs.js";
+import type { ForeignRef, VirtualForeignRef } from "~/types/refs.js";
 
-export function useForeignRefs<Models>() {
-  function foreignRef<T extends keyof Models>(
+export function useForeignRefs<Schemas>() {
+  function foreignRef<T extends keyof Schemas>(
     model: T,
-    foreignField: Models[T] extends ModelRef<infer M> ? keyof M : never,
+    foreignField: keyof {
+      [Field in keyof InstanceType<
+        // @ts-expect-error: Works
+        Schemas[T]
+      > as InstanceType<
+        // @ts-expect-error: Works
+        Schemas[T]
+      >[Field] extends
+        | ForeignRef<infer M, any, any>
+        | ForeignRef<infer M, any, any>[]
+        | VirtualForeignRef<infer M, any, any>
+        | VirtualForeignRef<infer M, any, any>[]
+        ? Field
+        : never]: true;
+    },
     options: { required: boolean }
   ) {
     return {
@@ -14,9 +28,21 @@ export function useForeignRefs<Models>() {
     };
   }
 
-  function virtualForeignRef<T extends keyof Models>(
+  function virtualForeignRef<T extends keyof Schemas>(
     model: T,
-    foreignField: Models[T] extends ModelRef<infer M> ? keyof M : never,
+    foreignField: keyof {
+      [Field in keyof InstanceType<
+        // @ts-expect-error: Works
+        Schemas[T]
+      > as InstanceType<
+        // @ts-expect-error: Works
+        Schemas[T]
+      >[Field] extends
+        | ForeignRef<infer M, any, any>
+        | ForeignRef<infer M, any, any>[]
+        ? Field
+        : never]: true;
+    },
     localField: "_id"
   ) {
     return {

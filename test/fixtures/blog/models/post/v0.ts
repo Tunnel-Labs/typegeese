@@ -1,6 +1,12 @@
-import { ForeignRef, ModelSchema, prop } from "~/index.js";
-import type { User } from "./user.js";
-import { foreignRef } from "../utils/refs.js";
+import {
+  ForeignRef,
+  ModelSchema,
+  PropType,
+  VirtualForeignRef,
+  prop,
+} from "~/index.js";
+import type { Comment, User } from "../$schemas.js";
+import { foreignRef, virtualForeignRef } from "../../utils/refs.js";
 
 export class Post extends ModelSchema("v0") {
   @prop({
@@ -15,12 +21,9 @@ export class Post extends ModelSchema("v0") {
   })
   public content: string;
 
-  @prop({
-    type: () => Boolean,
-    required: true,
-  })
-  public published!: boolean;
-
-  @prop(foreignRef("Post", "User", "_id"))
+  @prop(foreignRef("User", "posts", { required: true }))
   public author!: ForeignRef<Post, User, "posts">;
+
+  @prop(virtualForeignRef("Comment", "post", "_id"), PropType.ARRAY)
+  public comments!: VirtualForeignRef<Post, Comment, "post">;
 }

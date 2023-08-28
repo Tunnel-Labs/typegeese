@@ -1,15 +1,17 @@
 import {
   ModelSchema,
+  PropType,
   VirtualForeignRef,
   defineMigration,
+  getModelForClass,
   prop,
 } from "~/index.js";
 
 import { virtualForeignRef } from "../../utils/refs.js";
-import { Post } from "../post/$schema.js";
+import type { Post, Comment } from "../$schemas.js";
 import * as UserV0 from "./v0.js";
 
-export class User extends ModelSchema("v0") {
+export class User extends ModelSchema("v1-add-username") {
   @prop({
     type: () => String,
     required: true,
@@ -28,8 +30,11 @@ export class User extends ModelSchema("v0") {
   })
   public username!: string;
 
-  @prop(virtualForeignRef("User", "Post", "author"))
+  @prop(virtualForeignRef("Post", "author", "_id"), PropType.ARRAY)
   public posts!: VirtualForeignRef<User, Post, "author">[];
+
+  @prop(virtualForeignRef("Comment", "author", "_id"), PropType.ARRAY)
+  public authoredComments!: VirtualForeignRef<User, Comment, "author">[];
 }
 
 export const migration = defineMigration<typeof UserV0, User>(UserV0, {
@@ -38,7 +43,7 @@ export const migration = defineMigration<typeof UserV0, User>(UserV0, {
   },
   migrations: {
     async username() {
-      this.username = this.email.split("@")[0];
+      return this.email.split("@")[0] ?? "user";
     },
   },
 });
