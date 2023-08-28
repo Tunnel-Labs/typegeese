@@ -3,6 +3,7 @@ import {
   PropType,
   VirtualForeignRef,
   defineMigration,
+  defineOnForeignModelDeletedActions,
   getModelForClass,
   prop,
 } from "~/index.js";
@@ -47,3 +48,6 @@ export const User_migration = defineMigration<typeof UserV0, User>(UserV0, {
     },
   },
 });
+
+export const User_onForeignModelDeletedActions =
+  defineOnForeignModelDeletedActions<User>({});
