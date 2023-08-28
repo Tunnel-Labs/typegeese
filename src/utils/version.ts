@@ -22,7 +22,7 @@ export function getVersionFromSchema(schema: Schema): number {
   const version = Reflect.getOwnMetadata(
     "typegoose:properties",
     Object.getPrototypeOf((schema as any).prototype)
-  )?.get("_version")?.options?.default;
+  )?.get("_v")?.options?.default;
 
   if (version === undefined) {
     throw new Error(`Could not determine version from schema: ${schema}`);

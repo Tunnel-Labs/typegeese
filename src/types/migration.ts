@@ -23,7 +23,7 @@ export type IsSupersetKey<
 	CurrentModel,
 	Key extends keyof ExcludeVirtualForeignRefs<CurrentModel>
 > =
-	Key extends '_version'
+	Key extends '_v'
 		? true
 		: Key extends keyof PreviousModel
 			? CurrentModel[Key] extends Deprecated<infer T>
@@ -51,8 +51,8 @@ export interface NotSupersetError<Message, _Keys> {
 
 // prettier-ignore
 export type MigrationFunctions<PreviousModel, CurrentModel> =
-	'_version' extends keyof CurrentModel
-		? CurrentModel['_version'] extends 'v0'
+	'_v' extends keyof CurrentModel
+		? CurrentModel['_v'] extends 'v0'
 			? null
 		: NonSupersetKeys<PreviousModel, CurrentModel> extends never
 		? {

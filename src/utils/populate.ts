@@ -10,7 +10,7 @@ export function recursivelyAddSelectVersionToPopulateObject(
       );
     }
 
-    populateObject.select._version = 1;
+    populateObject.select._v = 1;
   }
 
   if (populateObject.populate !== undefined) {

@@ -261,9 +261,9 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
     >();
 
     const selectVersion = function (this: any) {
-      this.select("_version");
+      this.select("_v");
 
-      // We also have to make sure the `_version` key is selected in nested `populate` calls
+      // We also have to make sure the `_v` key is selected in nested `populate` calls
       for (const populateObject of Object.values(
         this._mongooseOptions.populate ?? {}
       )) {
@@ -273,7 +273,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
       }
     };
 
-    // Make sure that we always select the `_version` field (since we need this field in our migration hook)
+    // Make sure that we always select the `_v` field (since we need this field in our migration hook)
     pre("find", selectVersion)(hyperschema.schema as any);
     pre("findOne", selectVersion)(hyperschema.schema as any);
 
@@ -283,10 +283,10 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
     }: {
       modelName: string;
       result:
-        | { _id: string; _version: number }
-        | Array<{ _id: string; _version: number }>;
+        | { _id: string; _v: number }
+        | Array<{ _id: string; _v: number }>;
     }) {
-      const resultArray: Record<number, { _id: string; _version: number }> =
+      const resultArray: Record<number, { _id: string; _v: number }> =
         Array.isArray(result) ? result : [result];
       const migrateDocumentPromises: Promise<{
         updatedProperties: Record<string, unknown>;
@@ -299,8 +299,8 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
           throw new Error("The `_id` field must be present");
         }
 
-        if (result._version === undefined) {
-          throw new Error("The `_version` field must be present");
+        if (result._v === undefined) {
+          throw new Error("The `_v` field must be present");
         }
 
         // We check to see if the result has any nested documents that need to be migrated
@@ -308,7 +308,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
           if (
             typeof propertyValue === "object" &&
             propertyValue !== null &&
-            "_version" in propertyValue
+            "_v" in propertyValue
           ) {
             const nestedModel = getModelWithString(modelName);
             if (nestedModel === undefined) {
@@ -330,7 +330,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
           }
         }
 
-        if (result._version !== getVersionFromSchema(hyperschema.schema)) {
+        if (result._v !== getVersionFromSchema(hyperschema.schema)) {
           if (documentIdToMigrationPromise.has(result._id)) {
             // Prevents an infinite loop with this migration hook
             continue;
@@ -339,7 +339,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
               meta,
               documentMetadata: {
                 _id: result._id,
-                _version: result._version,
+                _v: result._v,
               },
               hyperschema,
               /**
@@ -389,13 +389,13 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
               await hyperschemaModel.findOneAndUpdate(
                 {
                   _id: result._id,
-                  // We explicitly specify `_version` here in case the document has already been migrated by another process
-                  _version: result._version,
+                  // We explicitly specify `_v` here in case the document has already been migrated by another process
+                  _v: result._v,
                 },
                 {
                   $set: {
                     ...updatedProperties,
-                    _version: getVersionFromSchema(hyperschema.schema),
+                    _v: getVersionFromSchema(hyperschema.schema),
                   },
                 }
               );

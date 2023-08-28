@@ -21,7 +21,7 @@ export async function applyHyperschemaMigrationsToDocument({
   meta: any;
   documentMetadata: {
     _id: string;
-    _version: number;
+    _v: number;
   };
   hyperschema: NormalizedHyperschema<any>;
   updatedProperties: Record<string, unknown>;
@@ -29,7 +29,7 @@ export async function applyHyperschemaMigrationsToDocument({
   const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
 
   // If the hyperschema version is greater than the document version, then we should apply the previous hyperschema migration before the current one
-  if (hyperschemaVersion > documentMetadata._version) {
+  if (hyperschemaVersion > documentMetadata._v) {
     applyHyperschemaMigrationsToDocument({
       meta,
       updatedProperties,
@@ -59,7 +59,7 @@ export function defineMigration<
   PreviousHyperschema,
   CurrentSchema extends ModelSchema,
 >(
-  ...args: IsEqual<CurrentSchema["_version"], 0> extends true
+  ...args: IsEqual<CurrentSchema["_v"], 0> extends true
     ? [previousHyperschema: null]
     : [
         previousHyperschema: PreviousHyperschema,

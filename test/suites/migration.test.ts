@@ -13,10 +13,10 @@ test("supports migrations using populate", async () => {
 
   const user = await UserModel.create({
     _id: createId(),
-    _version: 0,
+    _v: 0,
     name: "John Doe",
     email: "johndoe@example.com",
-  } satisfies Omit<CreateInput<User>, "username"> & { _version: 0 });
+  } satisfies Omit<CreateInput<User>, "username"> & { _v: 0 });
 
   const posts = await PostModel.create([
     {
