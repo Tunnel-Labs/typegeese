@@ -37,7 +37,7 @@ export class User extends ModelSchema("v1-add-username") {
   public authoredComments!: VirtualForeignRef<User, Comment, "author">[];
 }
 
-export const migration = defineMigration<typeof UserV0, User>(UserV0, {
+export const User_migration = defineMigration<typeof UserV0, User>(UserV0, {
   async getDocument({ _id }) {
     return getModelForClass(User).findOne({ _id });
   },
