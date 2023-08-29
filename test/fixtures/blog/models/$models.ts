@@ -5,7 +5,7 @@ import * as UserV0Hyperschema from "./user/v0.js";
 import * as UserHyperschema from "./user/$schema.js";
 import * as CommentHyperschema from "./comment/$schema.js";
 import * as PostHyperschema from "./post/$schema.js";
-import { getMongoose } from "~test/fixtures/blog/utils/mongoose.js";
+import { getMongoose } from "~test/utils/mongoose.js";
 import onetime from "onetime";
 
 export const getModels = onetime(async () => {
