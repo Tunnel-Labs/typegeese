@@ -1,7 +1,7 @@
 import {
 	ForeignRef,
 	ModelSchema,
-	defineMigration,
+	createMigration,
 	defineOnForeignModelDeletedActions,
 	prop
 } from '~/index.js';
@@ -22,7 +22,7 @@ export class Comment extends ModelSchema('v0') {
 	public post!: ForeignRef<Comment, Post, 'comments'>;
 }
 
-export const Comment_migration = defineMigration<null, Comment>(null);
+export const Comment_migration = createMigration<null, Comment>(null);
 
 export const Comment_onForeignModelDeletedActions =
 	defineOnForeignModelDeletedActions<Comment>({

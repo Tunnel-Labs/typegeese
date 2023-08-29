@@ -3,7 +3,7 @@ import {
 	ModelSchema,
 	PropType,
 	VirtualForeignRef,
-	defineMigration,
+	createMigration,
 	defineOnForeignModelDeletedActions,
 	prop
 } from '~/index.js';
@@ -30,7 +30,7 @@ export class Post extends ModelSchema('v0') {
 	public comments!: VirtualForeignRef<Post, Comment, 'post'>;
 }
 
-export const Post_migration = defineMigration<null, Post>(null);
+export const Post_migration = createMigration<null, Post>(null);
 
 export const Post_onForeignModelDeletedActions =
 	defineOnForeignModelDeletedActions<Post>({

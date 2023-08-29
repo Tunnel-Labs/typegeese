@@ -16,7 +16,7 @@ export { defineOnForeignModelDeletedActions } from './utils/delete.js';
 export { defineSchemaOptions } from './utils/schema.js';
 export { deprecated } from './utils/deprecated.js';
 export { loadHyperschemas } from './utils/hyperschema.js';
-export { defineMigration } from './utils/migration.js';
+export { createMigration } from './utils/migration.js';
 export { ModelSchema } from './classes/index.js';
 export { useForeignRefs } from './utils/ref.js';
 export { applySelect } from './utils/select.js';

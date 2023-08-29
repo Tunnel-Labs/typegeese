@@ -70,7 +70,7 @@ export class User extends ModelSchema("v0") {
   public posts!: VirtualForeignRef<User, Post, "author">[];
 }
 
-export const migration = defineMigration<typeof UserV0, User>(UserV0, {
+export const migration = createMigration<typeof UserV0, User>(UserV0, {
   // The read-only document to use for the migration
   async getDocument({ _id }) {
     return getModelForClass('User').findOne({ _id });

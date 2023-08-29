@@ -1,9 +1,4 @@
-import { getModelWithString } from '@typegoose/typegoose';
-import {
-	MigrationConfig,
-	MigrationData,
-	MigrationFunctions
-} from '~/types/migration.js';
+import { MigrationData, MigrationFunctions } from '~/types/migration.js';
 import { NormalizedHyperschema } from '~/types/hyperschema.js';
 import { getVersionFromSchema } from '~/utils/version.js';
 import { normalizeHyperschema } from '~/utils/hyperschema.js';
@@ -59,46 +54,47 @@ export async function applyHyperschemaMigrationsToDocument({
 	return { updatedProperties };
 }
 
-export function defineMigration<
-	PreviousHyperschema,
-	CurrentSchema extends ModelSchema
->(
-	previousHyperschema: IsEqual<CurrentSchema['_v'], 0> extends true
-		? null
-		: PreviousHyperschema
+export function createMigration<CurrentSchema extends ModelSchema>(
+	...args: IsEqual<CurrentSchema['_v'], 0> extends true ? [null] : []
 ): {
-	with: <DataType>(getData: Promisable<DataType>) => {
-		migrate(
-			migrationFunctions: MigrationFunctions<
-				NormalizedHyperschema<PreviousHyperschema>['schema'],
-				CurrentSchema,
-				DataType
-			>
-		): MigrationData;
+	from: <PreviousHyperschema>(previousHyperschema: PreviousHyperschema) => {
+		with: <DataType>(
+			getData: (args: { _id: string }) => Promisable<DataType>
+		) => {
+			migrate(
+				migrationFunctions: MigrationFunctions<
+					NormalizedHyperschema<PreviousHyperschema>['schema'],
+					CurrentSchema,
+					DataType
+				>
+			): MigrationData;
+		};
 	};
 } {
 	if (args[0] === null) {
 		return {
-			async getDocument() {},
-			migrationFunctions: {},
-			previousHyperschema: null!
+			from: () => ({
+				with: () => ({
+					migrate: () => ({
+						getData() {},
+						migrationFunctions: {},
+						previousHyperschema: null!
+					})
+				})
+			})
 		};
 	}
 
-	if (previousHyperschema === undefined) {
-		throw new Error('The previous hyperschema must be provided');
-	}
-
-	if (migrationConfig === undefined) {
-		throw new Error('Migration configuration must be provided');
-	}
-
-	const previousNormalizedHyperschema =
-		normalizeHyperschema(previousHyperschema);
-
 	return {
-		getDocument: migrationConfig.getDocument,
-		previousHyperschema: previousNormalizedHyperschema as any,
-		migrationFunctions: migrationConfig.migrations as any
+		from: (previousHyperschema) => ({
+			with: (getData) => ({
+				migrate: (migrationFunctions) =>
+					({
+						getData,
+						migrationFunctions,
+						previousHyperschema: normalizeHyperschema(previousHyperschema)
+					}) as any
+			})
+		})
 	};
 }
