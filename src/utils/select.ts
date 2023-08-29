@@ -109,7 +109,9 @@ export async function select<
 	const populateArray = [];
 	for (const [path, queryInput] of Object.entries(topLevelFieldsToPopulate)) {
 		const ref =
+			// @ts-expect-error: exists at runtime
 			query.model.schema.tree[path]?.options?.ref ??
+			// @ts-expect-error: exists at runtime
 			query.model.schema.tree[path]?.ref;
 
 		if (ref === undefined) {
@@ -121,6 +123,7 @@ export async function select<
 		}
 
 		const fieldModel = getModelWithString(ref);
+		// @ts-expect-error: exists at runtime
 		const foreignField = query.model.schema.tree[path]?.options?.foreignField;
 
 		populateArray.push(

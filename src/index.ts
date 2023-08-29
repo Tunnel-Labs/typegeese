@@ -9,6 +9,7 @@ export type * from './types/hyperschema.js';
 export type * from './types/migration.js';
 export type { Ref } from './types/ref.js';
 export type * from './types/refs.js';
+export type * from './types/schema.js';
 export type * from './types/select.js';
 export type * from './types/selections.js';
 
