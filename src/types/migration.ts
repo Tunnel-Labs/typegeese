@@ -2,18 +2,18 @@ import type { DocumentType } from '@typegoose/typegoose';
 import type { Promisable } from 'type-fest';
 import type { Deprecated } from '~/types/deprecated.js';
 import type { NormalizedHyperschema } from '~/types/hyperschema.js';
-import type { ModelSchema } from '~/classes/index.js';
 import type { VirtualForeignRef } from '~/types/refs.js';
+import { CreateType } from '~/types/create.js';
 
 export type Diff<T, V> = {
 	[P in Exclude<keyof T, keyof V>]: T[P];
 };
 
+// prettier-ignore
 export type ExcludeVirtualForeignRefs<Model> = {
-	[K in keyof Model as Model[K] extends VirtualForeignRef<any, any, any>
-		? never
-		: Model[K] extends VirtualForeignRef<any, any, any>[]
-		? never
+	[K in keyof Model as
+		  Model[K] extends VirtualForeignRef<any, any, any> ? never
+		: Model[K] extends VirtualForeignRef<any, any, any>[] ? never
 		: K]: Model[K];
 };
 
@@ -52,19 +52,19 @@ export interface NotSupersetError<Message, _Keys> {
 
 // prettier-ignore
 export type MigrationFunctions<PreviousModel, CurrentModel, DataType> =
-	'_v' extends keyof CurrentModel
-		? CurrentModel['_v'] extends 'v0'
-			? null
-		: NonSupersetKeys<PreviousModel, CurrentModel> extends never
-		? {
-				[K in keyof Diff<
-					ExcludeVirtualForeignRefs<CurrentModel>,
-					ExcludeVirtualForeignRefs<PreviousModel>
-				>]: (
-					this: DataType
-				) => Promisable<CurrentModel[K]>;
-			}
-		: NotSupersetError<'The current model must be a superset of the previous model in order to be backwards-compatible; the following keys are incompatible:', NonSupersetKeys<PreviousModel, CurrentModel>>
+	'_v' extends keyof CurrentModel ?
+		CurrentModel['_v'] extends 'v0' ?
+			  null
+			: NonSupersetKeys<PreviousModel, CurrentModel> extends never ?
+				  {
+						[K in keyof Diff<
+							ExcludeVirtualForeignRefs<CurrentModel>,
+							ExcludeVirtualForeignRefs<PreviousModel>
+						>]: (
+							this: DataType
+						) => Promisable<CreateType<CurrentModel[K]>>;
+					}
+				: NotSupersetError<'The current model must be a superset of the previous model in order to be backwards-compatible; the following keys are incompatible:', NonSupersetKeys<PreviousModel, CurrentModel>>
 	: never
 
 export interface MigrationData {
