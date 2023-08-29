@@ -8,8 +8,6 @@ Opinionated schema types and utilities built on top of the amazing [Typegoose](<
 
 **Hyperschema:** An object containing a schema, migrations, and the  on foreign model delete actions.
 
-**Hypermodel:** A model augmented with migrations and delete behavior.
-
 ## Migrations
 
 Typegeese comes with support for built-in schema migrations. It does this by adding a `_v` property to every document that tracks the document's current schema version.
@@ -41,9 +39,9 @@ export class User extends ModelSchema("v0") {
 
 ```typescript
 // user/v1.ts
-import { ModelSchema, VirtualForeignRef, prop } from "~/index.js";
+import { ModelSchema, VirtualForeignRef, prop, select } from "typegeese";
 
-import { virtualForeignRef } from "../../utils/refs.js";
+import { virtualForeignRef } from "~/utils/refs.js";
 import { Post } from "../post/$schema.js";
 import * as UserV0 from './v0.ts'
 
@@ -72,9 +70,18 @@ export class User extends ModelSchema("v0") {
 
 export const migration = createMigration<User>()
   .from(UserV0)
-  .with(({ _id }) => getModelForClass('User').findOne({ _id }).lean().exec())
+  .with(({ _id }) => {
+    const UserV0Model = getModelForHyperschema(UserV0)
+    const user = await select(
+      UserV0Model.findById(_id),
+      { email: true }
+    )
+    if (user === null) throw new Error('User not found')
+    return user
+  })
   .migrate({
-    async username() {
+    username() {
+      // `this` is fully typed!
       return this.email.split("@")[0];
     }
   })
