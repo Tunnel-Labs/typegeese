@@ -56,7 +56,7 @@ export class User extends ModelSchema("v0") {
   })
   public email!: string;
 
-  @prop({
+  @prop(  {
     type: () => String,
     required: false,
   })

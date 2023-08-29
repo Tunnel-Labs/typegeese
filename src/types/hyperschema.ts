@@ -1,4 +1,5 @@
 import type { SchemaOptions } from 'mongoose';
+import { InstanceTypeOrSelf } from '~/types/instance-type.js';
 
 export type GetSchemaKeyFromHyperschema<Hyperschema> = Exclude<
 	keyof Hyperschema,
@@ -12,9 +13,9 @@ export type GetSchemaKeyFromHyperschema<Hyperschema> = Exclude<
 
 export type GetSchemaFromHyperschema<Hyperschema> =
 	GetSchemaKeyFromHyperschema<Hyperschema> extends keyof Hyperschema
-		? InstanceType<
+		? InstanceTypeOrSelf<
 				// @ts-expect-error: Works
-				Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>]
+				Exclude<Hyperschema[GetSchemaKeyFromHyperschema<Hyperschema>], string>
 		  >
 		: never;
 
