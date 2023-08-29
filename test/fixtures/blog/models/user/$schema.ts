@@ -1,1 +1,1 @@
-export * from './v1-add-username.js'
+export * from './v1-add-username.js';

@@ -1,38 +1,38 @@
 import {
-  ForeignRef,
-  ModelSchema,
-  PropType,
-  VirtualForeignRef,
-  defineMigration,
-  defineOnForeignModelDeletedActions,
-  prop,
-} from "~/index.js";
-import type { Comment, User } from "../$schemas.js";
-import { foreignRef, virtualForeignRef } from "../../utils/refs.js";
+	ForeignRef,
+	ModelSchema,
+	PropType,
+	VirtualForeignRef,
+	defineMigration,
+	defineOnForeignModelDeletedActions,
+	prop
+} from '~/index.js';
+import type { Comment, User } from '../$schemas.js';
+import { foreignRef, virtualForeignRef } from '../../utils/refs.js';
 
-export class Post extends ModelSchema("v0") {
-  @prop({
-    type: () => String,
-    required: true,
-  })
-  public title: string;
+export class Post extends ModelSchema('v0') {
+	@prop({
+		type: () => String,
+		required: true
+	})
+	public title: string;
 
-  @prop({
-    type: () => String,
-    required: true,
-  })
-  public content: string;
+	@prop({
+		type: () => String,
+		required: true
+	})
+	public content: string;
 
-  @prop(foreignRef("User", "posts", { required: true }))
-  public author!: ForeignRef<Post, User, "posts">;
+	@prop(foreignRef('User', 'posts', { required: true }))
+	public author!: ForeignRef<Post, User, 'posts'>;
 
-  @prop(virtualForeignRef("Comment", "post", "_id"), PropType.ARRAY)
-  public comments!: VirtualForeignRef<Post, Comment, "post">;
+	@prop(virtualForeignRef('Comment', 'post', '_id'), PropType.ARRAY)
+	public comments!: VirtualForeignRef<Post, Comment, 'post'>;
 }
 
 export const Post_migration = defineMigration<null, Post>(null);
 
 export const Post_onForeignModelDeletedActions =
-  defineOnForeignModelDeletedActions<Post>({
-    author: "Cascade",
-  });
+	defineOnForeignModelDeletedActions<Post>({
+		author: 'Cascade'
+	});

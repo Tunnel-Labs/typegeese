@@ -6,12 +6,8 @@
 		"rootDir": "src",
 		"experimentalDecorators": true,
 		"paths": {
-			"~/*": [
-				"./src/*"
-			]
+			"~/*": ["./src/*"]
 		}
 	},
-	"include": [
-		"./src"
-	]
+	"include": ["./src"]
 }

@@ -1,5 +1,5 @@
-import { SchemaOptions } from "mongoose";
+import { SchemaOptions } from 'mongoose';
 
 export function defineSchemaOptions(schemaOptions: SchemaOptions) {
-  return schemaOptions;
+	return schemaOptions;
 }

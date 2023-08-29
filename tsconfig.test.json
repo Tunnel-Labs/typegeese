@@ -6,7 +6,7 @@
 		"experimentalDecorators": true,
 		"paths": {
 			"~/*": ["./src/*"],
-			"~test/*": ["./test/*"],
+			"~test/*": ["./test/*"]
 		}
 	},
 	"include": ["./src", "./test"]

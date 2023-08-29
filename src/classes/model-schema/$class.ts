@@ -1,5 +1,5 @@
-import { prop } from "@typegoose/typegoose";
-import { versionStringToVersionNumber } from "~/utils/version.js";
+import { prop } from '@typegoose/typegoose';
+import { versionStringToVersionNumber } from '~/utils/version.js';
 
 export interface ModelSchema {
 	_id: string;
@@ -7,22 +7,22 @@ export interface ModelSchema {
 }
 
 export function ModelSchema<V extends string>(version: V) {
-  const versionNumber = versionStringToVersionNumber(version);
+	const versionNumber = versionStringToVersionNumber(version);
 
-  class Schema {
-    @prop({
-      type: () => String,
-      required: true,
-    })
-    public _id!: string;
+	class Schema {
+		@prop({
+			type: () => String,
+			required: true
+		})
+		public _id!: string;
 
-    @prop({
-      type: () => Number,
-      default: versionNumber,
-      required: true,
-    })
-    public _v!: V extends "v0" ? 0 : number;
-  }
+		@prop({
+			type: () => Number,
+			default: versionNumber,
+			required: true
+		})
+		public _v!: V extends 'v0' ? 0 : number;
+	}
 
-  return Schema;
+	return Schema;
 }
