@@ -282,9 +282,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
       result,
     }: {
       modelName: string;
-      result:
-        | { _id: string; _v: number }
-        | Array<{ _id: string; _v: number }>;
+      result: { _id: string; _v: number } | Array<{ _id: string; _v: number }>;
     }) {
       const resultArray: Record<number, { _id: string; _v: number }> =
         Array.isArray(result) ? result : [result];
@@ -292,7 +290,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
         updatedProperties: Record<string, unknown>;
       }>[] = [];
 
-      for (const [resultArrayIndex, result] of Object.entries(resultArray)) {
+      for (let [resultArrayIndex, result] of Object.entries(resultArray)) {
         if (result === undefined || result === null) continue;
 
         if (result._id === undefined) {
@@ -301,6 +299,10 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
         if (result._v === undefined) {
           throw new Error("The `_v` field must be present");
+        }
+
+        if ("_doc" in result) {
+          result = result._doc as any;
         }
 
         // We check to see if the result has any nested documents that need to be migrated

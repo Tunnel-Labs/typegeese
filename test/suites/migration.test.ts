@@ -18,32 +18,31 @@ beforeAll(async () => {
 test("supports migrations using populate", async () => {
   const { CommentModel, PostModel, UserModel } = await getModels();
 
-  const user = new UserModel({
-    _id: createId(),
+  const userId = createId();
+  await UserModel.collection.insertOne({
+    _id: userId as any,
     _v: 0,
     name: "John Doe",
     email: "johndoe@example.com",
   } satisfies Omit<CreateInput<UserV0>, "username"> & { _v: 0 });
 
-  await user.save({ validateBeforeSave: false });
-
   const posts = await PostModel.create([
     {
       _id: createId(),
       title: "Post 1",
-      author: user.id,
+      author: userId,
       content: "This is the first post.",
     },
     {
       _id: createId(),
       title: "Post 2",
-      author: user.id,
+      author: userId,
       content: "This is the second post.",
     },
     {
       _id: createId(),
       title: "Post 3",
-      author: user.id,
+      author: userId,
       content: "This is the third post.",
     },
   ] satisfies CreateInput<Post>[]);
@@ -51,37 +50,37 @@ test("supports migrations using populate", async () => {
   const comments = await CommentModel.create([
     {
       _id: createId(),
-      author: user.id,
+      author: userId,
       post: posts[0]!.id,
       text: "This is the first comment on the first post.",
     },
     {
       _id: createId(),
-      author: user.id,
+      author: userId,
       post: posts[0]!.id,
       text: "This is the first comment on the second post.",
     },
     {
       _id: createId(),
-      author: user.id,
+      author: userId,
       post: posts[0]!.id,
       text: "This is the first comment on the third post.",
     },
     {
       _id: createId(),
-      author: user.id,
+      author: userId,
       post: posts[1]!.id,
       text: "This is the second comment on the first post.",
     },
     {
       _id: createId(),
-      author: user.id,
+      author: userId,
       post: posts[1]!.id,
       text: "This is the second comment on the second post.",
     },
     {
       _id: createId(),
-      author: user.id,
+      author: userId,
       post: posts[2]!.id,
       text: "This is the third comment on the third post.",
     },
