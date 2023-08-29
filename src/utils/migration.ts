@@ -55,48 +55,43 @@ export async function applyHyperschemaMigrationsToDocument({
 
 export function createMigration<CurrentSchema extends ModelSchema>(
 	...args: IsEqual<CurrentSchema['_v'], 0> extends true ? [null] : []
-): {
-	from: <PreviousHyperschema>(previousHyperschema: PreviousHyperschema) => {
-		with: <DataType>(
-			getData: (
-				this: { meta: any },
-				args: { _id: string }
-			) => Promisable<DataType>
-		) => {
-			migrate(
-				migrationFunctions: MigrationFunctions<
-					NormalizedHyperschema<PreviousHyperschema>['schema'],
-					CurrentSchema,
-					DataType
-				>
-			): MigrationData;
-		};
-	};
-} {
+): IsEqual<CurrentSchema['_v'], 0> extends true
+	? MigrationData
+	: {
+			from: <PreviousHyperschema>(previousHyperschema: PreviousHyperschema) => {
+				with: <DataType>(
+					getData: (
+						this: { meta: any },
+						args: { _id: string }
+					) => Promisable<DataType>
+				) => {
+					migrate(
+						migrationFunctions: MigrationFunctions<
+							NormalizedHyperschema<PreviousHyperschema>['schema'],
+							CurrentSchema,
+							DataType
+						>
+					): MigrationData;
+				};
+			};
+	  } {
 	if (args[0] === null) {
 		return {
-			from: () => ({
-				with: () => ({
-					migrate: () => ({
-						getData() {},
-						migrationFunctions: {},
-						previousHyperschema: null!
-					})
-				})
-			})
-		};
+			getData() {},
+			migrationFunctions: {},
+			previousHyperschema: null!
+		} as any;
 	}
 
 	return {
-		from: (previousHyperschema) => ({
-			with: (getData) => ({
-				migrate: (migrationFunctions) =>
-					({
-						getData,
-						migrationFunctions,
-						previousHyperschema: normalizeHyperschema(previousHyperschema)
-					}) as any
+		from: (previousHyperschema: any) => ({
+			with: (getData: any) => ({
+				migrate: (migrationFunctions: any) => ({
+					getData,
+					migrationFunctions,
+					previousHyperschema: normalizeHyperschema(previousHyperschema)
+				})
 			})
 		})
-	};
+	} as any;
 }
