@@ -14,12 +14,14 @@ Typegeese comes with support for built-in schema migrations. It does this by add
 
 ```typescript
 // user/v0.ts
-import { ModelSchema, VirtualForeignRef, prop } from "~/index.js";
+import { ModelSchema, VirtualForeignRef, prop, PropType } from "typegeese";
 
 import { virtualForeignRef } from "../../utils/refs.js";
 import { Post } from "../post/$schema.js";
 
 export class User extends ModelSchema("v0") {
+  declare __self: User;
+
   @prop({
     type: () => String,
     required: true,
@@ -32,20 +34,22 @@ export class User extends ModelSchema("v0") {
   })
   public name?: string;
 
-  @prop(virtualForeignRef("User", "Post", "author"))
+  @prop(virtualForeignRef("Post", "User", "_id"), PropType.ARRAY)
   public posts!: VirtualForeignRef<User, Post, "author">[];
 }
 ```
 
 ```typescript
 // user/v1.ts
-import { ModelSchema, VirtualForeignRef, prop, select } from "typegeese";
+import { ModelSchema, VirtualForeignRef, prop, select, getModelForHyperschema } from "typegeese";
 
 import { virtualForeignRef } from "~/utils/refs.js";
 import { Post } from "../post/$schema.js";
 import * as UserV0 from './v0.ts'
 
 export class User extends ModelSchema("v0") {
+  declare __self: User;
+
   @prop({
     type: () => String,
     required: true,
@@ -64,7 +68,7 @@ export class User extends ModelSchema("v0") {
   })
   public username!: string;
 
-  @prop(virtualForeignRef("User", "Post", "author"))
+  @prop(virtualForeignRef("Post", "author", "_id"), PropType.ARRAY)
   public posts!: VirtualForeignRef<User, Post, "author">[];
 }
 
