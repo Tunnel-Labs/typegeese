@@ -37,8 +37,7 @@ export async function applyHyperschemaMigrationsToDocument({
 		});
 	}
 
-	// To prevent `getDocument` from triggering the migration hook and ending in an infinite loop, we wrap the _id in a `String` object.
-	const document = await hyperschema.migration.getDocument.call(
+	const document = await hyperschema.migration.getData.call(
 		{ meta },
 		{ _id: documentMetadata._id }
 	);
@@ -59,7 +58,10 @@ export function createMigration<CurrentSchema extends ModelSchema>(
 ): {
 	from: <PreviousHyperschema>(previousHyperschema: PreviousHyperschema) => {
 		with: <DataType>(
-			getData: (args: { _id: string }) => Promisable<DataType>
+			getData: (
+				this: { meta: any },
+				args: { _id: string }
+			) => Promisable<DataType>
 		) => {
 			migrate(
 				migrationFunctions: MigrationFunctions<
