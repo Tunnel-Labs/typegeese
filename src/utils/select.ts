@@ -1,8 +1,10 @@
 import { getModelWithString } from '@typegoose/typegoose';
 import { includeKeys } from 'filter-obj';
 import mapObject, { mapObjectSkip } from 'map-obj';
+import { QueryWithHelpers } from 'mongoose';
+import { GetSchemaFromQuery } from '~/types/schema.js';
 
-import type { SelectInput } from '~/types/select.js';
+import type { SelectInput, SelectOutput } from '~/types/select.js';
 
 /**
 	@example ```javascript
@@ -21,10 +23,13 @@ import type { SelectInput } from '~/types/select.js';
 		)
 	```
 */
-export async function select<T>(
-	doc: any,
-	topLevelSelect: SelectInput<T>
-): Promise<{ found: false } | { found: true; data: any }> {
+export async function select<
+	Query extends QueryWithHelpers<any, any>,
+	const Select extends SelectInput<GetSchemaFromQuery<Query>>
+>(
+	query: Query,
+	topLevelSelect: Select
+): Promise<SelectOutput<GetSchemaFromQuery<Query>, Select>> {
 	const topLevelFieldsToSelect = {
 		...mapObject(topLevelSelect, (key) =>
 			key !== '_count' ? ([key, 1] as [string, 1]) : mapObjectSkip
@@ -32,7 +37,7 @@ export async function select<T>(
 		_id: true
 	};
 
-	doc.select(mapObject(topLevelFieldsToSelect, (key) => [key, 1]));
+	query.select(mapObject(topLevelFieldsToSelect, (key) => [key, 1]));
 
 	const topLevelFieldsToPopulate = includeKeys(
 		topLevelSelect,
@@ -104,28 +109,27 @@ export async function select<T>(
 	const populateArray = [];
 	for (const [path, queryInput] of Object.entries(topLevelFieldsToPopulate)) {
 		const ref =
-			doc.model.schema.tree[path]?.options?.ref ??
-			doc.model.schema.tree[path]?.ref;
+			query.model.schema.tree[path]?.options?.ref ??
+			query.model.schema.tree[path]?.ref;
 
 		if (ref === undefined) {
 			throw new Error(
 				`Could not determine \`ref\` for path "${path}" on model "${
-					doc.model.modelName as string
+					query.model.modelName as string
 				}"`
 			);
 		}
 
 		const fieldModel = getModelWithString(ref);
-		const foreignField = doc.model.schema.tree[path]?.options?.foreignField;
+		const foreignField = query.model.schema.tree[path]?.options?.foreignField;
 
 		populateArray.push(
 			getPopulateObject(fieldModel, path, queryInput as any, foreignField)
 		);
 	}
 
-	doc.populate(populateArray);
+	query.populate(populateArray);
 
-	const result = await doc.lean().exec();
-
-	return result === null ? { found: false } : { found: true, data: result };
+	const result = await query.lean().exec();
+	return result as any;
 }

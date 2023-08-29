@@ -27,10 +27,10 @@ export class Post extends ModelSchema('v0') {
 	public author!: ForeignRef<Post, User, 'posts'>;
 
 	@prop(virtualForeignRef('Comment', 'post', '_id'), PropType.ARRAY)
-	public comments!: VirtualForeignRef<Post, Comment, 'post'>;
+	public comments!: VirtualForeignRef<Post, Comment, 'post'>[];
 }
 
-export const Post_migration = createMigration<null, Post>(null);
+export const Post_migration = createMigration<Post>(null);
 
 export const Post_onForeignModelDeletedActions =
 	defineOnForeignModelDeletedActions<Post>({

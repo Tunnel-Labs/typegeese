@@ -1,10 +1,6 @@
 import { beforeAll, expect, test } from 'vitest';
-import { CreateInput, select } from '~/index.js';
-import type {
-	User,
-	Post,
-	Comment
-} from '~test/fixtures/blog/models/$schemas.js';
+import { CreateInput, SelectOutput, select } from '~/index.js';
+import type { Post, Comment } from '~test/fixtures/blog/models/$schemas.js';
 import { createId } from '@paralleldrive/cuid2';
 import { getModels } from '~test/fixtures/blog/models/$models.js';
 import { getMongoose } from '~test/utils/mongoose.js';
@@ -99,9 +95,5 @@ test('supports migrations using populate', async () => {
 		}
 	});
 
-	if (!post.found) throw new Error('Post not found');
-
-	console.log(post.data);
-
-	expect(post.data.comments[0].author.username).toBe('johndoe');
+	expect(post.comments[0]!.author.username).toBe('johndoe');
 });

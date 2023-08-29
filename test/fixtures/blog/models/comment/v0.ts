@@ -22,7 +22,7 @@ export class Comment extends ModelSchema('v0') {
 	public post!: ForeignRef<Comment, Post, 'comments'>;
 }
 
-export const Comment_migration = createMigration<null, Comment>(null);
+export const Comment_migration = createMigration<Comment>(null);
 
 export const Comment_onForeignModelDeletedActions =
 	defineOnForeignModelDeletedActions<Comment>({
