@@ -4,6 +4,7 @@ import type { Deprecated } from '~/types/deprecated.js';
 import type { NormalizedHyperschema } from '~/types/hyperschema.js';
 import type { VirtualForeignRef } from '~/types/refs.js';
 import { CreateType } from '~/types/create.js';
+import { IsVirtualForeignRef, IsVirtualForeignRefArray } from '~/types/ref.js';
 
 export type Diff<T, V> = {
 	[P in Exclude<keyof T, keyof V>]: T[P];
@@ -12,8 +13,8 @@ export type Diff<T, V> = {
 // prettier-ignore
 export type ExcludeVirtualForeignRefs<Model> = {
 	[K in keyof Model as
-		  Model[K] extends VirtualForeignRef<any, any, any> ? never
-		: Model[K] extends VirtualForeignRef<any, any, any>[] ? never
+		  IsVirtualForeignRef<Model[K]> extends true ? never
+		: IsVirtualForeignRefArray<Model[K]> extends true ? never
 		: K]: Model[K];
 };
 

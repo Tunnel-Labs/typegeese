@@ -1,12 +1,12 @@
 import type { Deprecated } from '~/types/deprecated.js';
-import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
+import { IsForeignRef, IsForeignRefArray } from '~/types/ref.js';
 
 // prettier-ignore
 export type CreateType<FieldType> =
 	  FieldType extends Deprecated[] ? never[]
 	: FieldType extends Deprecated ? FieldType
-	: NonNullable<FieldType> extends ForeignRef<any, any, any>[] ? string[]
-	: NonNullable<FieldType> extends ForeignRef<any, any, any>
+	: IsForeignRefArray<FieldType> extends true ? string[]
+	: IsForeignRef<FieldType> extends true
 		? string | (null extends FieldType ? null : never)
 	: FieldType
 
@@ -17,8 +17,8 @@ export type CreateInput<Model> = {
 		: K extends '__self' ? never
 		: Model[K] extends Deprecated[] ? K
 		: Model[K] extends Deprecated ? K
-		: NonNullable<Model[K]> extends VirtualForeignRef<any, any, any> ? never
-		: NonNullable<Model[K]> extends VirtualForeignRef<any, any, any>[] ? never
+		: IsForeignRefArray<Model[K]> extends true ? never
+		: IsForeignRef<Model[K]> extends true ? never
 		: K
 	]: CreateType<Model[K]>
 };
