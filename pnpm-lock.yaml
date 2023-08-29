@@ -13,7 +13,7 @@ importers:
         version: 2.2.2
       '@typegoose/typegoose':
         specifier: ^11.4.1
-        version: 11.4.1(mongoose@7.4.4)
+        version: 11.4.1(mongoose@7.4.5)
       deepmerge-ts:
         specifier: ^5.1.0
         version: 5.1.0
@@ -31,8 +31,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(typescript@5.2.2)
       mongoose:
-        specifier: ^7.4.4
-        version: 7.4.4
+        specifier: ^7.4.5
+        version: 7.4.5
       onetime:
         specifier: ^6.0.0
         version: 6.0.0
@@ -1472,7 +1472,7 @@ packages:
     resolution: {integrity: sha512-RDDZFuofwkcKpl8Vpj5wFbY+H53xOtqK7ckEL1sXsbPwvKwDdjQf3LkHbtt9sxIHn9nWIEwkmCwBRZ6z5TKU2A==}
     dev: true
 
-  /@typegoose/typegoose@11.4.1(mongoose@7.4.4):
+  /@typegoose/typegoose@11.4.1(mongoose@7.4.5):
     resolution: {integrity: sha512-mOMEUBaxnSYtnGWAMsduh1+4MeJHpYN2+rhZ5rHq9mKRT8Ix3nsR0QWEnFIIqTnksL0Yt3Ww7Qj8IFzWhoIyoQ==}
     engines: {node: '>=14.17.0'}
     peerDependencies:
@@ -1480,7 +1480,7 @@ packages:
     dependencies:
       lodash: 4.17.21
       loglevel: 1.8.1
-      mongoose: 7.4.4
+      mongoose: 7.4.5
       reflect-metadata: 0.1.13
       semver: 7.5.4
       tslib: 2.6.2
@@ -5718,8 +5718,8 @@ packages:
     optionalDependencies:
       saslprep: 1.0.3
 
-  /mongoose@7.4.4:
-    resolution: {integrity: sha512-LOOviiEqWOLH4PuBK+jbpm5vjBkdSNBcP/4UCevOJMTl5SXSbCXr68ulEYcthLcN2/xi08452HupKD8BfxNIQw==}
+  /mongoose@7.4.5:
+    resolution: {integrity: sha512-X7Mw7KHUYZmyOQmlu7D9TnZh/3vOrAYmZwEpXDU0VDvLPKT0T7PF6blwiv3aXOEMwv9T3rLTC9lJb3C5dWld2A==}
     engines: {node: '>=14.20.1'}
     dependencies:
       bson: 5.4.0

@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { beforeAll, expect, test } from "vitest";
 import { CreateInput, applySelect } from "~/index.js";
 import type {
   User,
@@ -7,16 +7,25 @@ import type {
 } from "~test/fixtures/blog/models/$schemas.js";
 import { createId } from "@paralleldrive/cuid2";
 import { getModels } from "~test/fixtures/blog/models/$models.js";
+import { getMongoose } from "~test/utils/mongoose.js";
+import type { UserV0 } from "~test/fixtures/blog/models/user/v0.js";
+
+beforeAll(async () => {
+  const mongoose = await getMongoose();
+  mongoose.connection.db.dropDatabase();
+});
 
 test("supports migrations using populate", async () => {
-  const { CommentModel, PostModel, UserV0Model } = await getModels();
+  const { CommentModel, PostModel, UserModel } = await getModels();
 
-  const user = await UserV0Model.create({
+  const user = new UserModel({
     _id: createId(),
     _v: 0,
     name: "John Doe",
     email: "johndoe@example.com",
-  } satisfies Omit<CreateInput<User>, "username"> & { _v: 0 });
+  } satisfies Omit<CreateInput<UserV0>, "username"> & { _v: 0 });
+
+  await user.save({ validateBeforeSave: false });
 
   const posts = await PostModel.create([
     {
@@ -92,6 +101,8 @@ test("supports migrations using populate", async () => {
   });
 
   if (!post.found) throw new Error("Post not found");
+
+  console.log(post.data);
 
   expect(post.data.comments[0].author.username).toBe("johndoe");
 });
