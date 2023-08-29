@@ -20,7 +20,7 @@ export function normalizeHyperschema<Hyperschema>(
 	if (typeof hyperschema === 'object' && hyperschema !== null) {
 		// If the `schemaName` property is present, the hyperschema is already normalized
 		if ('schemaName' in hyperschema) {
-			return hyperschema;
+			return hyperschema as any;
 		}
 
 		const migrationKey = Object.keys(hyperschema).find(
