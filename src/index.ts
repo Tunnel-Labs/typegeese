@@ -14,6 +14,7 @@ export type * from './types/schema.js';
 export type * from './types/select.js';
 export type * from './types/selections.js';
 export type * from './types/query.js';
+export type * from './utils/selection.js';
 
 export { defineOnForeignModelDeletedActions } from './utils/delete.js';
 export { defineSchemaOptions } from './utils/schema.js';
