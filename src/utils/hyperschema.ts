@@ -14,32 +14,6 @@ import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
 import { PopulateObject } from '~/types/populate.js';
 
-export function getModelForHyperschema<Hyperschema>(
-	unnormalizedHyperschema: Hyperschema,
-	{
-		mongoose
-	}: {
-		mongoose: Mongoose;
-	}
-): ReturnType<
-	typeof getModelForClass<{
-		new (): NormalizedHyperschema<Hyperschema>['schema'];
-	}>
-> {
-	const hyperschema = normalizeHyperschema(unnormalizedHyperschema);
-	const model = getModelForClass(hyperschema.schema as any, {
-		existingMongoose: mongoose,
-		schemaOptions: {
-			collection: hyperschema.schemaName
-		},
-		options: {
-			disableCaching: true
-		}
-	});
-
-	return model;
-}
-
 export function normalizeHyperschema<Hyperschema>(
 	hyperschema: Hyperschema
 ): NormalizedHyperschema<Hyperschema> {
