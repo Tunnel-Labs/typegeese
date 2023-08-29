@@ -39,6 +39,7 @@ export type NonSupersetKeys<PreviousModel, CurrentModel> = keyof {
 	[K in keyof ExcludeVirtualForeignRefs<PreviousModel> as IsSupersetKey<
 		PreviousModel,
 		CurrentModel,
+		// @ts-expect-error: works
 		K
 	> extends false
 		? K
