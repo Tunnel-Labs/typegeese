@@ -61,8 +61,12 @@ function createMigrateFunction({
 					propertyValue !== null &&
 					'_v' in propertyValue
 				) {
-					const nestedModelName =
-						hyperschema.schema.paths[propertyKey]?.options?.ref;
+					const propMap = Reflect.getOwnMetadata(
+						'typegoose:properties',
+						hyperschema.schema.prototype
+					);
+
+					const nestedModelName = propMap.get(propertyKey)?.options?.ref;
 
 					if (nestedModelName === undefined) {
 						throw new Error(
