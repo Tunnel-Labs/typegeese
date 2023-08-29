@@ -19,7 +19,11 @@ export type * from './utils/selection.js';
 export { defineOnForeignModelDeletedActions } from './utils/delete.js';
 export { defineSchemaOptions } from './utils/schema.js';
 export { deprecated } from './utils/deprecated.js';
-export { loadHyperschemas } from './utils/hyperschema.js';
+export {
+	loadHyperschemas,
+	getModelForHyperschema,
+	normalizeHyperschema
+} from './utils/hyperschema.js';
 export { createMigration } from './utils/migration.js';
 export { ModelSchema } from './classes/index.js';
 export { useForeignRefs } from './utils/ref.js';

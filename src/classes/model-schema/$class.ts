@@ -9,7 +9,7 @@ export interface ModelSchema {
 export function ModelSchema<V extends string>(version: V) {
 	const versionNumber = versionStringToVersionNumber(version);
 
-	class Schema {
+	abstract class Schema {
 		@prop({
 			type: () => String,
 			required: true
@@ -22,6 +22,11 @@ export function ModelSchema<V extends string>(version: V) {
 			required: true
 		})
 		public _v!: V extends 'v0' ? 0 : number;
+
+		/**
+			This property is needed so that TypeScript can access the type of the schema
+		*/
+		abstract __self: any;
 	}
 
 	return Schema;

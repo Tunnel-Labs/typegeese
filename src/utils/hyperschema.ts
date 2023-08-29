@@ -10,158 +10,34 @@ import {
 } from '@typegoose/typegoose';
 import mapObject from 'map-obj';
 import { Mongoose, PreMiddlewareFunction, Query } from 'mongoose';
-import { applyHyperschemaMigrationsToDocument } from '~/utils/migration.js';
-import { getVersionFromSchema } from '~/utils/version.js';
+import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
 import { PopulateObject } from '~/types/populate.js';
 
-function createMigrateFunction({
-	hyperschemas,
-	meta
-}: {
-	hyperschemas: Record<string, NormalizedHyperschema<any>>;
-	meta: any;
-}) {
-	return async function migrate({
-		hyperschema,
-		result
+export function getModelForHyperschema<Hyperschema>(
+	unnormalizedHyperschema: Hyperschema,
+	{
+		mongoose
 	}: {
-		hyperschema: NormalizedHyperschema<any>;
-		result: { _id: string; _v: number } | Array<{ _id: string; _v: number }>;
-	}) {
-		const documentIdToMigrationPromise = new Map<
-			string,
-			Promise<{ updatedProperties: Record<string, unknown> }>
-		>();
-		const resultArray: Record<number, { _id: string; _v: number }> =
-			Array.isArray(result) ? result : [result];
-		const migrateDocumentPromises: Promise<{
-			updatedProperties: Record<string, unknown>;
-		}>[] = [];
-
-		for (let [resultArrayIndex, result] of Object.entries(resultArray)) {
-			if (result === undefined || result === null) continue;
-
-			if (result._id === undefined) {
-				throw new Error('The `_id` field must be present');
-			}
-
-			if (result._v === undefined) {
-				throw new Error('The `_v` field must be present');
-			}
-
-			if ('_doc' in result) {
-				result = result._doc as any;
-			}
-
-			// We check to see if the result has any nested documents that need to be migrated
-			for (const [propertyKey, propertyValue] of Object.entries(result)) {
-				if (
-					typeof propertyValue === 'object' &&
-					propertyValue !== null &&
-					'_v' in propertyValue
-				) {
-					const propMap = Reflect.getOwnMetadata(
-						'typegoose:properties',
-						hyperschema.schema.prototype
-					);
-
-					const nestedModelName = propMap.get(propertyKey)?.options?.ref;
-
-					if (nestedModelName === undefined) {
-						throw new Error(
-							`Could not find model name for property "${propertyKey}" on model "${nestedModelName}"`
-						);
-					}
-
-					const nestedHyperschema = hyperschemas[nestedModelName];
-
-					if (nestedHyperschema === undefined) {
-						throw new Error(
-							`Could not find hyperschema for model "${nestedModelName}"`
-						);
-					}
-
-					await migrate({
-						hyperschema: nestedHyperschema,
-						result: propertyValue as any
-					});
-				}
-			}
-
-			if (result._v !== getVersionFromSchema(hyperschema.schema)) {
-				if (documentIdToMigrationPromise.has(result._id)) {
-					// Prevents an infinite loop with this migration hook
-					continue;
-				} else {
-					const migrationPromise = applyHyperschemaMigrationsToDocument({
-						meta,
-						documentMetadata: {
-							_id: result._id,
-							_v: result._v
-						},
-						hyperschema,
-						/**
-								Keeps track of the all the properties that have been updated so we can update the result array with them (if they have been selected).
-							*/
-						updatedProperties: {}
-					});
-
-					documentIdToMigrationPromise.set(result._id, migrationPromise);
-					migrateDocumentPromises[Number(resultArrayIndex)] = migrationPromise;
-				}
-			}
+		mongoose: Mongoose;
+	}
+): ReturnType<
+	typeof getModelForClass<{
+		new (): NormalizedHyperschema<Hyperschema>['schema'];
+	}>
+> {
+	const hyperschema = normalizeHyperschema(unnormalizedHyperschema);
+	const model = getModelForClass(hyperschema.schema as any, {
+		existingMongoose: mongoose,
+		schemaOptions: {
+			collection: hyperschema.schemaName
+		},
+		options: {
+			disableCaching: true
 		}
+	});
 
-		if (migrateDocumentPromises.length === 0) {
-			return;
-		} else {
-			const migrateDocumentResults = await Promise.all(migrateDocumentPromises);
-
-			await Promise.all(
-				migrateDocumentResults.map(
-					async (migrateDocumentResult, resultArrayIndex) => {
-						if (migrateDocumentResult === undefined) return;
-
-						const result = resultArray[resultArrayIndex];
-						// TODO: this should error
-						if (result === undefined) return;
-
-						const { updatedProperties } = migrateDocumentResult;
-
-						for (const [propertyKey, propertyValue] of Object.entries(
-							updatedProperties
-						)) {
-							// TODO: only add the property to the result if it has been included in the projection
-							// if (this._userProvidedFields[propertyKey]) {
-							(result as any)[propertyKey] = propertyValue;
-							// }
-						}
-
-						const hyperschemaModel = getModelWithString(
-							hyperschema.schemaName
-						)!;
-						// Update the documents in MongoDB
-						await hyperschemaModel.findOneAndUpdate(
-							{
-								_id: result._id,
-								// We explicitly specify `_v` here in case the document has already been migrated by another process
-								_v: result._v
-							},
-							{
-								$set: {
-									...updatedProperties,
-									_v: getVersionFromSchema(hyperschema.schema)
-								}
-							}
-						);
-
-						documentIdToMigrationPromise.delete(result._id);
-					}
-				)
-			);
-		}
-	};
+	return model;
 }
 
 export function normalizeHyperschema<Hyperschema>(

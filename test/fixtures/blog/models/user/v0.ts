@@ -11,6 +11,8 @@ import { virtualForeignRef } from '../../utils/refs.js';
 import type { Comment, Post } from '../$schemas.js';
 
 export class UserV0 extends ModelSchema('v0') {
+	__self: UserV0;
+
 	@prop({
 		type: () => String,
 		required: true

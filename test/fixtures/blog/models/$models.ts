@@ -1,6 +1,4 @@
-import { ReturnModelType, getModelWithString } from '@typegoose/typegoose';
-import { User, Comment, Post } from './$schemas.js';
-import { loadHyperschemas } from '~/index.js';
+import { getModelForHyperschema, loadHyperschemas } from '~/index.js';
 import * as UserHyperschema from './user/$schema.js';
 import * as CommentHyperschema from './comment/$schema.js';
 import * as PostHyperschema from './post/$schema.js';
@@ -19,17 +17,9 @@ export const getModels = onetime(async () => {
 		{ mongoose }
 	);
 
-	const UserModel = getModelWithString('User') as ReturnModelType<
-		new () => typeof User
-	>;
-
-	const CommentModel = getModelWithString('Comment') as ReturnModelType<
-		new () => typeof Comment
-	>;
-
-	const PostModel = getModelWithString('Post') as ReturnModelType<
-		new () => typeof Post
-	>;
+	const UserModel = getModelForHyperschema(UserHyperschema, { mongoose });
+	const CommentModel = getModelForHyperschema(CommentHyperschema, { mongoose });
+	const PostModel = getModelForHyperschema(PostHyperschema, { mongoose });
 
 	return {
 		UserModel,

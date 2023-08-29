@@ -23,17 +23,17 @@ export type IsSupersetKey<
 	CurrentModel,
 	Key extends keyof ExcludeVirtualForeignRefs<CurrentModel>
 > =
-	Key extends '_v'
-		? true
-		: Key extends keyof PreviousModel
-			? CurrentModel[Key] extends Deprecated<infer T>
-				? T extends PreviousModel[Key]
-					? true
-					: false
-				: CurrentModel[Key] extends PreviousModel[Key]
+	  Key extends '_v' ? true
+	: Key extends '__self' ? true
+	: Key extends keyof PreviousModel
+		? CurrentModel[Key] extends Deprecated<infer T>
+			? T extends PreviousModel[Key]
 				? true
 				: false
-		: true;
+			: CurrentModel[Key] extends PreviousModel[Key]
+			? true
+			: false
+	: true;
 
 export type NonSupersetKeys<PreviousModel, CurrentModel> = keyof {
 	[K in keyof ExcludeVirtualForeignRefs<PreviousModel> as IsSupersetKey<

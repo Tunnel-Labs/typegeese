@@ -1,22 +1,27 @@
 import {
-	IsSupersetKey,
-	MigrationFunctions,
+	ArrayInnerValue,
+	IObjectWithTypegooseFunction,
 	ModelSchema,
-	NonSupersetKeys,
-	NormalizedHyperschema,
 	PropType,
 	VirtualForeignRef,
 	defineOnForeignModelDeletedActions,
-	prop
+	getModelForClass,
+	getModelForHyperschema,
+	prop,
+	select
 } from '~/index.js';
 
 import { virtualForeignRef } from '../../utils/refs.js';
 import type { Post, Comment } from '../$schemas.js';
 import * as UserV0 from './v0.js';
-import { getModels } from '~test/fixtures/blog/models/$models.js';
 import { createMigration } from '~/utils/migration.js';
+import { getMongoose } from '~test/utils/mongoose.js';
+import { Document } from 'mongoose';
+import { Class, Simplify } from 'type-fest';
 
 export class User extends ModelSchema('v1-add-username') {
+	__self!: User;
+
 	@prop({
 		type: () => String,
 		required: true
@@ -45,8 +50,13 @@ export class User extends ModelSchema('v1-add-username') {
 export const User_migration = createMigration<User>()
 	.from(UserV0)
 	.with(async ({ _id }) => {
-		const { UserModel } = await getModels();
-		const user = await UserModel.findById(_id, { email: 1 }).lean().exec();
+		const UserV0Model = getModelForHyperschema(UserV0, {
+			mongoose: await getMongoose()
+		});
+
+		const query = UserV0Model.findById(_id)
+
+		const user = await select(UserV0Model.findById(_id), { email: true });
 		return user as unknown as { email: string };
 	})
 	.migrate({

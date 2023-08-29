@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from 'vitest';
-import { CreateInput, select } from '~/index.js';
+import { ArrayInnerValue, CreateInput, select } from '~/index.js';
 import type { Post, Comment } from '~test/fixtures/blog/models/$schemas.js';
 import { createId } from '@paralleldrive/cuid2';
 import { getModels } from '~test/fixtures/blog/models/$models.js';

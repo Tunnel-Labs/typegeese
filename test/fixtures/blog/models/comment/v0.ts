@@ -9,6 +9,8 @@ import type { Post, User } from '../$schemas.js';
 import { foreignRef } from '../../utils/refs.js';
 
 export class Comment extends ModelSchema('v0') {
+	__self!: Comment;
+
 	@prop({
 		type: () => String,
 		required: true
