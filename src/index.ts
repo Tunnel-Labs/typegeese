@@ -20,7 +20,7 @@ export { loadHyperschemas } from './utils/hyperschema.js';
 export { createMigration } from './utils/migration.js';
 export { ModelSchema } from './classes/index.js';
 export { useForeignRefs } from './utils/ref.js';
-export { select, select as project } from './utils/select.js';
+export { select, select as applySelect } from './utils/select.js';
 export {
 	createSelectionFunction,
 	defineSelectionMappings,
