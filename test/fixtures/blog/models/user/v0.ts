@@ -10,8 +10,8 @@ import {
 import { virtualForeignRef } from '../../utils/refs.js';
 import type { Comment, Post } from '../$schemas.js';
 
-export class UserV0 extends ModelSchema('v0') {
-	__self: UserV0;
+export class User extends ModelSchema('v0') {
+	__self: User;
 
 	@prop({
 		type: () => String,
@@ -26,13 +26,13 @@ export class UserV0 extends ModelSchema('v0') {
 	public name?: string;
 
 	@prop(virtualForeignRef('Post', 'author', '_id'), PropType.ARRAY)
-	public posts!: VirtualForeignRef<UserV0, Post, 'author'>[];
+	public posts!: VirtualForeignRef<User, Post, 'author'>[];
 
 	@prop(virtualForeignRef('Comment', 'author', '_id'), PropType.ARRAY)
-	public authoredComments!: VirtualForeignRef<UserV0, Comment, 'author'>[];
+	public authoredComments!: VirtualForeignRef<User, Comment, 'author'>[];
 }
 
-export const User_migration = createMigration<UserV0>(null);
+export const User_migration = createMigration<User>(null);
 
 export const User_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<UserV0>({});
+	defineOnForeignModelDeletedActions<User>({});

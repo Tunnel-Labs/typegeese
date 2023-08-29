@@ -29,7 +29,7 @@ export async function applyHyperschemaMigrationsToDocument({
 	const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
 
 	// If the hyperschema version is more than one greater than the document version, then we should apply the previous hyperschema migration before the current one
-	if (hyperschemaVersion - 1 > documentMetadata._v) {
+	if (hyperschemaVersion > documentMetadata._v) {
 		applyHyperschemaMigrationsToDocument({
 			meta,
 			updatedProperties,
@@ -43,12 +43,14 @@ export async function applyHyperschemaMigrationsToDocument({
 		{ _id: documentMetadata._id }
 	);
 
-	// Applying the hyperschema's migrations
-	for (const [property, getProperty] of Object.entries(
-		hyperschema.migration.migrationFunctions
-	)) {
-		const value = await (getProperty as any).call(data);
-		updatedProperties[property] = value;
+	if (data !== null) {
+		// Applying the hyperschema's migrations
+		for (const [property, getProperty] of Object.entries(
+			hyperschema.migration.migrationFunctions
+		)) {
+			const value = await (getProperty as any).call(data);
+			updatedProperties[property] = value;
+		}
 	}
 
 	return { updatedProperties };
@@ -70,7 +72,7 @@ export function createMigration<CurrentSchema extends ModelSchema>(
 						migrationFunctions: MigrationFunctions<
 							NormalizedHyperschema<PreviousHyperschema>['schema'],
 							CurrentSchema,
-							DataType
+							NonNullable<DataType>
 						>
 					): MigrationData;
 				};

@@ -49,10 +49,11 @@ export const User_migration = createMigration<User>()
 			mongoose: await getMongoose()
 		});
 
-		const query = UserV0Model.findById(_id);
-
 		const user = await select(UserV0Model.findById(_id), { email: true });
-		return user as unknown as { email: string };
+
+		if (user === null) throw new Error(`User "${_id}" not found.`);
+
+		return user;
 	})
 	.migrate({
 		async username() {

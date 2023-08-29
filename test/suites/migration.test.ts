@@ -1,10 +1,10 @@
 import { beforeAll, expect, test } from 'vitest';
-import { ArrayInnerValue, CreateInput, select } from '~/index.js';
+import { CreateInput, select } from '~/index.js';
 import type { Post, Comment } from '~test/fixtures/blog/models/$schemas.js';
 import { createId } from '@paralleldrive/cuid2';
 import { getModels } from '~test/fixtures/blog/models/$models.js';
 import { getMongoose } from '~test/utils/mongoose.js';
-import type { UserV0 } from '~test/fixtures/blog/models/user/v0.js';
+import type { User as UserV0 } from '~test/fixtures/blog/models/user/v0.js';
 
 beforeAll(async () => {
 	const mongoose = await getMongoose();
