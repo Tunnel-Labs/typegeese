@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from 'vitest';
-import { CreateInput, applySelect } from '~/index.js';
+import { CreateInput, select } from '~/index.js';
 import type {
 	User,
 	Post,
@@ -86,7 +86,7 @@ test('supports migrations using populate', async () => {
 		}
 	] satisfies CreateInput<Comment>[]);
 
-	const post = await applySelect(PostModel.findById(posts[0]!.id), {
+	const post = await select(PostModel.findById(posts[0]!.id), {
 		comments: {
 			select: {
 				author: {

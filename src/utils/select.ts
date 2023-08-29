@@ -6,7 +6,7 @@ import type { SelectInput } from '~/types/select.js';
 
 /**
 	@example ```javascript
-		applySelect(
+		select(
 			UserModel.findById(userId),
 			{
 				_id: true,
@@ -21,7 +21,7 @@ import type { SelectInput } from '~/types/select.js';
 		)
 	```
 */
-export async function applySelect<T>(
+export async function select<T>(
 	doc: any,
 	topLevelSelect: SelectInput<T>
 ): Promise<{ found: false } | { found: true; data: any }> {
