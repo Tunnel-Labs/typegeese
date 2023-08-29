@@ -1,6 +1,7 @@
 // This line is needed in order to prevent "type not portable" errors
 export type * from '@typegoose/typegoose/lib/types.js';
 
+export type * from './types/array.js';
 export type * from './types/create.js';
 export type * from './types/delete.js';
 export type * from './types/deprecated.js';
@@ -12,6 +13,7 @@ export type * from './types/refs.js';
 export type * from './types/schema.js';
 export type * from './types/select.js';
 export type * from './types/selections.js';
+export type * from './types/query.js';
 
 export { defineOnForeignModelDeletedActions } from './utils/delete.js';
 export { defineSchemaOptions } from './utils/schema.js';

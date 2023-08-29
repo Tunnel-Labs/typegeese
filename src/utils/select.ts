@@ -2,6 +2,7 @@ import { getModelWithString } from '@typegoose/typegoose';
 import { includeKeys } from 'filter-obj';
 import mapObject, { mapObjectSkip } from 'map-obj';
 import { QueryWithHelpers } from 'mongoose';
+import { IsManyQuery } from '~/types/query.js';
 import { GetSchemaFromQuery } from '~/types/schema.js';
 
 import type { SelectInput, SelectOutput } from '~/types/select.js';
@@ -29,7 +30,11 @@ export async function select<
 >(
 	query: Query,
 	topLevelSelect: Select
-): Promise<SelectOutput<GetSchemaFromQuery<Query>, Select>> {
+): Promise<
+	IsManyQuery<Query> extends true
+		? SelectOutput<GetSchemaFromQuery<Query>, Select>[]
+		: SelectOutput<GetSchemaFromQuery<Query>, Select> | null
+> {
 	const topLevelFieldsToSelect = {
 		...mapObject(topLevelSelect, (key) =>
 			key !== '_count' ? ([key, 1] as [string, 1]) : mapObjectSkip

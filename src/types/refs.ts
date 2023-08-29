@@ -1,5 +1,6 @@
 import type { Ref } from '~/types/ref.js';
 import type { Opaque } from 'type-fest';
+import { ArrayInnerValue } from '~/types/array.js';
 
 // eslint-disable-next-line @typescript-eslint/ban-types -- All we need is the `name` parameter
 export interface ModelRef<Model> {
@@ -14,13 +15,13 @@ export interface ForeignRef<
 	HostModel,
 	ForeignModel,
 	_ForeignField extends keyof {
-		[Field in keyof ForeignModel as NonNullable<ForeignModel[Field]> extends
-			| ForeignRef<ForeignModel, HostModel, any>
-			| ForeignRef<ForeignModel, HostModel, any>[]
+		[Field in keyof ForeignModel as NonNullable<
+			ArrayInnerValue<ForeignModel[Field]>
+		> extends ForeignRef<ForeignModel, HostModel, any>
 			? Field
-			: NonNullable<ForeignModel[Field]> extends
-					| VirtualForeignRef<ForeignModel, HostModel, any>
-					| VirtualForeignRef<ForeignModel, HostModel, any>[]
+			: NonNullable<
+					ArrayInnerValue<ForeignModel[Field]>
+			  > extends VirtualForeignRef<ForeignModel, HostModel, any>
 			? Field
 			: never]: ForeignModel[Field];
 	}
