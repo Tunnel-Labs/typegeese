@@ -22,7 +22,7 @@ export type IsForeignRefArray<T> = ForeignRef<
 	any,
 	any,
 	any
-> extends NonNullable<T>
+>[] extends NonNullable<T>
 	? true
 	: false;
 

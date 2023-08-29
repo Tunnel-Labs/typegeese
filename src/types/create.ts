@@ -1,5 +1,10 @@
 import type { Deprecated } from '~/types/deprecated.js';
-import { IsForeignRef, IsForeignRefArray } from '~/types/ref.js';
+import {
+	IsForeignRef,
+	IsForeignRefArray,
+	IsVirtualForeignRef,
+	IsVirtualForeignRefArray
+} from '~/types/ref.js';
 
 // prettier-ignore
 export type CreateType<FieldType> =
@@ -17,8 +22,8 @@ export type CreateInput<Model> = {
 		: K extends '__self' ? never
 		: Model[K] extends Deprecated[] ? K
 		: Model[K] extends Deprecated ? K
-		: IsForeignRefArray<Model[K]> extends true ? never
-		: IsForeignRef<Model[K]> extends true ? never
+		: IsVirtualForeignRefArray<Model[K]> extends true ? never
+		: IsVirtualForeignRef<Model[K]> extends true ? never
 		: K
 	]: CreateType<Model[K]>
 };
