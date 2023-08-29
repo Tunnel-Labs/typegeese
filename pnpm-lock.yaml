@@ -4,45 +4,47 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-dependencies:
-  '@paralleldrive/cuid2':
-    specifier: ^2.2.2
-    version: 2.2.2
-  '@typegoose/typegoose':
-    specifier: ^11.4.1
-    version: 11.4.1(mongoose@7.4.4)
-  deepmerge-ts:
-    specifier: ^5.1.0
-    version: 5.1.0
-  filter-obj:
-    specifier: ^5.1.0
-    version: 5.1.0
-  map-obj:
-    specifier: ^5.0.2
-    version: 5.0.2
-  type-fest:
-    specifier: ^4.2.0
-    version: 4.2.0
+importers:
 
-devDependencies:
-  lionconfig:
-    specifier: ^3.1.1
-    version: 3.1.1(typescript@5.2.2)
-  mongoose:
-    specifier: ^7.4.4
-    version: 7.4.4
-  onetime:
-    specifier: ^6.0.0
-    version: 6.0.0
-  rollup-plugin-tilde-imports:
-    specifier: ^1.0.1
-    version: 1.0.1
-  typescript:
-    specifier: ^5.2.2
-    version: 5.2.2
-  vitest:
-    specifier: ^0.34.3
-    version: 0.34.3
+  .:
+    dependencies:
+      '@paralleldrive/cuid2':
+        specifier: ^2.2.2
+        version: 2.2.2
+      '@typegoose/typegoose':
+        specifier: ^11.4.1
+        version: 11.4.1(mongoose@7.4.4)
+      deepmerge-ts:
+        specifier: ^5.1.0
+        version: 5.1.0
+      filter-obj:
+        specifier: ^5.1.0
+        version: 5.1.0
+      map-obj:
+        specifier: ^5.0.2
+        version: 5.0.2
+      type-fest:
+        specifier: ^4.2.0
+        version: 4.2.0
+    devDependencies:
+      lionconfig:
+        specifier: ^3.1.1
+        version: 3.1.1(typescript@5.2.2)
+      mongoose:
+        specifier: ^7.4.4
+        version: 7.4.4
+      onetime:
+        specifier: ^6.0.0
+        version: 6.0.0
+      rollup-plugin-tilde-imports:
+        specifier: ^1.0.2
+        version: 1.0.2
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
+      vitest:
+        specifier: ^0.34.3
+        version: 0.34.3
 
 packages:
 
@@ -1468,13 +1470,6 @@ packages:
 
   /@tsconfig/node18@18.2.1:
     resolution: {integrity: sha512-RDDZFuofwkcKpl8Vpj5wFbY+H53xOtqK7ckEL1sXsbPwvKwDdjQf3LkHbtt9sxIHn9nWIEwkmCwBRZ6z5TKU2A==}
-    dev: true
-
-  /@tunnel/get-monorepo@1.0.0:
-    resolution: {integrity: sha512-uxvpiEmcIP8GdzIk9p9aozYUIJ+wQe3Rko+6W7uqyfnetoGjJznax0SJuKJS5+Hkm4x6NJL/nx/5CJjXBu56gg==}
-    dependencies:
-      map-obj: 5.0.2
-      pkg-up: 4.0.0
     dev: true
 
   /@typegoose/typegoose@11.4.1(mongoose@7.4.4):
@@ -6797,12 +6792,13 @@ packages:
       - supports-color
     dev: true
 
-  /rollup-plugin-tilde-imports@1.0.1:
-    resolution: {integrity: sha512-0kr2tX+f6/yQoVHBRarOVwISQOUPRUgyAnmBlMe1Iwr2fi96UUVBmhc8JC7hK/6BG4KyeN+NExI/lU2NrtEJeQ==}
+  /rollup-plugin-tilde-imports@1.0.2:
+    resolution: {integrity: sha512-HRcqnK/BCi66reI13KHiYQz1SMLTonwuSL5C1+P8stx+ZNc5Luj2B6ynPIj+8DRtlEKvHgjns1nkVM00Eocx+g==}
     peerDependencies:
       rollup: ^3.25.3
     dependencies:
-      tilde-imports: 1.0.1
+      get-monorepo-root: 1.0.0
+      tilde-imports: 2.0.0
     dev: true
 
   /rollup-plugin-workspace-imports@0.1.6:
@@ -7301,12 +7297,12 @@ packages:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
     dev: true
 
-  /tilde-imports@1.0.1:
-    resolution: {integrity: sha512-pVpVuF09JpvK3KD0nR7r5uJeSTSTEopPu2I3pV96g73DFgRQKn0Kd6GZQRinReUL7IKgK2hDw79SJjM1qL5iHw==}
+  /tilde-imports@2.0.0:
+    resolution: {integrity: sha512-Pu1lsMDfq01LKshH/1RbxrD3sT94nkfeUSOzmaEppujJzN/DJucERciLgh/cDuc1QtbJWOxqiPSUrp8PKhXFgA==}
     dependencies:
-      '@tunnel/get-monorepo': 1.0.0
-      pkg-dir: 5.0.0
-      tiny-invariant: 1.3.1
+      fast-glob: 3.3.1
+      pathe: 1.1.1
+      yaml: 2.3.2
     dev: true
 
   /tiny-invariant@1.3.1:
@@ -8106,6 +8102,11 @@ packages:
 
   /yaml@2.3.1:
     resolution: {integrity: sha512-2eHWfjaoXgTBC2jNM1LRef62VQa0umtvRiDSk6HSzW7RvS5YtkabJrwYLLEKWBc8a5U2PTSCs+dJjUTJdlHsWQ==}
+    engines: {node: '>= 14'}
+    dev: true
+
+  /yaml@2.3.2:
+    resolution: {integrity: sha512-N/lyzTPaJasoDmfV7YTrYCI0G/3ivm/9wdG0aHuheKowWQwGTsK0Eoiw6utmzAnI6pkJa0DUVygvp3spqqEKXg==}
     engines: {node: '>= 14'}
     dev: true
 

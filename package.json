@@ -22,7 +22,7 @@
 		"lionconfig": "^3.1.1",
 		"mongoose": "^7.4.4",
 		"onetime": "^6.0.0",
-		"rollup-plugin-tilde-imports": "^1.0.1",
+		"rollup-plugin-tilde-imports": "^1.0.2",
 		"typescript": "^5.2.2",
 		"vitest": "^0.34.3"
 	}

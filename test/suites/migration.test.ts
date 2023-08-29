@@ -9,9 +9,9 @@ import { createId } from "@paralleldrive/cuid2";
 import { getModels } from "~test/fixtures/blog/models/$models.js";
 
 test("supports migrations using populate", async () => {
-  const { CommentModel, PostModel, UserModel } = await getModels();
+  const { CommentModel, PostModel, UserV0Model } = await getModels();
 
-  const user = await UserModel.create({
+  const user = await UserV0Model.create({
     _id: createId(),
     _v: 0,
     name: "John Doe",
