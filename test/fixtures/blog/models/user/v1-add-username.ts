@@ -1,11 +1,8 @@
 import {
-	ArrayInnerValue,
-	IObjectWithTypegooseFunction,
 	ModelSchema,
 	PropType,
 	VirtualForeignRef,
 	defineOnForeignModelDeletedActions,
-	getModelForClass,
 	getModelForHyperschema,
 	prop,
 	select
@@ -16,8 +13,6 @@ import type { Post, Comment } from '../$schemas.js';
 import * as UserV0 from './v0.js';
 import { createMigration } from '~/utils/migration.js';
 import { getMongoose } from '~test/utils/mongoose.js';
-import { Document } from 'mongoose';
-import { Class, Simplify } from 'type-fest';
 
 export class User extends ModelSchema('v1-add-username') {
 	__self!: User;
@@ -54,7 +49,7 @@ export const User_migration = createMigration<User>()
 			mongoose: await getMongoose()
 		});
 
-		const query = UserV0Model.findById(_id)
+		const query = UserV0Model.findById(_id);
 
 		const user = await select(UserV0Model.findById(_id), { email: true });
 		return user as unknown as { email: string };
