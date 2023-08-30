@@ -1,5 +1,5 @@
 import type { Deprecated } from '~/types/deprecated.js';
 
-export function deprecated<T>(value: T) {
-	return value as Deprecated<T>;
+export function deprecated<Value>(value: Value) {
+	return value as Deprecated<Value>;
 }

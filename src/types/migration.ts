@@ -1,6 +1,6 @@
 import type { DocumentType } from '@typegoose/typegoose';
 import type { Promisable } from 'type-fest';
-import type { Deprecated } from '~/types/deprecated.js';
+import type { IsDeprecated } from '~/types/deprecated.js';
 import type { NormalizedHyperschema } from '~/types/hyperschema.js';
 import { CreateType } from '~/types/create.js';
 import { IsVirtualForeignRef, IsVirtualForeignRefArray } from '~/types/ref.js';
@@ -26,9 +26,7 @@ export type IsSupersetKey<
 	| Key extends '_v' ? true
 	: Key extends '__self' ? true
 	: Key extends keyof PreviousModel
-		? CurrentModel[Key] extends Deprecated<infer T>
-			? T extends PreviousModel[Key] ? true
-			: false
+		? IsDeprecated<CurrentModel[Key]> extends true ? true
 		: CurrentModel[Key] extends PreviousModel[Key] ? true
 		: false
 	: true;

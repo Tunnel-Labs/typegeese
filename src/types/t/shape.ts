@@ -1,6 +1,6 @@
 import type { Exact } from 'type-fest';
 import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
-import type { Deprecated } from '~/types/deprecated.js';
+import type { IsDeprecated } from '~/types/deprecated.js';
 import type { t } from './t.js';
 
 // prettier-ignore
@@ -8,7 +8,7 @@ export type ShapeProperties<Schema> = {
 	[K in keyof Schema as
 		| K extends '__self' ? never
 		: K extends '_v' ? never
-		: K extends Deprecated[] ? never
+		: IsDeprecated<K> extends true ? never
 		: K]:
 
 		| Schema[K] extends ForeignRef<any, infer ForeignSchema, any>

@@ -1,13 +1,10 @@
-import type { Deprecated } from '~/types/deprecated.js';
+import type { Deprecated, IsDeprecated } from '~/types/deprecated.js';
 import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 
 // prettier-ignore
 export type SelectInput<Model> = {
 	[K in keyof Model as
-		Model[K] extends Deprecated
-			? never
-			: Model[K] extends Deprecated[]
-				? never
+		| IsDeprecated<Model[K]> extends true ? never
 		: K
 	]?
 		: NonNullable<Model[K]> extends (infer InnerValue)[]
