@@ -8,7 +8,7 @@ import {
 	post,
 	getModelForClass
 } from '@typegoose/typegoose';
-import constants from '@typegoose/typegoose/lib/internal/constants.js';
+import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import mapObject from 'map-obj';
 import { Mongoose, PreMiddlewareFunction, Query } from 'mongoose';
 import { createMigrateFunction } from '~/utils/migration.js';
@@ -112,17 +112,14 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
 	// For each schema, we need to merge all the typegoose metadata into the leaf schema
 	for (const hyperschema of Object.values(hyperschemas)) {
-		const mergedMetadata: Record<
-			constants.DecoratorKeys,
-			Map<string, any>
-		> = mapObject(constants.DecoratorKeys, (_, decoratorKey) => [
-			decoratorKey,
-			new Map()
-		]);
+		const mergedMetadata: Record<DecoratorKeys, Map<string, any>> = mapObject(
+			DecoratorKeys,
+			(_, decoratorKey) => [decoratorKey, new Map()]
+		);
 
 		let currentSchema = hyperschema.schema;
 		while (currentSchema.prototype !== undefined) {
-			for (const decoratorKey of Object.values(constants.DecoratorKeys)) {
+			for (const decoratorKey of Object.values(DecoratorKeys)) {
 				const metadataMap = Reflect.getOwnMetadata(
 					decoratorKey,
 					currentSchema.prototype
@@ -131,7 +128,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 				if (metadataMap === undefined) continue;
 
 				for (const [key, value] of Object.entries(metadataMap)) {
-					mergedMetadata[decoratorKey as constants.DecoratorKeys].set(key, value);
+					mergedMetadata[decoratorKey as DecoratorKeys].set(key, value);
 				}
 			}
 
@@ -155,7 +152,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 		const childModelName = schemaName;
 
 		const propMap = Reflect.getOwnMetadata(
-			constants.DecoratorKeys.PropCache,
+			DecoratorKeys.PropCache,
 			schema.prototype
 		);
 

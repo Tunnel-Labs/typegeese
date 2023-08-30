@@ -4,7 +4,7 @@ import { getVersionFromSchema } from '~/utils/version.js';
 import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { IsEqual, Promisable } from 'type-fest';
 import { getModelWithString } from '@typegoose/typegoose';
-import constants from '@typegoose/typegoose/lib/internal/constants.js';
+import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import { AnySchema } from '~/types/schema.js';
 
 /**
@@ -149,7 +149,7 @@ export function createMigrateFunction({
 					'_v' in propertyValue
 				) {
 					const propMap = Reflect.getOwnMetadata(
-						constants.DecoratorKeys.PropCache,
+						DecoratorKeys.PropCache,
 						hyperschema.schema.prototype
 					);
 

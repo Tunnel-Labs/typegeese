@@ -1,5 +1,5 @@
 import type { Schema } from 'mongoose';
-import constants from '@typegoose/typegoose/lib/internal/constants.js';
+import { DecoratorKeys } from '~/utils/decorator-keys.js';
 
 export function versionStringToVersionNumber(versionString: string): number {
 	const versionNumberString = versionString.split('-')[0]?.slice(1);
@@ -21,7 +21,7 @@ export function versionStringToVersionNumber(versionString: string): number {
 
 export function getVersionFromSchema(schema: Schema): number {
 	const version = Reflect.getOwnMetadata(
-		constants.DecoratorKeys.PropCache,
+		DecoratorKeys.PropCache,
 		Object.getPrototypeOf((schema as any).prototype)
 	)?.get('_v')?.options?.default;
 
