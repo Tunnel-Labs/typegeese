@@ -14,8 +14,6 @@ export type ExcludeVirtualForeignRefs<Model> = {
 	[K in keyof Model as
 		| IsVirtualForeignRef<Model[K]> extends true ? never
 		: IsVirtualForeignRefArray<Model[K]> extends true ? never
-		: Model[K] extends Deprecated<any> ? never
-		: Model[K] extends Deprecated<any>[] ? never
 		: K]: Model[K];
 };
 

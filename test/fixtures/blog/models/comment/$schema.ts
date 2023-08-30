@@ -1,10 +1,11 @@
 export * from './v0.js';
-
+import * as $ from './v0.js';
 import type { t } from '~/index.js';
-import type { User, Comment, Post } from '../$schemas.js';
+import type { User, Post } from '../$schemas.js';
 
-type _ = t.Shape<
-	Comment,
+export const { Comment } = $;
+export type Comment = t.Shape<
+	$.Comment,
 	{
 		_id: string;
 		author: t.ForeignRef<User>;

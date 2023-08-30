@@ -1,10 +1,11 @@
 export * from './v1-add-username.js';
-
+import * as $ from './v1-add-username.js';
 import type { t } from '~/index.js';
-import { User, Comment, Post } from '../$schemas.js';
+import type { Comment, Post } from '../$schemas.js';
 
-type _ = t.Shape<
-	User,
+export const { User } = $;
+export type User = t.Shape<
+	$.User,
 	{
 		_id: string;
 		name: string;
@@ -14,3 +15,5 @@ type _ = t.Shape<
 		authoredComments: t.VirtualForeignRef<Comment>[];
 	}
 >;
+
+export * from './v1-add-username.js';

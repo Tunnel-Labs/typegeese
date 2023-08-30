@@ -8,8 +8,7 @@ export type ShapeProperties<Schema> = {
 	[K in keyof Schema as
 		| K extends '__self' ? never
 		: K extends '_v' ? never
-		: K extends Deprecated<any> ? never
-		: K extends Deprecated<any>[] ? never
+		: K extends Deprecated[] ? never
 		: K]:
 
 		| Schema[K] extends ForeignRef<any, infer ForeignSchema, any>
@@ -23,4 +22,4 @@ export type ShapeProperties<Schema> = {
 		: Schema[K];
 }
 
-export type Shape<Schema, T extends Exact<ShapeProperties<Schema>, T>> = T;
+export type Shape<Schema, T extends Exact<ShapeProperties<Schema>, T>> = Schema & { __self: Schema };
