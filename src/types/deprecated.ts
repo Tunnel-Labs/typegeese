@@ -1,3 +1,4 @@
-import type { Opaque } from 'type-fest';
+import type { IsNever } from 'type-fest';
 
-export type Deprecated<T = {}> = Opaque<T, 'typegeese:deprecated'>;
+export type Deprecated = never;
+export type IsDeprecated<Value> = IsNever<Value>;

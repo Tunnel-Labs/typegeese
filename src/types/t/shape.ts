@@ -22,4 +22,4 @@ export type ShapeProperties<Schema> = {
 		: Schema[K];
 }
 
-export type Shape<Schema, T extends Exact<ShapeProperties<Schema>, T>> = Schema & { __self: Schema };
+export type Shape<Schema, T extends Exact<ShapeProperties<Schema>, T>> = Schema;
