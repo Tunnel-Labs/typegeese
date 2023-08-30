@@ -132,7 +132,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 				}
 			}
 
-			currentSchema = Object.getPrototypeOf(currentSchema);
+			currentSchema = Object.getPrototypeOf(currentSchema.prototype);
 		}
 	}
 
