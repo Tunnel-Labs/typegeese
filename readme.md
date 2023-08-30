@@ -75,12 +75,11 @@ export class User extends ModelSchema("v0") {
 export const migration = createMigration<User>()
   .from(UserV0)
   .with(({ _id }) => {
-    const UserV0Model = getModelForHyperschema(UserV0)
+    const UserV0Model = getModelForHyperschema(UserV0);
     const user = await select(
       UserV0Model.findById(_id),
       { email: true }
-    )
-    if (user === null) throw new Error('User not found')
+    );
     return user
   })
   .migrate({
@@ -88,5 +87,5 @@ export const migration = createMigration<User>()
       // `this` is fully typed!
       return this.email.split("@")[0];
     }
-  })
+  });
 ```
