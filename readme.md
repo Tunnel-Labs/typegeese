@@ -22,17 +22,11 @@ import { Post } from "../post/$schema.js";
 export class User extends ModelSchema("v0") {
   declare __self: User;
 
-  @prop({
-    type: () => String,
-    required: true,
-  })
+  @prop({ type: () => String, required: true })
   public email!: string;
 
-  @prop({
-    type: () => String,
-    required: false,
-  })
-  public name?: string;
+  @prop({ type: () => String, required: false })
+  public name!: string | null;
 
   @prop(virtualForeignRef("Post", "User", "_id"), PropType.ARRAY)
   public posts!: VirtualForeignRef<User, Post, "author">[];
@@ -50,22 +44,13 @@ import * as UserV0 from './v0.ts'
 export class User extends ModelSchema("v0") {
   declare __self: User;
 
-  @prop({
-    type: () => String,
-    required: true,
-  })
+  @prop({ type: () => String, required: true })
   public email!: string;
 
-  @prop({
-    type: () => String,
-    required: false,
-  })
-  public name?: string;
+  @prop({ type: () => String, required: false })
+  public name!: string | null;
 
-  @prop({
-    type: () => String,
-    required: true,
-  })
+  @prop({ type: () => String, required: true })
   public username!: string;
 
   @prop(virtualForeignRef("Post", "author", "_id"), PropType.ARRAY)
@@ -80,7 +65,7 @@ export const migration = createMigration<User>()
       UserV0Model.findById(_id),
       { email: true }
     );
-    return user
+    return user;
   })
   .migrate({
     username() {
