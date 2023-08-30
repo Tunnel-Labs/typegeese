@@ -10,10 +10,11 @@ export type Diff<T, V> = {
 };
 
 // prettier-ignore
-export type ExcludeVirtualForeignRefs<Model> = {
+export type ExcludeVirtualForeignRefsAndDeprecatedKeys<Model> = {
 	[K in keyof Model as
 		| IsVirtualForeignRef<Model[K]> extends true ? never
 		: IsVirtualForeignRefArray<Model[K]> extends true ? never
+		: IsDeprecated<Model[K]> extends true ? never
 		: K]: Model[K];
 };
 
@@ -21,7 +22,7 @@ export type ExcludeVirtualForeignRefs<Model> = {
 export type IsSupersetKey<
 	PreviousModel,
 	CurrentModel,
-	Key extends keyof ExcludeVirtualForeignRefs<CurrentModel>
+	Key extends keyof ExcludeVirtualForeignRefsAndDeprecatedKeys<CurrentModel>
 > =
 	| Key extends '_v' ? true
 	: Key extends '__self' ? true
@@ -32,9 +33,9 @@ export type IsSupersetKey<
 	: true;
 
 export type NonSupersetKeys<PreviousModel, CurrentModel> = keyof {
-	[K in keyof ExcludeVirtualForeignRefs<PreviousModel> as
-		// @ts-expect-error: works
-		| IsSupersetKey<PreviousModel, CurrentModel, K> extends false ? K
+	[K in keyof ExcludeVirtualForeignRefsAndDeprecatedKeys<PreviousModel> as // @ts-expect-error: works
+	IsSupersetKey<PreviousModel, CurrentModel, K> extends false
+		? K
 		: never]: true;
 };
 
@@ -49,8 +50,8 @@ export type MigrationFunctions<PreviousModel, CurrentModel, DataType> =
 		: NonSupersetKeys<PreviousModel, CurrentModel> extends never
 			? {
 				[K in keyof Diff<
-					ExcludeVirtualForeignRefs<CurrentModel>,
-					ExcludeVirtualForeignRefs<PreviousModel>
+					ExcludeVirtualForeignRefsAndDeprecatedKeys<CurrentModel>,
+					ExcludeVirtualForeignRefsAndDeprecatedKeys<PreviousModel>
 				>]: (
 					this: DataType
 				) => Promisable<CreateType<CurrentModel[K]>>;
