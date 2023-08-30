@@ -6,7 +6,6 @@ import type { t } from './t.js';
 export type ShapeProperties<Schema> = Omit<
 	{
 		[K in keyof Schema]
-
 			: Schema[K] extends ForeignRef<any, infer ForeignSchema, any>
 				? t.ForeignRef<ForeignSchema>
 			: Schema[K] extends ForeignRef<any, infer ForeignSchema, any>[]
