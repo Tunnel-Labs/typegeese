@@ -281,12 +281,24 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 		post('findOne', function (result, next) {
 			migrate({ hyperschema, result })
 				.then(() => next())
-				.catch((error) => next(error));
+				.catch((error) => {
+					console.error(
+						`Typegeese migration failed for ${hyperschema.schemaName} v${result._v} document:`,
+						error
+					);
+					next(error);
+				});
 		})(hyperschema.schema as any);
 		post('find', function (result, next) {
 			migrate({ hyperschema, result })
 				.then(() => next())
-				.catch((error) => next(error));
+				.catch((error) => {
+					console.error(
+						`Typegeese migration failed for ${hyperschema.schemaName} v${result._v} document:`,
+						error
+					);
+					next(error);
+				});
 		})(hyperschema.schema as any);
 	}
 
