@@ -19,7 +19,7 @@ export type CreateInput<Model> = {
 	[K in keyof Model as
 		  K extends '_v' ? never
 		: K extends '__self' ? never
-		: IsDeprecated<Model[K]> extends true ? K
+		: IsDeprecated<Model[K]> extends true ? never
 		: IsVirtualForeignRefArray<Model[K]> extends true ? never
 		: IsVirtualForeignRef<Model[K]> extends true ? never
 		: K
