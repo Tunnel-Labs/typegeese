@@ -131,7 +131,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 				if (metadataMap === undefined) continue;
 
 				for (const [key, value] of Object.entries(metadataMap)) {
-					mergedMetadata[decoratorKey].set(key, value);
+					mergedMetadata[decoratorKey as constants.DecoratorKeys].set(key, value);
 				}
 			}
 

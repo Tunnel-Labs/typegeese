@@ -118,13 +118,15 @@ export function createMigrateFunction({
 			string,
 			Promise<{ updatedProperties: Record<string, unknown> }>
 		>();
-		const resultArray: Record<number, { _id: string; _v: number }> =
-			Array.isArray(result) ? result : [result];
+		const resultArray: Array<AnySchema> = Array.isArray(result)
+			? result
+			: [result];
+
 		const migrateDocumentPromises: Promise<{
 			updatedProperties: Record<string, unknown>;
 		}>[] = [];
 
-		for (let [resultArrayIndex, result] of Object.entries(resultArray)) {
+		for (let [resultArrayIndex, result] of resultArray.entries()) {
 			if (result === undefined || result === null) continue;
 
 			if (result._id === undefined) {
