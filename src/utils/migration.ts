@@ -3,8 +3,8 @@ import { NormalizedHyperschema } from '~/types/hyperschema.js';
 import { getVersionFromSchema } from '~/utils/version.js';
 import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { IsEqual, Promisable } from 'type-fest';
-import { ModelSchema } from '~/classes/index.js';
 import { getModelWithString } from '@typegoose/typegoose';
+import { AnySchema } from '~/types/schema.js';
 
 /**
 	Applies the migrations of hyperschemas in order
@@ -56,7 +56,7 @@ export async function applyHyperschemaMigrationsToDocument({
 	return { updatedProperties };
 }
 
-export function createMigration<CurrentSchema extends ModelSchema>(
+export function createMigration<CurrentSchema extends AnySchema>(
 	...args: IsEqual<CurrentSchema['_v'], 0> extends true ? [null] : []
 ): IsEqual<CurrentSchema['_v'], 0> extends true
 	? MigrationData

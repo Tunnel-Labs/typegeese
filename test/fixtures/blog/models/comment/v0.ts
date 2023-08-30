@@ -1,14 +1,14 @@
 import {
 	ForeignRef,
-	ModelSchema,
 	createMigration,
 	defineOnForeignModelDeletedActions,
 	prop
 } from '~/index.js';
 import type { Post, User } from '../$schemas.js';
 import { foreignRef } from '../../utils/refs.js';
+import { BaseSchema } from '~/classes/index.js';
 
-export class Comment extends ModelSchema('v0') {
+export class Comment extends BaseSchema {
 	__self!: Comment;
 
 	@prop({

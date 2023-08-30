@@ -14,16 +14,17 @@ export type * from './types/refs.js';
 export type * from './types/schema.js';
 export type * from './types/select.js';
 export type * from './types/selections.js';
+export type * from './types/t/t.js';
 export type * from './types/query.js';
 export type * from './utils/selection.js';
 
+export { BaseSchema } from './classes/index.js';
 export { defineOnForeignModelDeletedActions } from './utils/delete.js';
-export { defineSchemaOptions } from './utils/schema.js';
+export { defineSchemaOptions, Schema } from './utils/schema.js';
 export { deprecated } from './utils/deprecated.js';
 export { loadHyperschemas, normalizeHyperschema } from './utils/hyperschema.js';
 export { createMigration } from './utils/migration.js';
 export { getModelForHyperschema } from './utils/model.js';
-export { ModelSchema } from './classes/index.js';
 export { useForeignRefs } from './utils/ref.js';
 export { select, select as applySelect } from './utils/select.js';
 export {

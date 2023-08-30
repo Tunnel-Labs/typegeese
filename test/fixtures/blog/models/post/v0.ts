@@ -1,6 +1,5 @@
 import {
 	ForeignRef,
-	ModelSchema,
 	PropType,
 	VirtualForeignRef,
 	createMigration,
@@ -9,8 +8,9 @@ import {
 } from '~/index.js';
 import type { Comment, User } from '../$schemas.js';
 import { foreignRef, virtualForeignRef } from '../../utils/refs.js';
+import { BaseSchema } from '~/classes/index.js';
 
-export class Post extends ModelSchema('v0') {
+export class Post extends BaseSchema {
 	__self!: Post;
 
 	@prop({

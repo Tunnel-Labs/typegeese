@@ -1,1 +1,1 @@
-export * from './model-schema/$class.js';
+export * from './base-schema/$class.js';

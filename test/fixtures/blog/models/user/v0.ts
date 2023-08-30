@@ -1,17 +1,17 @@
 import {
-	ModelSchema,
 	PropType,
 	VirtualForeignRef,
 	createMigration,
 	defineOnForeignModelDeletedActions,
-	prop
+	prop,
+	BaseSchema
 } from '~/index.js';
 
 import { virtualForeignRef } from '../../utils/refs.js';
 import type { Comment, Post } from '../$schemas.js';
 
-export class User extends ModelSchema('v0') {
-	__self: User;
+export class User extends BaseSchema {
+	declare __self: User;
 
 	@prop({
 		type: () => String,
@@ -23,7 +23,7 @@ export class User extends ModelSchema('v0') {
 		type: () => String,
 		required: false
 	})
-	public name?: string;
+	public name!: string;
 
 	@prop(virtualForeignRef('Post', 'author', '_id'), PropType.ARRAY)
 	public posts!: VirtualForeignRef<User, Post, 'author'>[];
