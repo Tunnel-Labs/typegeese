@@ -8,7 +8,7 @@ export type ShapeProperties<Schema> = {
 	[K in keyof Schema as
 		| K extends '__self' ? never
 		: K extends '_v' ? never
-		: IsDeprecated<K> extends true ? never
+		: IsDeprecated<Schema[K]> extends true ? never
 		: K]:
 
 		| Schema[K] extends ForeignRef<any, infer ForeignSchema, any>
