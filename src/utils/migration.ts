@@ -63,8 +63,8 @@ export async function applyHyperschemaMigrationsToDocument({
 	const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
 
 	// If the hyperschema version is more than one greater than the document version, then we should apply the previous hyperschema migration before the current one
-	if (hyperschemaVersion > documentMetadata._v) {
-		applyHyperschemaMigrationsToDocument({
+	if (hyperschemaVersion - 1 > documentMetadata._v) {
+		await applyHyperschemaMigrationsToDocument({
 			meta,
 			updatedProperties,
 			hyperschema: hyperschema.migration.previousHyperschema,

@@ -118,12 +118,23 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 			(_, decoratorKey) => [decoratorKey, new Map()]
 		);
 
+		const schemaPrototypeChain = [];
 		let currentSchema = hyperschema.schema;
-		do {
+
+		while (currentSchema !== BaseSchema) {
+			schemaPrototypeChain.push(currentSchema);
+			currentSchema = Object.getPrototypeOf(currentSchema);
+		}
+
+		schemaPrototypeChain.push(currentSchema);
+
+		// Loop through the prototype chain backwards
+		// For each schema, we overwrite its metadata with our merged metadata map up to that point
+		for (const schema of schemaPrototypeChain.reverse()) {
 			for (const decoratorKey of Object.values(DecoratorKeys)) {
 				const metadataMap = Reflect.getOwnMetadata(
 					decoratorKey,
-					currentSchema.prototype
+					schema.prototype
 				) as Map<string, unknown> | undefined;
 
 				if (metadataMap === undefined) continue;
@@ -133,15 +144,15 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 				}
 			}
 
-			currentSchema = Object.getPrototypeOf(currentSchema);
-		} while (currentSchema !== BaseSchema);
-
-		for (const [decoratorKey, metadataMap] of Object.entries(mergedMetadata)) {
-			Reflect.defineMetadata(
-				decoratorKey,
-				metadataMap,
-				hyperschema.schema.prototype
-			);
+			for (const [decoratorKey, metadataMap] of Object.entries(
+				mergedMetadata
+			)) {
+				Reflect.defineMetadata(
+					decoratorKey,
+					new Map(metadataMap),
+					schema.prototype
+				);
+			}
 		}
 	}
 
