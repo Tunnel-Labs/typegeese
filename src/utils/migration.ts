@@ -1,11 +1,44 @@
 import { MigrationData, MigrationFunctions } from '~/types/migration.js';
 import { NormalizedHyperschema } from '~/types/hyperschema.js';
-import { getVersionFromSchema } from '~/utils/version.js';
+import { getVersionFromSchema, isVersionedDocument } from '~/utils/version.js';
 import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { IsEqual, Promisable } from 'type-fest';
 import { getModelWithString } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import { AnySchema } from '~/types/schema.js';
+
+function getForeignHyperschemaFromForeignPropertyKey({
+	hyperschemas,
+	hyperschema,
+	foreignPropertyKey
+}: {
+	hyperschemas: Record<string, any>;
+	hyperschema: NormalizedHyperschema<any>;
+	foreignPropertyKey: string;
+}): NormalizedHyperschema<any> {
+	const propMap = Reflect.getOwnMetadata(
+		DecoratorKeys.PropCache,
+		hyperschema.schema.prototype
+	) as Map<string, { options?: { ref: string } }>;
+
+	const foreignSchemaName = propMap.get(foreignPropertyKey)?.options?.ref;
+
+	if (foreignSchemaName === undefined) {
+		throw new Error(
+			`Could not find model name for property "${foreignPropertyKey}" on model "${hyperschema.schemaName}"`
+		);
+	}
+
+	const foreignHyperschema = hyperschemas[foreignSchemaName];
+
+	if (foreignHyperschema === undefined) {
+		throw new Error(
+			`Could not find hyperschema for model "${foreignSchemaName}"`
+		);
+	}
+
+	return foreignHyperschema;
+}
 
 /**
 	Applies the migrations of hyperschemas in order
@@ -109,83 +142,85 @@ export function createMigrateFunction({
 }) {
 	return async function migrate({
 		hyperschema,
-		result
+		documents
 	}: {
 		hyperschema: NormalizedHyperschema<any>;
-		result: { _id: string; _v: number } | Array<{ _id: string; _v: number }>;
+		documents: Array<{ _id: string; _v: number }>;
 	}) {
 		const documentIdToMigrationPromise = new Map<
 			string,
 			Promise<{ updatedProperties: Record<string, unknown> }>
 		>();
-		const resultArray: Array<AnySchema> = Array.isArray(result)
-			? result
-			: [result];
 
 		const migrateDocumentPromises: Promise<{
 			updatedProperties: Record<string, unknown>;
 		}>[] = [];
 
-		for (let [resultArrayIndex, result] of resultArray.entries()) {
-			if (result === undefined || result === null) continue;
+		for (let [documentIndex, document] of documents.entries()) {
+			if (document === undefined || document === null) continue;
 
-			if (result._id === undefined) {
+			if (document._id === undefined) {
 				throw new Error('The `_id` field must be present');
 			}
 
-			if (result._v === undefined) {
+			if (document._v === undefined) {
 				throw new Error('The `_v` field must be present');
 			}
 
-			if ('_doc' in result) {
-				result = result._doc as any;
+			if ('_doc' in document) {
+				document = document._doc as any;
 			}
 
 			// We check to see if the result has any nested documents that need to be migrated
-			for (const [propertyKey, propertyValue] of Object.entries(result)) {
-				if (
-					typeof propertyValue === 'object' &&
-					propertyValue !== null &&
-					'_v' in propertyValue
-				) {
-					const propMap = Reflect.getOwnMetadata(
-						DecoratorKeys.PropCache,
-						hyperschema.schema.prototype
-					) as Map<string, { options?: { ref: string } }>;
+			for (const [propertyKey, propertyValue] of Object.entries(document)) {
+				if (isVersionedDocument(propertyValue)) {
+					const document = propertyValue as unknown as {
+						_id: string;
+						_v: number;
+					};
 
-					const nestedModelName = propMap.get(propertyKey)?.options?.ref;
-
-					if (nestedModelName === undefined) {
-						throw new Error(
-							`Could not find model name for property "${propertyKey}" on model "${nestedModelName}"`
-						);
-					}
-
-					const nestedHyperschema = hyperschemas[nestedModelName];
-
-					if (nestedHyperschema === undefined) {
-						throw new Error(
-							`Could not find hyperschema for model "${nestedModelName}"`
-						);
-					}
+					const foreignHyperschema =
+						getForeignHyperschemaFromForeignPropertyKey({
+							foreignPropertyKey: propertyKey,
+							hyperschemas,
+							hyperschema
+						});
 
 					await migrate({
-						hyperschema: nestedHyperschema,
-						result: propertyValue as any
+						hyperschema: foreignHyperschema,
+						documents: [document]
 					});
+				} else if (Array.isArray(propertyValue)) {
+					const versionedDocuments = propertyValue.filter((value) =>
+						isVersionedDocument(value)
+					);
+
+					if (versionedDocuments.length > 0) {
+						const foreignHyperschema =
+							getForeignHyperschemaFromForeignPropertyKey({
+								foreignPropertyKey: propertyKey,
+								hyperschemas,
+								hyperschema
+							});
+
+						await migrate({
+							hyperschema: foreignHyperschema,
+							documents: versionedDocuments
+						});
+					}
 				}
 			}
 
-			if (result._v !== getVersionFromSchema(hyperschema.schema)) {
-				if (documentIdToMigrationPromise.has(result._id)) {
+			if (document._v !== getVersionFromSchema(hyperschema.schema)) {
+				if (documentIdToMigrationPromise.has(document._id)) {
 					// Prevents an infinite loop with this migration hook
 					continue;
 				} else {
 					const migrationPromise = applyHyperschemaMigrationsToDocument({
 						meta,
 						documentMetadata: {
-							_id: result._id,
-							_v: result._v
+							_id: document._id,
+							_v: document._v
 						},
 						hyperschema,
 						/**
@@ -194,8 +229,8 @@ export function createMigrateFunction({
 						updatedProperties: {}
 					});
 
-					documentIdToMigrationPromise.set(result._id, migrationPromise);
-					migrateDocumentPromises[Number(resultArrayIndex)] = migrationPromise;
+					documentIdToMigrationPromise.set(document._id, migrationPromise);
+					migrateDocumentPromises[Number(documentIndex)] = migrationPromise;
 				}
 			}
 		}
@@ -207,10 +242,10 @@ export function createMigrateFunction({
 
 			await Promise.all(
 				migrateDocumentResults.map(
-					async (migrateDocumentResult, resultArrayIndex) => {
+					async (migrateDocumentResult, documentIndex) => {
 						if (migrateDocumentResult === undefined) return;
 
-						const result = resultArray[resultArrayIndex];
+						const result = documents[documentIndex];
 						// TODO: this should error
 						if (result === undefined) return;
 

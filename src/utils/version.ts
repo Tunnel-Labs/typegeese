@@ -31,3 +31,7 @@ export function getVersionFromSchema(schema: Schema): number {
 
 	return version;
 }
+
+export function isVersionedDocument(document: unknown) {
+	return typeof document === 'object' && document !== null && '_v' in document;
+}

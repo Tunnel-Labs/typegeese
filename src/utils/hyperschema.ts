@@ -314,7 +314,10 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 		pre('findOne', selectVersion)(hyperschema.schema as any);
 
 		post('findOne', function (result, next) {
-			migrate({ hyperschema, result })
+			migrate({
+				hyperschema,
+				documents: Array.isArray(result) ? result : [result]
+			})
 				.then(() => next())
 				.catch((error) => {
 					console.error(
@@ -325,7 +328,10 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 				});
 		})(hyperschema.schema as any);
 		post('find', function (result, next) {
-			migrate({ hyperschema, result })
+			migrate({
+				hyperschema,
+				documents: Array.isArray(result) ? result : [result]
+			})
 				.then(() => next())
 				.catch((error) => {
 					console.error(
