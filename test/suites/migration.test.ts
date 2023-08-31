@@ -99,7 +99,18 @@ test('supports migrations using populate', async () => {
 				author: {
 					select: {
 						_id: true,
-						username: true
+						username: true,
+						name: true,
+						posts: {
+							select: {
+								_id: true,
+								author: {
+									select: {
+										bio: true
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -108,4 +119,6 @@ test('supports migrations using populate', async () => {
 
 	expect(post?.description).toBe('This is th...');
 	expect(post?.comments[0]?.author.username).toBe('johndoe');
+	// TODO: support circular selects
+	// expect(post?.comments[0]?.author.posts[0]?.author.bio).toBe(null)
 });
