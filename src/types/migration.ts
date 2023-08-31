@@ -33,8 +33,12 @@ export type IsSupersetKey<
 	: true;
 
 export type NonSupersetKeys<PreviousModel, CurrentModel> = keyof {
-	[K in keyof ExcludeVirtualForeignRefsAndDeprecatedKeys<PreviousModel> as // @ts-expect-error: works
-	IsSupersetKey<PreviousModel, CurrentModel, K> extends false
+	[K in keyof ExcludeVirtualForeignRefsAndDeprecatedKeys<PreviousModel> as IsSupersetKey<
+		PreviousModel,
+		CurrentModel,
+		// @ts-expect-error: works
+		K
+	> extends false
 		? K
 		: never]: true;
 };
@@ -62,5 +66,7 @@ export type MigrationFunctions<PreviousModel, CurrentModel, DataType> =
 export interface MigrationData {
 	previousHyperschema: NormalizedHyperschema<any>;
 	migrationFunctions: Record<string, (this: DocumentType<any>) => void>;
-	getData: (this: { meta: any }, args: { _id: any }) => Promisable<any>;
+	getData:
+		| null
+		| ((this: { meta: any }, args: { _id: any }) => Promisable<any>);
 }

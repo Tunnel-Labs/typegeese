@@ -72,10 +72,13 @@ export async function applyHyperschemaMigrationsToDocument({
 		});
 	}
 
-	const data = await hyperschema.migration.getData.call(
-		{ meta },
-		{ _id: documentMetadata._id }
-	);
+	const data =
+		hyperschema.migration.getData === null
+			? null
+			: await hyperschema.migration.getData.call(
+					{ meta },
+					{ _id: documentMetadata._id }
+			  );
 
 	if (data !== null) {
 		// Applying the hyperschema's migrations
@@ -97,10 +100,12 @@ export function createMigration<CurrentSchema extends AnySchema>(
 	: {
 			from: <PreviousHyperschema>(previousHyperschema: PreviousHyperschema) => {
 				with: <DataType>(
-					getData: (
-						this: { meta: any },
-						args: { _id: string }
-					) => Promisable<DataType>
+					getData: DataType extends null
+						? null
+						: (
+								this: { meta: any },
+								args: { _id: string }
+						  ) => Promisable<DataType>
 				) => {
 					migrate(
 						migrationFunctions: MigrationFunctions<

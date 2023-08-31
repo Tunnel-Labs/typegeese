@@ -41,7 +41,7 @@ import { virtualForeignRef } from "~/utils/refs.js";
 import { Post } from "../post/$schema.js";
 import * as UserV0 from './v0.ts'
 
-export class User extends Schema(UserV0, "v1") {
+export class User extends Schema(UserV0, "v1-add-username") {
   declare __self: User;
 
   @prop({ type: () => String, required: true })
