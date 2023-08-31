@@ -100,12 +100,12 @@ export function createMigration<CurrentSchema extends AnySchema>(
 	: {
 			from: <PreviousHyperschema>(previousHyperschema: PreviousHyperschema) => {
 				with: <DataType>(
-					getData: DataType extends null
-						? null
-						: (
+					getData:
+						| null
+						| ((
 								this: { meta: any },
 								args: { _id: string }
-						  ) => Promisable<DataType>
+						  ) => Promisable<DataType>)
 				) => {
 					migrate(
 						migrationFunctions: MigrationFunctions<
