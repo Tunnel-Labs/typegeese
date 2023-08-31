@@ -151,7 +151,7 @@ export function createMigrateFunction({
 					const propMap = Reflect.getOwnMetadata(
 						DecoratorKeys.PropCache,
 						hyperschema.schema.prototype
-					);
+					) as Map<string, { options?: { ref: string } }>;
 
 					const nestedModelName = propMap.get(propertyKey)?.options?.ref;
 

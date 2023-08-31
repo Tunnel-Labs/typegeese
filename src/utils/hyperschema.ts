@@ -14,6 +14,7 @@ import { Mongoose, PreMiddlewareFunction, Query } from 'mongoose';
 import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
 import { PopulateObject } from '~/types/populate.js';
+import { BaseSchema } from '~/index.js';
 
 export function normalizeHyperschema<Hyperschema>(
 	hyperschema: Hyperschema
@@ -118,21 +119,29 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 		);
 
 		let currentSchema = hyperschema.schema;
-		while (currentSchema.prototype !== undefined) {
+		do {
 			for (const decoratorKey of Object.values(DecoratorKeys)) {
 				const metadataMap = Reflect.getOwnMetadata(
 					decoratorKey,
 					currentSchema.prototype
-				);
+				) as Map<string, unknown> | undefined;
 
 				if (metadataMap === undefined) continue;
 
-				for (const [key, value] of Object.entries(metadataMap)) {
+				for (const [key, value] of metadataMap.entries()) {
 					mergedMetadata[decoratorKey as DecoratorKeys].set(key, value);
 				}
 			}
 
-			currentSchema = Object.getPrototypeOf(currentSchema.prototype);
+			currentSchema = Object.getPrototypeOf(currentSchema);
+		} while (currentSchema !== BaseSchema);
+
+		for (const [decoratorKey, metadataMap] of Object.entries(mergedMetadata)) {
+			Reflect.defineMetadata(
+				decoratorKey,
+				metadataMap,
+				hyperschema.schema.prototype
+			);
 		}
 	}
 
@@ -154,14 +163,14 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 		const propMap = Reflect.getOwnMetadata(
 			DecoratorKeys.PropCache,
 			schema.prototype
-		);
+		) as Map<string, { options?: { ref: string } }>;
 
 		for (const [childModelField, action] of Object.entries(
 			onForeignModelDeletedActions
 		)) {
 			// For each foreign ref field, get the name of the parent model
 			// We want to perform an action based on when the parent model is deleted
-			const parentModelName = propMap.get(childModelField).options?.ref;
+			const parentModelName = propMap.get(childModelField)?.options?.ref;
 
 			if (parentModelName === undefined) {
 				throw new Error(
