@@ -6,29 +6,29 @@ import {
 	select
 } from '~/index.js';
 
-import * as UserV0 from './v0.js';
+import * as UserV1 from './v1-add-username.js';
 import { createMigration } from '~/utils/migration.js';
 import { getMongoose } from '~test/utils/mongoose.js';
 
-export class User extends Schema(UserV0, 'v1-add-username') {
+export class User extends Schema(UserV1, 'v2-add-avatar') {
 	declare __self: User;
 
 	@prop({ type: () => String, required: true })
-	public username!: string;
+	public avatarUrl!: string;
 }
 
 export const User_migration = createMigration<User>()
-	.from(UserV0)
+	.from(UserV1)
 	.with(async ({ _id }) => {
-		const UserV0Model = getModelForHyperschema(UserV0, {
+		const UserV1Model = getModelForHyperschema(UserV1, {
 			mongoose: await getMongoose()
 		});
-		const user = await select(UserV0Model.findById(_id), { email: true });
+		const user = await select(UserV1Model.findById(_id), { _id: true });
 		return user;
 	})
 	.migrate({
-		async username() {
-			return this.email.split('@')[0] ?? 'user';
+		avatarUrl() {
+			return `https://www.gravatar.com/avatar/${this._id}?s=32&d=identicon&r=PG`;
 		}
 	});
 

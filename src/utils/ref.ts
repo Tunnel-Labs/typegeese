@@ -7,10 +7,12 @@ export function useForeignRefs<Schemas>() {
 			[Field in keyof InstanceType<
 				// @ts-expect-error: Works
 				Schemas[T]
-			> as InstanceType<
-				// @ts-expect-error: Works
-				Schemas[T]
-			>[Field] extends
+			> as NonNullable<
+				InstanceType<
+					// @ts-expect-error: Works
+					Schemas[T]
+				>[Field]
+			> extends
 				| ForeignRef<infer M, any, any>
 				| ForeignRef<infer M, any, any>[]
 				| VirtualForeignRef<infer M, any, any>
@@ -34,12 +36,12 @@ export function useForeignRefs<Schemas>() {
 			[Field in keyof InstanceType<
 				// @ts-expect-error: Works
 				Schemas[T]
-			> as InstanceType<
-				// @ts-expect-error: Works
-				Schemas[T]
-			>[Field] extends
-				| ForeignRef<infer M, any, any>
-				| ForeignRef<infer M, any, any>[]
+			> as NonNullable<
+				InstanceType<
+					// @ts-expect-error: Works
+					Schemas[T]
+				>[Field]
+			> extends ForeignRef<infer M, any, any> | ForeignRef<infer M, any, any>[]
 				? Field
 				: never]: true;
 		},

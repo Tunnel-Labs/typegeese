@@ -1,8 +1,13 @@
-export * from './v1-add-username.js';
-import * as $ from './v1-add-username.js';
+export * from './v4-add-votes.js';
+import * as $ from './v4-add-votes.js';
 
 import type { t } from '~/index.js';
-import type { Comment, Post } from '../$schemas.js';
+import type {
+	CommentUpvote,
+	CommentDownvote,
+	Comment,
+	Post
+} from '../$schemas.js';
 
 export const { User } = $;
 export type User = t.Shape<
@@ -14,5 +19,9 @@ export type User = t.Shape<
 		username: string;
 		posts: t.VirtualForeignRef<Post>[];
 		authoredComments: t.VirtualForeignRef<Comment>[];
+		avatarUrl: string;
+		bio: string;
+		commentDownvotes: t.VirtualForeignRef<CommentDownvote>[];
+		commentUpvotes: t.VirtualForeignRef<CommentUpvote>[];
 	}
 >;

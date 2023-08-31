@@ -1,10 +1,12 @@
 import { beforeAll, expect, test } from 'vitest';
-import { CreateInput, select } from '~/index.js';
+import { CreateInput, getModelForHyperschema, select } from '~/index.js';
 import type { Post, Comment } from '~test/fixtures/blog/models/$schemas.js';
 import { createId } from '@paralleldrive/cuid2';
 import { getModels } from '~test/fixtures/blog/models/$models.js';
 import { getMongoose } from '~test/utils/mongoose.js';
-import type { User as UserV0 } from '~test/fixtures/blog/models/user/v0.js';
+import * as UserV0 from '~test/fixtures/blog/models/user/v0.js';
+import * as PostV0 from '~test/fixtures/blog/models/post/v0.js';
+import * as CommentV0 from '~test/fixtures/blog/models/comment/v0.js';
 
 beforeAll(async () => {
 	const mongoose = await getMongoose();
@@ -12,17 +14,25 @@ beforeAll(async () => {
 });
 
 test('supports migrations using populate', async () => {
-	const { CommentModel, PostModel, UserModel } = await getModels();
+	const mongoose = await getMongoose();
+	const UserV0Model = getModelForHyperschema(UserV0, {
+		mongoose
+	});
+	const PostV0Model = getModelForHyperschema(PostV0, {
+		mongoose
+	});
+	const CommentV0Model = getModelForHyperschema(CommentV0, {
+		mongoose
+	});
 
 	const userId = createId();
-	await UserModel.collection.insertOne({
+	UserV0Model.create({
 		_id: userId as any,
-		_v: 0,
 		name: 'John Doe',
 		email: 'johndoe@example.com'
-	} satisfies Omit<CreateInput<UserV0>, 'username'> & { _v: 0 });
+	} satisfies CreateInput<UserV0.User>);
 
-	const posts = await PostModel.create([
+	const posts = await PostV0Model.create([
 		{
 			_id: createId(),
 			title: 'Post 1',
@@ -41,9 +51,9 @@ test('supports migrations using populate', async () => {
 			author: userId,
 			content: 'This is the third post.'
 		}
-	] satisfies CreateInput<Post>[]);
+	] satisfies CreateInput<PostV0.Post>[]);
 
-	const comments = await CommentModel.create([
+	const comments = await CommentV0Model.create([
 		{
 			_id: createId(),
 			author: userId,
@@ -80,9 +90,11 @@ test('supports migrations using populate', async () => {
 			post: posts[2]!.id,
 			text: 'This is the third comment on the third post.'
 		}
-	] satisfies CreateInput<Comment>[]);
+	] satisfies CreateInput<CommentV0.Comment>[]);
 
+	const { PostModel } = await getModels();
 	const post = await select(PostModel.findById(posts[0]!.id), {
+		description: true,
 		comments: {
 			select: {
 				author: {
@@ -95,5 +107,6 @@ test('supports migrations using populate', async () => {
 		}
 	});
 
+	expect(post?.description).toBe('This is th...');
 	expect(post?.comments[0]?.author.username).toBe('johndoe');
 });
