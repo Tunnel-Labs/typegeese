@@ -6,6 +6,7 @@ import { getMongoose } from '~test/utils/mongoose.js';
 import * as UserV0 from '~test/fixtures/blog/models/user/v0.js';
 import * as PostV0 from '~test/fixtures/blog/models/post/v0.js';
 import * as CommentV0 from '~test/fixtures/blog/models/comment/v0.js';
+import util from 'node:util'
 
 beforeAll(async () => {
 	const mongoose = await getMongoose();
@@ -117,8 +118,9 @@ test('supports migrations using populate', async () => {
 		}
 	});
 
+	console.log(util.inspect(post, { depth: 10, colors: true }))
+
 	expect(post?.description).toBe('This is th...');
 	expect(post?.comments[0]?.author.username).toBe('johndoe');
-	// TODO: support circular selects
-	// expect(post?.comments[0]?.author.posts[0]?.author.bio).toBe(null)
+	expect(post?.comments[0]?.author.posts[0]?.author.bio).toBe(null);
 });

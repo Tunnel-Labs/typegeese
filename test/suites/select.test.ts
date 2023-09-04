@@ -3,8 +3,7 @@ import { CreateInput, getModelForHyperschema, select } from '~/index.js';
 import { createId } from '@paralleldrive/cuid2';
 import { getModels } from '~test/fixtures/blog/models/$models.js';
 import { getMongoose } from '~test/utils/mongoose.js';
-import * as UserV0 from '~test/fixtures/blog/models/user/v0.js';
-import * as PostV0 from '~test/fixtures/blog/models/post/v0.js';
+import { User, Post } from '~test/fixtures/blog/models/$schemas.js';
 
 beforeAll(async () => {
 	const mongoose = await getMongoose();
@@ -13,43 +12,45 @@ beforeAll(async () => {
 
 test('supports nested self-referential select', async () => {
 	const mongoose = await getMongoose();
-	const UserV0Model = getModelForHyperschema(UserV0, {
-		mongoose
-	});
-	const PostV0Model = getModelForHyperschema(PostV0, {
-		mongoose
-	});
+	const { PostModel, UserModel } = await getModels();
 
 	const userId = createId();
-	UserV0Model.create({
+	UserModel.create({
 		_id: userId,
 		name: 'John Doe',
-		email: 'johndoe@example.com'
-	} satisfies CreateInput<UserV0.User>);
+		email: 'johndoe@example.com',
+		avatarUrl: 'https://example.com/avatar.png',
+		bio: null,
+		username: 'johndoe'
+	} satisfies CreateInput<User>);
 
 	const postId = createId();
-	await PostV0Model.create({
+	await PostModel.create({
 		_id: postId,
 		title: 'Post 1',
 		author: userId,
-		content: 'This is the first post.'
-	} satisfies CreateInput<PostV0.Post>);
+		content: 'This is the first post.',
+		description: 'This is the first post.'
+	} satisfies CreateInput<Post>);
 
-	const { PostModel } = await getModels();
 	const post = (await select(PostModel.findById(postId), {
 		title: true,
 		author: {
 			select: {
 				posts: {
 					select: {
-						title: true
+						_id: true,
+						title: true,
+						author: {
+							select: {
+								_id: true
+							}
+						}
 					}
 				}
 			}
 		}
 	}))!;
-
-	console.log(post)
 
 	expect(post).not.toBeNull();
 	expect(post.title).toBe(post.author.posts[0]?.title);

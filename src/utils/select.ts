@@ -4,6 +4,8 @@ import mapObject, { mapObjectSkip } from 'map-obj';
 import { QueryWithHelpers } from 'mongoose';
 import { IsManyQuery } from '~/types/query.js';
 import { GetSchemaFromQuery } from '~/types/schema.js';
+import { setProperty } from 'dot-prop';
+import util from 'node:util';
 
 import type { SelectInput, SelectOutput } from '~/types/select.js';
 
@@ -55,9 +57,21 @@ export async function select<
 		populate?: any[];
 	}
 
+	/**
+		We need to keep track of paths that have already been populated because mongoose doesn't work if we populate the same path twice in a single query
+	*/
+	const populatedPaths = new Set<string>();
+
+	/**
+		A list of queries to call again (for when we need to call populate on paths that have already been populated)
+	*/
+	const nestedQueries: Array<{ fullPath: string[]; select: any; model: any }> =
+		[];
+
 	const getPopulateObject = (
 		model: any,
 		path: string,
+		fullPath: string[],
 		queryInput: { select: any },
 		modelForeignField?: string
 	): PopulateObject => {
@@ -94,9 +108,25 @@ export async function select<
 			const foreignField = (fieldModel?.schema as any).tree?.[path]?.options
 				?.foreignField;
 
-			populate.push(
-				getPopulateObject(fieldModel, fieldPath, fieldQueryInput, foreignField)
-			);
+			// If the path has already been populated, we avoid populating it again in the same query
+			if (populatedPaths.has(fieldPath)) {
+				nestedQueries.push({
+					fullPath: [...fullPath, fieldPath],
+					select: fieldQueryInput.select,
+					model: fieldModel
+				});
+			} else {
+				populatedPaths.add(fieldPath);
+				populate.push(
+					getPopulateObject(
+						fieldModel,
+						fieldPath,
+						[...fullPath, fieldPath],
+						fieldQueryInput,
+						foreignField
+					)
+				);
+			}
 		}
 
 		return populate.length === 0
@@ -131,13 +161,104 @@ export async function select<
 		// @ts-expect-error: exists at runtime
 		const foreignField = query.model.schema.tree[path]?.options?.foreignField;
 
+		populatedPaths.add(path);
 		populateArray.push(
-			getPopulateObject(fieldModel, path, queryInput as any, foreignField)
+			getPopulateObject(
+				fieldModel,
+				path,
+				[path],
+				queryInput as any,
+				foreignField
+			)
 		);
 	}
 
 	query.populate(populateArray);
 
-	const result = await query.lean().exec();
-	return result as any;
+	const document = await query.lean().exec();
+
+	for (const { model, fullPath, select: selectInput } of nestedQueries) {
+		// Retrieve all the IDs of the documents that need to be populated
+		/**
+			Map from the object path of the `result` object to the ID that needs to be replaced
+		*/
+		const idToNestedDocumentPath = new Map<
+			string,
+			Array<(string | number)[]>
+		>();
+		const getIdsFromPath = (
+			document: any,
+			remainingPathSegments: string[],
+			fullPath: (string | number)[]
+		) => {
+			console.log('document', document, remainingPathSegments, fullPath);
+			if (remainingPathSegments.length === 0) {
+				if (typeof document !== 'string') {
+					throw new Error('Expected nested document to be a string');
+				}
+
+				let nestedDocumentArray = idToNestedDocumentPath.get(document);
+				if (nestedDocumentArray === undefined) {
+					nestedDocumentArray = [];
+					idToNestedDocumentPath.set(document, nestedDocumentArray);
+				}
+				nestedDocumentArray.push(fullPath);
+
+				return;
+			}
+
+			const currentPathSegment = remainingPathSegments[0]!;
+			const nestedDocument = document[currentPathSegment];
+
+			if (Array.isArray(nestedDocument)) {
+				for (const [
+					nestedDocumentEntryIndex,
+					nestedDocumentEntry
+				] of nestedDocument.entries()) {
+					getIdsFromPath(nestedDocumentEntry, remainingPathSegments.slice(1), [
+						...fullPath,
+						currentPathSegment,
+						nestedDocumentEntryIndex
+					]);
+				}
+			} else {
+				getIdsFromPath(nestedDocument, remainingPathSegments.slice(1), [
+					...fullPath,
+					currentPathSegment
+				]);
+			}
+		};
+		getIdsFromPath(document, fullPath, []);
+
+		const nestedDocumentIds = [...idToNestedDocumentPath.keys()];
+		const nestedResult = await select(
+			model.find({ _id: { $in: nestedDocumentIds } }),
+			selectInput
+		);
+
+		for (const nestedResultEntry of nestedResult as any) {
+			const nestedDocumentPaths = idToNestedDocumentPath.get(
+				nestedResultEntry._id
+			);
+			for (const nestedDocumentPath of nestedDocumentPaths!) {
+				let pathString = '';
+				for (const [
+					nestedDocumentPathSegmentIndex,
+					nestedDocumentPathSegment
+				] of nestedDocumentPath.entries()) {
+					if (typeof nestedDocumentPathSegment === 'number') {
+						pathString += `[${nestedDocumentPathSegment}]`;
+					} else {
+						pathString +=
+							nestedDocumentPathSegmentIndex === 0
+								? nestedDocumentPathSegment
+								: `.${nestedDocumentPathSegment}`;
+					}
+				}
+				(setProperty as any)(document, pathString, nestedResultEntry);
+			}
+		}
+	}
+
+	return document as any;
 }

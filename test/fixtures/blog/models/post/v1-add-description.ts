@@ -22,8 +22,8 @@ export const Post_migration = createMigration<Post>()
 		const PostV0Model = getModelForHyperschema(PostV0, {
 			mongoose: await getMongoose()
 		});
-		const user = await select(PostV0Model.findById(_id), { content: true });
-		return user;
+		const post = await select(PostV0Model.findById(_id), { content: true });
+		return post;
 	})
 	.migrate({
 		description() {

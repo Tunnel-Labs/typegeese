@@ -14,13 +14,14 @@
 		"@paralleldrive/cuid2": "^2.2.2",
 		"@typegoose/typegoose": "^11.4.1",
 		"deepmerge-ts": "^5.1.0",
+		"dot-prop": "^8.0.2",
 		"filter-obj": "^5.1.0",
 		"map-obj": "^5.0.2",
 		"type-fest": "^4.2.0"
 	},
 	"devDependencies": {
 		"lionconfig": "^3.1.1",
-		"mongoose": "^7.4.5",
+		"mongoose": "^7.5.0",
 		"onetime": "^6.0.0",
 		"rollup-plugin-tilde-imports": "^1.0.2",
 		"typescript": "^5.2.2",
