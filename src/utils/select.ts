@@ -58,24 +58,29 @@ export async function select<
 	}
 
 	/**
-		We need to keep track of paths that have already been populated because mongoose doesn't work if we populate the same path twice in a single query
-	*/
-	const populatedPaths = new Set<string>();
-
-	/**
 		A list of queries to call again (for when we need to call populate on paths that have already been populated)
 	*/
 	const nestedQueries: Array<{ fullPath: string[]; select: any; model: any }> =
 		[];
 
 	const getPopulateObject = (
-		model: any,
-		path: string,
-		fullPath: string[],
-		queryInput: { select: any },
-		modelForeignField?: string
+		args: {
+			model: any;
+			path: string;
+			fullPath: string[];
+			queryInput: { select: any };
+		} & (
+			| {
+					isVirtualForeignRef: false;
+			  }
+			| {
+					isVirtualForeignRef: true;
+					virtualForeignRefForeignField: string;
+			  }
+		)
 	): PopulateObject => {
 		const populate: PopulateObject[] = [];
+		const { model, path, fullPath, queryInput } = args;
 
 		const select = mapObject(
 			queryInput.select,
@@ -85,10 +90,7 @@ export async function select<
 		);
 
 		const fieldsToPopulate = Object.entries(
-			includeKeys(
-				queryInput.select,
-				(key, value) => key !== modelForeignField && typeof value === 'object'
-			)
+			includeKeys(queryInput.select, (key, value) => typeof value === 'object')
 		);
 
 		for (const [fieldPath, fieldQueryInput] of fieldsToPopulate) {
@@ -105,27 +107,43 @@ export async function select<
 			}
 
 			const fieldModel = getModelWithString(ref);
-			const foreignField = (fieldModel?.schema as any).tree?.[path]?.options
-				?.foreignField;
 
-			// If the path has already been populated, we avoid populating it again in the same query
-			if (populatedPaths.has(fieldPath)) {
+			// We can't populate a foreign field to the parent in the same query, so we have to do it in a separate query
+			if (
+				args.isVirtualForeignRef &&
+				fieldPath === args.virtualForeignRefForeignField
+			) {
 				nestedQueries.push({
 					fullPath: [...fullPath, fieldPath],
 					select: fieldQueryInput.select,
 					model: fieldModel
 				});
 			} else {
-				populatedPaths.add(fieldPath);
-				populate.push(
-					getPopulateObject(
-						fieldModel,
-						fieldPath,
-						[...fullPath, fieldPath],
-						fieldQueryInput,
-						foreignField
-					)
-				);
+				const virtualForeignRefForeignField =
+					model.schema.tree[fieldPath]?.options?.foreignField;
+
+				if (virtualForeignRefForeignField !== undefined) {
+					populate.push(
+						getPopulateObject({
+							model: fieldModel,
+							path: fieldPath,
+							fullPath: [...fullPath, fieldPath],
+							queryInput: fieldQueryInput,
+							isVirtualForeignRef: true,
+							virtualForeignRefForeignField
+						})
+					);
+				} else {
+					populate.push(
+						getPopulateObject({
+							model: fieldModel,
+							path: fieldPath,
+							fullPath: [...fullPath, fieldPath],
+							queryInput: fieldQueryInput,
+							isVirtualForeignRef: false
+						})
+					);
+				}
 			}
 		}
 
@@ -158,23 +176,36 @@ export async function select<
 		}
 
 		const fieldModel = getModelWithString(ref);
-		// @ts-expect-error: exists at runtime
-		const foreignField = query.model.schema.tree[path]?.options?.foreignField;
 
-		populatedPaths.add(path);
-		populateArray.push(
-			getPopulateObject(
-				fieldModel,
-				path,
-				[path],
-				queryInput as any,
-				foreignField
-			)
-		);
+		const virtualForeignRefForeignField =
+			// @ts-expect-error: exists at runtime
+			query.model.schema.tree[path]?.options?.foreignField;
+
+		if (virtualForeignRefForeignField !== undefined) {
+			populateArray.push(
+				getPopulateObject({
+					model: fieldModel,
+					path,
+					fullPath: [path],
+					queryInput: queryInput as any,
+					isVirtualForeignRef: false
+				})
+			);
+		} else {
+			populateArray.push(
+				getPopulateObject({
+					model: fieldModel,
+					path,
+					fullPath: [path],
+					queryInput: queryInput as any,
+					isVirtualForeignRef: true,
+					virtualForeignRefForeignField
+				})
+			);
+		}
 	}
 
 	query.populate(populateArray);
-
 	const document = await query.lean().exec();
 
 	for (const { model, fullPath, select: selectInput } of nestedQueries) {

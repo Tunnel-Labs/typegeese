@@ -15,7 +15,7 @@ test('supports nested self-referential select', async () => {
 	const { PostModel, UserModel } = await getModels();
 
 	const userId = createId();
-	UserModel.create({
+	await UserModel.create({
 		_id: userId,
 		name: 'John Doe',
 		email: 'johndoe@example.com',
@@ -52,6 +52,18 @@ test('supports nested self-referential select', async () => {
 		}
 	}))!;
 
-	expect(post).not.toBeNull();
 	expect(post.title).toBe(post.author.posts[0]?.title);
+
+	// const user = (await select(UserModel.findById(userId), {
+	// 	posts: {
+	// 		select: {
+	// 			author: {
+	// 				select: {
+	// 					_id: true
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }))!;
+	// expect(user.posts[0]?.author._id).toBe(userId);
 });
