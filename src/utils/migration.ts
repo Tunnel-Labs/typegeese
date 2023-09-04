@@ -284,6 +284,7 @@ export function createMigrateFunction({
 						);
 
 						documentIdToMigrationPromise.delete(result._id);
+						result._v = getVersionFromSchema(hyperschema.schema);
 					}
 				)
 			);
