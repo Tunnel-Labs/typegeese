@@ -191,7 +191,6 @@ export async function select<
 			remainingPathSegments: string[],
 			fullPath: (string | number)[]
 		) => {
-			console.log('document', document, remainingPathSegments, fullPath);
 			if (remainingPathSegments.length === 0) {
 				if (typeof document !== 'string') {
 					throw new Error('Expected nested document to be a string');

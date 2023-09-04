@@ -118,8 +118,6 @@ test('supports migrations using populate', async () => {
 		}
 	});
 
-	console.log(util.inspect(post, { depth: 10, colors: true }))
-
 	expect(post?.description).toBe('This is th...');
 	expect(post?.comments[0]?.author.username).toBe('johndoe');
 	expect(post?.comments[0]?.author.posts[0]?.author.bio).toBe(null);
