@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from 'vitest';
-import { CreateInput, getModelForHyperschema, select } from '~/index.js';
+import { CreateInput, select } from '~/index.js';
 import { createId } from '@paralleldrive/cuid2';
 import { getModels } from '~test/fixtures/blog/models/$models.js';
 import { getMongoose } from '~test/utils/mongoose.js';
@@ -11,7 +11,6 @@ beforeAll(async () => {
 });
 
 test('supports nested self-referential select', async () => {
-	const mongoose = await getMongoose();
 	const { PostModel, UserModel } = await getModels();
 
 	const userId = createId();
@@ -54,16 +53,16 @@ test('supports nested self-referential select', async () => {
 
 	expect(post.title).toBe(post.author.posts[0]?.title);
 
-	// const user = (await select(UserModel.findById(userId), {
-	// 	posts: {
-	// 		select: {
-	// 			author: {
-	// 				select: {
-	// 					_id: true
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }))!;
-	// expect(user.posts[0]?.author._id).toBe(userId);
+	const user = (await select(UserModel.findById(userId), {
+		posts: {
+			select: {
+				author: {
+					select: {
+						_id: true
+					}
+				}
+			}
+		}
+	}))!;
+	expect(user.posts[0]?.author._id).toBe(userId);
 });
