@@ -12,7 +12,7 @@
 	},
 	"dependencies": {
 		"@paralleldrive/cuid2": "^2.2.2",
-		"@typegoose/typegoose": "^11.4.1",
+		"@typegoose/typegoose": "^11.5.0",
 		"deepmerge-ts": "^5.1.0",
 		"dot-prop": "^8.0.2",
 		"filter-obj": "^5.1.0",

@@ -12,8 +12,8 @@ importers:
         specifier: ^2.2.2
         version: 2.2.2
       '@typegoose/typegoose':
-        specifier: ^11.4.1
-        version: 11.4.1(mongoose@7.5.0)
+        specifier: ^11.5.0
+        version: 11.5.0(mongoose@7.5.0)
       deepmerge-ts:
         specifier: ^5.1.0
         version: 5.1.0
@@ -1482,11 +1482,11 @@ packages:
     resolution: {integrity: sha512-RDDZFuofwkcKpl8Vpj5wFbY+H53xOtqK7ckEL1sXsbPwvKwDdjQf3LkHbtt9sxIHn9nWIEwkmCwBRZ6z5TKU2A==}
     dev: true
 
-  /@typegoose/typegoose@11.4.1(mongoose@7.5.0):
-    resolution: {integrity: sha512-mOMEUBaxnSYtnGWAMsduh1+4MeJHpYN2+rhZ5rHq9mKRT8Ix3nsR0QWEnFIIqTnksL0Yt3Ww7Qj8IFzWhoIyoQ==}
+  /@typegoose/typegoose@11.5.0(mongoose@7.5.0):
+    resolution: {integrity: sha512-+ca//+8hUzOdK7mJTxHwqMiQjarVGCkF5x073ZScXfWOw35kPOzvvQwBEqFiVMhKW5txkiswsALwriJxhYcO2A==}
     engines: {node: '>=14.17.0'}
     peerDependencies:
-      mongoose: ~7.4.0
+      mongoose: ~7.5.0
     dependencies:
       lodash: 4.17.21
       loglevel: 1.8.1
