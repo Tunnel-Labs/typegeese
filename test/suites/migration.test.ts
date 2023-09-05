@@ -6,7 +6,6 @@ import { getMongoose } from '~test/utils/mongoose.js';
 import * as UserV0 from '~test/fixtures/blog/models/user/v0.js';
 import * as PostV0 from '~test/fixtures/blog/models/post/v0.js';
 import * as CommentV0 from '~test/fixtures/blog/models/comment/v0.js';
-import util from 'node:util'
 
 beforeAll(async () => {
 	const mongoose = await getMongoose();

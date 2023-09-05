@@ -3,14 +3,13 @@ import {
 	NormalizedHyperschema
 } from '~/types/hyperschema.js';
 import {
-	getModelWithString,
 	pre,
 	post,
 	getModelForClass
 } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import mapObject from 'map-obj';
-import { Mongoose, PreMiddlewareFunction, Query } from 'mongoose';
+import { Mongoose } from 'mongoose';
 import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
 import { PopulateObject } from '~/types/populate.js';
