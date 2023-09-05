@@ -52,7 +52,7 @@ test('supports migrations using populate', async () => {
 		}
 	] satisfies CreateInput<PostV0.Post>[]);
 
-	const comments = await CommentV0Model.create([
+	await CommentV0Model.create([
 		{
 			_id: createId(),
 			author: userId,
