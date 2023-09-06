@@ -1,29 +1,27 @@
 import { getModelForHyperschema, loadHyperschemas } from '~/index.js';
-import * as UserHyperschema from './user/$schema.js';
 import * as CommentHyperschema from './comment/$schema.js';
-import * as PostHyperschema from './post/$schema.js';
+import * as CommentThreadHyperschema from './comment-thread/$schema.js';
 import { getMongoose } from '~test/utils/mongoose.js';
 import onetime from 'onetime';
 
-export const getBlogModels = onetime(async () => {
+export const getTunnelModels = onetime(async () => {
 	const mongoose = await getMongoose();
 
 	await loadHyperschemas(
 		{
-			User: UserHyperschema,
 			Comment: CommentHyperschema,
-			Post: PostHyperschema
+			CommentThread: CommentThreadHyperschema
 		},
 		{ mongoose }
 	);
 
-	const UserModel = getModelForHyperschema(UserHyperschema, { mongoose });
 	const CommentModel = getModelForHyperschema(CommentHyperschema, { mongoose });
-	const PostModel = getModelForHyperschema(PostHyperschema, { mongoose });
+	const CommentThreadModel = getModelForHyperschema(CommentThreadHyperschema, {
+		mongoose
+	});
 
 	return {
-		UserModel,
 		CommentModel,
-		PostModel
+		CommentThreadModel
 	};
 });

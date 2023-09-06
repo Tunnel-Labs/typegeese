@@ -1,9 +1,12 @@
 import { beforeAll, expect, test } from 'vitest';
 import { CreateInput, select } from '~/index.js';
 import { createId } from '@paralleldrive/cuid2';
-import { getModels } from '~test/fixtures/blog/models/$models.js';
+import { getBlogModels } from '~test/fixtures/blog/models/$models.js';
+import { getTunnelModels } from '~test/fixtures/tunnel/models/$models.js';
 import { getMongoose } from '~test/utils/mongoose.js';
-import { User, Post } from '~test/fixtures/blog/models/$schemas.js';
+import * as Blog from '~test/fixtures/blog/models/$schemas.js';
+import * as Tunnel from '~test/fixtures/tunnel/models/$schemas.js';
+import { CommentThread } from '~test/fixtures/tunnel/models/$schemas.js';
 
 beforeAll(async () => {
 	const mongoose = await getMongoose();
@@ -11,7 +14,7 @@ beforeAll(async () => {
 });
 
 test('supports nested self-referential select', async () => {
-	const { PostModel, UserModel } = await getModels();
+	const { PostModel, UserModel } = await getBlogModels();
 
 	const userId = createId();
 	await UserModel.create({
@@ -21,7 +24,7 @@ test('supports nested self-referential select', async () => {
 		avatarUrl: 'https://example.com/avatar.png',
 		bio: null,
 		username: 'johndoe'
-	} satisfies CreateInput<User>);
+	} satisfies CreateInput<Blog.User>);
 
 	const postId = createId();
 	await PostModel.create({
@@ -30,7 +33,7 @@ test('supports nested self-referential select', async () => {
 		author: userId,
 		content: 'This is the first post.',
 		description: 'This is the first post.'
-	} satisfies CreateInput<Post>);
+	} satisfies CreateInput<Blog.Post>);
 
 	const post = (await select(PostModel.findById(postId), {
 		title: true,
@@ -65,4 +68,36 @@ test('supports nested self-referential select', async () => {
 		}
 	}))!;
 	expect(user.posts[0]?.author._id).toBe(userId);
+});
+
+test('supports nested self-referential select (tunnel)', async () => {
+	const { CommentThreadModel, CommentModel } = await getTunnelModels();
+
+	const commentThreadId = createId();
+	await CommentThreadModel.create({
+		_id: commentThreadId
+	} satisfies CreateInput<Tunnel.CommentThread>);
+
+	const commentId = createId();
+	await CommentModel.create({
+		_id: commentId,
+		parentCommentThread: commentThreadId,
+		rawText: 'This is a comment.'
+	} satisfies CreateInput<Tunnel.Comment>);
+
+	const commentThreads = (await select(CommentThreadModel.find({}), {
+		comments: {
+			select: {
+				parentCommentThread: {
+					select: {
+						_id: true
+					}
+				}
+			}
+		}
+	}))!;
+
+	expect(commentThreads[0]?.comments[0]?.parentCommentThread._id).toBe(
+		commentThreadId
+	);
 });
