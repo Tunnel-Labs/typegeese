@@ -1,11 +1,10 @@
-export * from './v0.js';
-import * as $ from './v0.js';
-
 import type { t } from '~/index.js';
 import type { User, Comment } from '../$schemas.js';
 
-export const { CommentDownvote } = $;
-export type CommentDownvote = t.Shape<
+import * as $ from './v0.js';
+export * from './v0.js';
+
+type _CommentDownvote = t.Shape<
 	$.CommentDownvote,
 	{
 		_id: string;

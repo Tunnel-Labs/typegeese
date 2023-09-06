@@ -1,6 +1,3 @@
-export * from './v4-add-votes.js';
-import * as $ from './v4-add-votes.js';
-
 import type { t } from '~/index.js';
 import type {
 	CommentUpvote,
@@ -9,8 +6,10 @@ import type {
 	Post
 } from '../$schemas.js';
 
-export const { User } = $;
-export type User = t.Shape<
+import * as $ from './v4-add-votes.js';
+export * from './v4-add-votes.js';
+
+type _User = t.Shape<
 	$.User,
 	{
 		_id: string;

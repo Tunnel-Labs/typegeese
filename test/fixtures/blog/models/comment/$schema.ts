@@ -1,16 +1,16 @@
-export * from './v2-add-votes.js';
-import * as $ from './v2-add-votes.js';
-
 import type { t } from '~/index.js';
 import type {
 	User,
 	Post,
 	CommentDownvote,
-	CommentUpvote
+	CommentUpvote,
+	Comment
 } from '../$schemas.js';
 
-export const { Comment } = $;
-export type Comment = t.Shape<
+import type * as $ from './v2-add-votes.js';
+export * from './v2-add-votes.js';
+
+type _Comment = t.Shape<
 	$.Comment,
 	{
 		_id: string;
