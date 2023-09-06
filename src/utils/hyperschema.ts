@@ -76,7 +76,13 @@ export function normalizeHyperschema<Hyperschema>(
 		);
 	}
 
-	const schema = hyperschema[schemaKey as keyof typeof hyperschema];
+	/**
+		Workaround for a typegoose bug where the modelOptions on the leaf schema aren't applied
+		@see https://github.com/typegoose/typegoose/blob/master/src/typegoose.ts#L156
+	*/
+	class schema extends (hyperschema[
+		schemaKey as keyof typeof hyperschema
+	] as any) {}
 
 	return {
 		schema,
