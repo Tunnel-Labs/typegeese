@@ -20,7 +20,7 @@ export const User_migration = createMigration<User>()
 	.from(UserV1)
 	.with(async function ({ _id }) {
 		const UserV1Model = getModelForHyperschema(UserV1, {
-			mongoose: this.meta.mongoose
+			mongoose: this.mongoose
 		});
 		const user = await select(UserV1Model.findById(_id), { _id: true });
 		return user;

@@ -212,7 +212,7 @@ export async function select<
 		/**
 			Map from the object path of the `result` object to the ID that needs to be replaced
 		*/
-		const idToNestedDocumentPath = new Map<
+		const idToNestedDocumentPaths = new Map<
 			string,
 			Array<(string | number)[]>
 		>();
@@ -226,10 +226,10 @@ export async function select<
 					throw new Error('Expected nested document to be a string');
 				}
 
-				let nestedDocumentArray = idToNestedDocumentPath.get(document);
+				let nestedDocumentArray = idToNestedDocumentPaths.get(document);
 				if (nestedDocumentArray === undefined) {
 					nestedDocumentArray = [];
-					idToNestedDocumentPath.set(document, nestedDocumentArray);
+					idToNestedDocumentPaths.set(document, nestedDocumentArray);
 				}
 				nestedDocumentArray.push(fullPath);
 
@@ -257,16 +257,24 @@ export async function select<
 				]);
 			}
 		};
-		getIdsFromPath(document, fullPath, []);
 
-		const nestedDocumentIds = [...idToNestedDocumentPath.keys()];
+		if (Array.isArray(document)) {
+			for (const [documentIndex, documentEntry] of document.entries()) {
+				getIdsFromPath(documentEntry, fullPath, [documentIndex]);
+			}
+		} else {
+			getIdsFromPath(document, fullPath, []);
+		}
+
+		const nestedDocumentIds = [...idToNestedDocumentPaths.keys()];
+
 		const nestedResult = await select(
 			model.find({ _id: { $in: nestedDocumentIds } }),
 			selectInput
 		);
 
 		for (const nestedResultEntry of nestedResult as any) {
-			const nestedDocumentPaths = idToNestedDocumentPath.get(
+			const nestedDocumentPaths = idToNestedDocumentPaths.get(
 				nestedResultEntry._id
 			);
 			for (const nestedDocumentPath of nestedDocumentPaths!) {
