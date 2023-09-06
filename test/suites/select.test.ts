@@ -3,18 +3,19 @@ import { CreateInput, select } from '~/index.js';
 import { createId } from '@paralleldrive/cuid2';
 import { getBlogModels } from '~test/fixtures/blog/models/$models.js';
 import { getTunnelModels } from '~test/fixtures/tunnel/models/$models.js';
-import { getMongoose } from '~test/utils/mongoose.js';
+import { createMongoose } from '~test/utils/mongoose.js';
 import * as Blog from '~test/fixtures/blog/models/$schemas.js';
 import * as Tunnel from '~test/fixtures/tunnel/models/$schemas.js';
 import { CommentThread } from '~test/fixtures/tunnel/models/$schemas.js';
 
 beforeAll(async () => {
-	const mongoose = await getMongoose();
+	const mongoose = await createMongoose();
 	mongoose.connection.db.dropDatabase();
 });
 
 test('supports nested self-referential select', async () => {
-	const { PostModel, UserModel } = await getBlogModels();
+	const mongoose = await createMongoose();
+	const { PostModel, UserModel } = await getBlogModels({ mongoose });
 
 	const userId = createId();
 	await UserModel.create({
@@ -71,7 +72,10 @@ test('supports nested self-referential select', async () => {
 });
 
 test('supports nested self-referential select (tunnel)', async () => {
-	const { CommentThreadModel, CommentModel } = await getTunnelModels();
+	const mongoose = await createMongoose();
+	const { CommentThreadModel, CommentModel } = await getTunnelModels({
+		mongoose
+	});
 
 	const commentThreadId = createId();
 	await CommentThreadModel.create({

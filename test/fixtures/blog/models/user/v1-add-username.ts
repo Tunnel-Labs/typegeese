@@ -8,7 +8,6 @@ import {
 
 import * as UserV0 from './v0.js';
 import { createMigration } from '~/utils/migration.js';
-import { getMongoose } from '~test/utils/mongoose.js';
 
 export class User extends Schema(UserV0, 'v1-add-username') {
 	declare __self: User;
@@ -19,9 +18,9 @@ export class User extends Schema(UserV0, 'v1-add-username') {
 
 export const User_migration = createMigration<User>()
 	.from(UserV0)
-	.with(async ({ _id }) => {
+	.with(async function ({ _id }) {
 		const UserV0Model = getModelForHyperschema(UserV0, {
-			mongoose: await getMongoose()
+			mongoose: this.mongoose
 		});
 		const user = await select(UserV0Model.findById(_id), { email: true });
 		return user;

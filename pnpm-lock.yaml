@@ -33,6 +33,9 @@ importers:
       lionconfig:
         specifier: ^3.1.1
         version: 3.1.1(typescript@5.2.2)
+      mem:
+        specifier: ^9.0.2
+        version: 9.0.2
       mongoose:
         specifier: ^7.5.0
         version: 7.5.0
@@ -5495,6 +5498,14 @@ packages:
     dependencies:
       map-age-cleaner: 0.1.3
       mimic-fn: 3.1.0
+    dev: true
+
+  /mem@9.0.2:
+    resolution: {integrity: sha512-F2t4YIv9XQUBHt6AOJ0y7lSmP1+cY7Fm1DRh9GClTGzKST7UWLMx6ly9WZdLH/G/ppM5RL4MlQfRT71ri9t19A==}
+    engines: {node: '>=12.20'}
+    dependencies:
+      map-age-cleaner: 0.1.3
+      mimic-fn: 4.0.0
     dev: true
 
   /memory-fs@0.2.0:

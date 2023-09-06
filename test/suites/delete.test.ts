@@ -1,17 +1,20 @@
 import { beforeAll, expect, test } from 'vitest';
 import { CreateInput } from '~/index.js';
 import { createId } from '@paralleldrive/cuid2';
-import { getModels } from '~test/fixtures/blog/models/$models.js';
-import { getMongoose } from '~test/utils/mongoose.js';
+import { createMongoose } from '~test/utils/mongoose.js';
 import { User, Post, Comment } from '~test/fixtures/blog/models/$schemas.js';
+import { getBlogModels } from '~test/fixtures/blog/models/$models.js';
 
 beforeAll(async () => {
-	const mongoose = await getMongoose();
+	const mongoose = await createMongoose();
 	mongoose.connection.db.dropDatabase();
 });
 
 test('supports cascade deletes', async () => {
-	const { PostModel, UserModel, CommentModel } = await getModels();
+	const mongoose = await createMongoose();
+	const { PostModel, UserModel, CommentModel } = await getBlogModels({
+		mongoose
+	});
 
 	const userId = createId();
 	await UserModel.create({

@@ -6,6 +6,7 @@ import { IsEqual, Promisable } from 'type-fest';
 import { getModelWithString } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import { AnySchema } from '~/types/schema.js';
+import { Mongoose } from 'mongoose';
 
 function getForeignHyperschemaFromForeignPropertyKey({
 	hyperschemas,
@@ -47,11 +48,13 @@ function getForeignHyperschemaFromForeignPropertyKey({
 	@param args.result - The result returned from mongoose (the raw object; only updated if the projections include those results)
 */
 export async function applyHyperschemaMigrationsToDocument({
+	mongoose,
 	meta,
 	documentMetadata,
 	hyperschema,
 	updatedProperties
 }: {
+	mongoose: Mongoose;
 	meta: any;
 	documentMetadata: {
 		_id: string;
@@ -65,6 +68,7 @@ export async function applyHyperschemaMigrationsToDocument({
 	// If the hyperschema version is more than one greater than the document version, then we should apply the previous hyperschema migration before the current one
 	if (hyperschemaVersion - 1 > documentMetadata._v) {
 		await applyHyperschemaMigrationsToDocument({
+			mongoose,
 			meta,
 			updatedProperties,
 			hyperschema: hyperschema.migration.previousHyperschema,
@@ -76,7 +80,7 @@ export async function applyHyperschemaMigrationsToDocument({
 		hyperschema.migration.getData === null
 			? null
 			: await hyperschema.migration.getData.call(
-					{ meta },
+					{ meta, mongoose },
 					{ _id: documentMetadata._id }
 			  );
 
@@ -103,7 +107,7 @@ export function createMigration<CurrentSchema extends AnySchema>(
 					getData:
 						| null
 						| ((
-								this: { meta: any },
+								this: { meta: any; mongoose: Mongoose },
 								args: { _id: string }
 						  ) => Promisable<DataType>)
 				) => {
@@ -146,9 +150,11 @@ export function createMigrateFunction({
 	meta: any;
 }) {
 	return async function migrate({
+		mongoose,
 		hyperschema,
 		documents
 	}: {
+		mongoose: Mongoose;
 		hyperschema: NormalizedHyperschema<any>;
 		documents: Array<{ _id: string; _v: number }>;
 	}) {
@@ -192,6 +198,7 @@ export function createMigrateFunction({
 						});
 
 					await migrate({
+						mongoose,
 						hyperschema: foreignHyperschema,
 						documents: [document]
 					});
@@ -209,6 +216,7 @@ export function createMigrateFunction({
 							});
 
 						await migrate({
+							mongoose,
 							hyperschema: foreignHyperschema,
 							documents: versionedDocuments
 						});
@@ -222,6 +230,7 @@ export function createMigrateFunction({
 					continue;
 				} else {
 					const migrationPromise = applyHyperschemaMigrationsToDocument({
+						mongoose,
 						meta,
 						documentMetadata: {
 							_id: document._id,

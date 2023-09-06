@@ -1,19 +1,19 @@
 import { beforeAll, expect, test } from 'vitest';
 import { CreateInput, getModelForHyperschema, select } from '~/index.js';
 import { createId } from '@paralleldrive/cuid2';
-import { getModels } from '~test/fixtures/blog/models/$models.js';
-import { getMongoose } from '~test/utils/mongoose.js';
+import { createMongoose } from '~test/utils/mongoose.js';
 import * as UserV0 from '~test/fixtures/blog/models/user/v0.js';
 import * as PostV0 from '~test/fixtures/blog/models/post/v0.js';
 import * as CommentV0 from '~test/fixtures/blog/models/comment/v0.js';
+import { getBlogModels } from '~test/fixtures/blog/models/$models.js';
 
 beforeAll(async () => {
-	const mongoose = await getMongoose();
+	const mongoose = await createMongoose();
 	mongoose.connection.db.dropDatabase();
 });
 
 test('supports migrations using populate', async () => {
-	const mongoose = await getMongoose();
+	const mongoose = await createMongoose();
 	const UserV0Model = getModelForHyperschema(UserV0, {
 		mongoose
 	});
@@ -91,7 +91,7 @@ test('supports migrations using populate', async () => {
 		}
 	] satisfies CreateInput<CommentV0.Comment>[]);
 
-	const { PostModel } = await getModels();
+	const { PostModel } = await getBlogModels({ mongoose });
 	const post = await select(PostModel.findById(posts[0]!.id), {
 		description: true,
 		comments: {

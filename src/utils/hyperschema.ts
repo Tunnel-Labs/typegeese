@@ -2,11 +2,7 @@ import {
 	GetSchemaKeyFromHyperschema,
 	NormalizedHyperschema
 } from '~/types/hyperschema.js';
-import {
-	pre,
-	post,
-	getModelForClass
-} from '@typegoose/typegoose';
+import { pre, post, getModelForClass } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import mapObject from 'map-obj';
 import { Mongoose } from 'mongoose';
@@ -181,6 +177,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 
 		post('findOne', function (result, next) {
 			migrate({
+				mongoose,
 				hyperschema,
 				documents: Array.isArray(result) ? result : [result]
 			})
@@ -195,6 +192,7 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 		})(hyperschema.schema as any);
 		post('find', function (result, next) {
 			migrate({
+				mongoose,
 				hyperschema,
 				documents: Array.isArray(result) ? result : [result]
 			})

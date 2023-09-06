@@ -160,7 +160,6 @@ export async function select<
 
 	const populateArray = [];
 	for (const [path, queryInput] of Object.entries(topLevelFieldsToPopulate)) {
-		console.log(query.model.schema.tree, path)
 		const ref =
 			// @ts-expect-error: exists at runtime
 			query.model.schema.tree[path]?.options?.ref ??
