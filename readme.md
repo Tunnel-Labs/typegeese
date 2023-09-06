@@ -16,8 +16,6 @@ import { virtualForeignRef } from "../../utils/refs.js";
 import { Post } from "../post/$schema.js";
 
 export class User extends BaseSchema {
-  declare __self: User;
-
   @prop({ type: () => String, required: true })
   public email!: string;
 
@@ -37,8 +35,6 @@ import { Post } from "../post/$schema.js";
 import * as UserV0 from './v0.ts'
 
 export class User extends Schema(UserV0, "v1-add-posts") {
-  declare __self: User;
-
   @prop(virtualForeignRef("Post", "author", "_id"), PropType.ARRAY)
   public posts!: VirtualForeignRef<User, Post, "author">[];
 }
@@ -57,8 +53,6 @@ import {
 } from 'typegeese';
 
 export class User extends Schema(UserV1, "v2-add-username") {
-  declare __self: User;
-
   @prop({ type: () => String, required: true })
   public username!: string;
 }
