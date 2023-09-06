@@ -8,7 +8,7 @@ import {
 } from '~/index.js';
 
 import type { Comment } from '../$schemas.js';
-import { virtualForeignRef } from '~test/fixtures/tunnel/utils/refs.js';
+import { virtualForeignRef } from '../../utils/refs.js';
 
 export class CommentThread extends BaseSchema {
 	declare __self: CommentThread;
