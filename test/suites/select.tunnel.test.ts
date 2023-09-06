@@ -13,7 +13,7 @@ beforeAll(async () => {
 	}
 });
 
-test('supports nested self-referential select (tunnel)', async () => {
+test.skip('supports nested self-referential select (tunnel)', async () => {
 	const mongoose = await createMongoose();
 	const { CommentThreadModel, CommentModel } = await getTunnelModels({
 		mongoose

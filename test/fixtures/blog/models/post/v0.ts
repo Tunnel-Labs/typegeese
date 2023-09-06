@@ -4,12 +4,14 @@ import {
 	VirtualForeignRef,
 	createMigration,
 	defineOnForeignModelDeletedActions,
-	prop
+	prop,
+	index
 } from '~/index.js';
 import type { Comment, User } from '../$schemas.js';
 import { foreignRef, virtualForeignRef } from '../../utils/refs.js';
-import { BaseSchema } from '../../../../../src/classes/$.js';
+import { BaseSchema } from '~/index.js';
 
+@index({ author: 1 })
 export class Post extends BaseSchema {
 	__self!: Post;
 

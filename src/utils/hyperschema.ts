@@ -83,7 +83,9 @@ export function normalizeHyperschema<Hyperschema>(
 	}
 }
 
-export async function loadHyperschemas<Hyperschemas extends Record<string, any>>(
+export async function loadHyperschemas<
+	Hyperschemas extends Record<string, any>
+>(
 	unnormalizedHyperschemas: Hyperschemas,
 	{
 		mongoose,
@@ -116,13 +118,12 @@ export async function loadHyperschemas<Hyperschemas extends Record<string, any>>
 
 		const schemaPrototypeChain = [];
 		let currentSchema = hyperschema.schema;
+		schemaPrototypeChain.push(currentSchema);
 
 		while (currentSchema !== BaseSchema) {
-			schemaPrototypeChain.push(currentSchema);
 			currentSchema = Object.getPrototypeOf(currentSchema);
+			schemaPrototypeChain.push(currentSchema);
 		}
-
-		schemaPrototypeChain.push(currentSchema);
 
 		// Loop through the prototype chain backwards
 		// For each schema, we overwrite its metadata with our merged metadata map up to that point

@@ -3,11 +3,14 @@ import {
 	createMigration,
 	defineOnForeignModelDeletedActions,
 	getModelForHyperschema,
+	modelOptions,
 	prop,
-	select
+	select,
+	index
 } from '~/index.js';
 import * as PostV0 from './v0.js';
 
+@modelOptions({ options: { disableLowerIndexes: true } })
 export class Post extends Schema(PostV0, 'v1-add-description') {
 	__self!: Post;
 

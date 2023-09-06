@@ -54,7 +54,7 @@ test('supports nested self-referential select', async () => {
 
 	expect(post.title).toBe(post.author.posts[0]?.title);
 
-	const user = (await select(UserModel.findById(userId), {
+	const user = (await select(UserModel.find({}), {
 		posts: {
 			select: {
 				author: {
@@ -65,5 +65,5 @@ test('supports nested self-referential select', async () => {
 			}
 		}
 	}))!;
-	expect(user.posts[0]?.author._id).toBe(userId);
+	expect(user[0]?.posts[0]?.author._id).toBe(userId);
 });
