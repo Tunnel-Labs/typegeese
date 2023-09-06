@@ -15,72 +15,75 @@ import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
 export function normalizeHyperschema<Hyperschema>(
 	hyperschema: Hyperschema
 ): NormalizedHyperschema<Hyperschema> {
-	if (typeof hyperschema === 'object' && hyperschema !== null) {
-		// If the `schemaName` property is present, the hyperschema is already normalized
-		if ('schemaName' in hyperschema) {
-			return hyperschema as any;
-		}
-
-		const migrationKey = Object.keys(hyperschema).find(
-			(key) => key === 'migration' || key.endsWith('_migration')
-		);
-
-		if (migrationKey === undefined) {
-			throw new Error(
-				`Missing "migration" key in hyperschema: ${JSON.stringify(hyperschema)}`
-			);
-		}
-
-		const migration = hyperschema[migrationKey as keyof typeof hyperschema];
-
-		const onForeignModelDeletedActionsKey = Object.keys(hyperschema).find(
-			(key) =>
-				key === 'onForeignModelDeletedActions' ||
-				key.endsWith('_onForeignModelDeletedActions')
-		);
-		if (onForeignModelDeletedActionsKey === undefined) {
-			throw new Error(
-				`Missing "onForeignModelDeletedActions" key in hyperschema: "${JSON.stringify(
-					hyperschema
-				)}"`
-			);
-		}
-
-		const onForeignModelDeletedActions =
-			hyperschema[onForeignModelDeletedActionsKey as keyof typeof hyperschema];
-
-		const schemaOptionsKey =
-			Object.keys(hyperschema).find(
-				(key) => key === 'schemaOptions' || key.endsWith('_schemaOptions')
-			) ?? 'schemaOptions';
-
-		const schemaOptions =
-			hyperschema[schemaOptionsKey as keyof typeof hyperschema] ?? {};
-
-		const schemaKey = Object.keys(hyperschema).find(
-			(key) =>
-				key !== migrationKey &&
-				key !== onForeignModelDeletedActionsKey &&
-				key !== schemaOptionsKey
-		);
-		if (schemaKey === undefined) {
-			throw new Error(
-				`Missing "schema" key in hyperschema: "${JSON.stringify(hyperschema)}}"`
-			);
-		}
-
-		const schema = hyperschema[schemaKey as keyof typeof hyperschema];
-
-		return {
-			schema,
-			schemaName: schemaKey,
-			schemaOptions,
-			migration,
-			onForeignModelDeletedActions
-		} as any;
-	} else {
+	if (
+		typeof hyperschema === null ||
+		(typeof hyperschema !== 'object' && typeof hyperschema !== 'function')
+	) {
 		throw new Error(`Invalid hyperschema: ${hyperschema}`);
 	}
+
+	// If the `schemaName` property is present, the hyperschema is already normalized
+	if ('schemaName' in hyperschema) {
+		return hyperschema as any;
+	}
+
+	const migrationKey = Object.keys(hyperschema).find(
+		(key) => key === 'migration' || key.endsWith('_migration')
+	);
+
+	if (migrationKey === undefined) {
+		throw new Error(
+			`Missing "migration" key in hyperschema: ${JSON.stringify(hyperschema)}`
+		);
+	}
+
+	const migration = hyperschema[migrationKey as keyof typeof hyperschema];
+
+	const onForeignModelDeletedActionsKey = Object.keys(hyperschema).find(
+		(key) =>
+			key === 'onForeignModelDeletedActions' ||
+			key.endsWith('_onForeignModelDeletedActions')
+	);
+	if (onForeignModelDeletedActionsKey === undefined) {
+		throw new Error(
+			`Missing "onForeignModelDeletedActions" key in hyperschema: "${JSON.stringify(
+				hyperschema
+			)}"`
+		);
+	}
+
+	const onForeignModelDeletedActions =
+		hyperschema[onForeignModelDeletedActionsKey as keyof typeof hyperschema];
+
+	const schemaOptionsKey =
+		Object.keys(hyperschema).find(
+			(key) => key === 'schemaOptions' || key.endsWith('_schemaOptions')
+		) ?? 'schemaOptions';
+
+	const schemaOptions =
+		hyperschema[schemaOptionsKey as keyof typeof hyperschema] ?? {};
+
+	const schemaKey = Object.keys(hyperschema).find(
+		(key) =>
+			key !== migrationKey &&
+			key !== onForeignModelDeletedActionsKey &&
+			key !== schemaOptionsKey
+	);
+	if (schemaKey === undefined) {
+		throw new Error(
+			`Missing "schema" key in hyperschema: "${JSON.stringify(hyperschema)}}"`
+		);
+	}
+
+	const schema = hyperschema[schemaKey as keyof typeof hyperschema];
+
+	return {
+		schema,
+		schemaName: schemaKey,
+		schemaOptions,
+		migration,
+		onForeignModelDeletedActions
+	} as any;
 }
 
 export async function loadHyperschemas<
