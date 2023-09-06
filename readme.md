@@ -2,12 +2,6 @@
 
 Typegeese is a fully type-safe MongoDB ORM built on top of the incredible [Typegoose](https://github.com/typegoose/typegoose) library. The main difference between Typegeese from other ORMs is that Typegeese _makes your schema migrations the source of truth for your schema._
 
-## Painless Migrations
-
-By defining your database schema in the form of schema migrations, data migrations no longer become an afterthought and instead become a first-class construct, making data migrations much less painful.
-
-Typegeese augments MongoDB with the concept of a **hyperschema**, which encompasses a versioned schema, migrations, and foreign relation actions.
-
 ## Migration-Defined Schemas
 
 Typegeese schemas are defined in terms of migrations, each of which creates a new "versioned schema." The version first schema for a model extends from `BaseSchema`:
