@@ -187,7 +187,8 @@ export async function select<
 					path,
 					fullPath: [path],
 					queryInput: queryInput as any,
-					isVirtualForeignRef: false
+					isVirtualForeignRef: true,
+					virtualForeignRefForeignField
 				})
 			);
 		} else {
@@ -197,8 +198,7 @@ export async function select<
 					path,
 					fullPath: [path],
 					queryInput: queryInput as any,
-					isVirtualForeignRef: true,
-					virtualForeignRefForeignField
+					isVirtualForeignRef: false
 				})
 			);
 		}
