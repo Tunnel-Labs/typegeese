@@ -9,7 +9,7 @@ import { Mongoose } from 'mongoose';
 import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
 import { PopulateObject } from '~/types/populate.js';
-import { BaseSchema } from '~/classes/index.js';
+import { BaseSchema } from '../classes/$.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
 
 export function normalizeHyperschema<Hyperschema>(
@@ -83,7 +83,7 @@ export function normalizeHyperschema<Hyperschema>(
 	}
 }
 
-export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
+export async function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 	unnormalizedHyperschemas: Hyperschemas,
 	{
 		mongoose,
@@ -92,11 +92,11 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 		mongoose: Mongoose;
 		meta?: any;
 	}
-): {
+): Promise<{
 	[HyperschemaKey in keyof Hyperschemas as GetSchemaKeyFromHyperschema<
 		Hyperschemas[HyperschemaKey]
 	>]: NormalizedHyperschema<Hyperschemas[HyperschemaKey]>;
-} {
+}> {
 	const hyperschemas = mapObject(
 		unnormalizedHyperschemas,
 		(_key, unnormalizedHyperschema) => {
@@ -215,6 +215,11 @@ export function loadHyperschemas<Hyperschemas extends Record<string, any>>(
 				collection: schemaName
 			}
 		});
+	}
+
+	// Run any migration initialization functions
+	for (const { migration } of Object.values(hyperschemas)) {
+		await migration.initialize?.({ mongoose, meta });
 	}
 
 	return hyperschemas as any;

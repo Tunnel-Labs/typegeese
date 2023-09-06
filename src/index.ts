@@ -14,11 +14,11 @@ export type * from './types/refs.js';
 export type * from './types/schema.js';
 export type * from './types/select.js';
 export type * from './types/selections.js';
-export type * from './types/t/t.js';
+export type * from './types/t/$.js';
 export type * from './types/query.js';
 export type * from './utils/selection.js';
 
-export { BaseSchema } from './classes/index.js';
+export { BaseSchema } from './classes/$.js';
 export { defineOnForeignModelDeletedActions } from './utils/delete.js';
 export { defineSchemaOptions, Schema } from './utils/schema.js';
 export { deprecated } from './utils/deprecated.js';

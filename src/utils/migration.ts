@@ -1,4 +1,8 @@
-import { MigrationData, MigrationFunctions } from '~/types/migration.js';
+import {
+	MigrationData,
+	MigrationFunctions,
+	MigrationOptions
+} from '~/types/migration.js';
 import { NormalizedHyperschema } from '~/types/hyperschema.js';
 import { getVersionFromSchema, isVersionedDocument } from '~/utils/version.js';
 import { normalizeHyperschema } from '~/utils/hyperschema.js';
@@ -98,7 +102,9 @@ export async function applyHyperschemaMigrationsToDocument({
 }
 
 export function createMigration<CurrentSchema extends AnySchema>(
-	...args: IsEqual<CurrentSchema['_v'], 0> extends true ? [null] : []
+	...args: IsEqual<CurrentSchema['_v'], 0> extends true
+		? [null]
+		: [MigrationOptions?]
 ): IsEqual<CurrentSchema['_v'], 0> extends true
 	? MigrationData
 	: {
@@ -135,7 +141,8 @@ export function createMigration<CurrentSchema extends AnySchema>(
 				migrate: (migrationFunctions: any) => ({
 					getData,
 					migrationFunctions,
-					previousHyperschema: normalizeHyperschema(previousHyperschema)
+					previousHyperschema: normalizeHyperschema(previousHyperschema),
+					initialize: args[0]?.initialize
 				})
 			})
 		})

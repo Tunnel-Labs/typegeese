@@ -6,7 +6,7 @@ import {
 } from '~/index.js';
 import type { Post, User } from '../$schemas.js';
 import { foreignRef } from '../../utils/refs.js';
-import { BaseSchema } from '~/classes/index.js';
+import { BaseSchema } from '../../../../../src/classes/$.js';
 
 export class Comment extends BaseSchema {
 	__self!: Comment;

@@ -1,7 +1,7 @@
 import type { Exact } from 'type-fest';
 import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 import type { IsDeprecated } from '~/types/deprecated.js';
-import type { t } from './t.js';
+import type { t } from './$.js';
 
 // prettier-ignore
 export type ShapeProperties<Schema> = {

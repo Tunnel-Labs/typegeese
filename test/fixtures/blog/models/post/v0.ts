@@ -8,7 +8,7 @@ import {
 } from '~/index.js';
 import type { Comment, User } from '../$schemas.js';
 import { foreignRef, virtualForeignRef } from '../../utils/refs.js';
-import { BaseSchema } from '~/classes/index.js';
+import { BaseSchema } from '../../../../../src/classes/$.js';
 
 export class Post extends BaseSchema {
 	__self!: Post;

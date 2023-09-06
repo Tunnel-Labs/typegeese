@@ -4,6 +4,7 @@ import type { IsDeprecated } from '~/types/deprecated.js';
 import type { NormalizedHyperschema } from '~/types/hyperschema.js';
 import { CreateType } from '~/types/create.js';
 import { IsVirtualForeignRef, IsVirtualForeignRefArray } from '~/types/ref.js';
+import { Mongoose } from 'mongoose';
 
 export type Diff<T, V> = {
 	[P in Exclude<keyof T, keyof V>]: T[P];
@@ -69,4 +70,9 @@ export interface MigrationData {
 	getData:
 		| null
 		| ((this: { meta: any }, args: { _id: any }) => Promisable<any>);
+	initialize?(args: { mongoose: Mongoose; meta: any }): Promisable<void>;
+}
+
+export interface MigrationOptions {
+	initialize?(args: { mongoose: Mongoose; meta: any }): Promisable<void>;
 }
