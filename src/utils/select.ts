@@ -5,7 +5,6 @@ import { QueryWithHelpers } from 'mongoose';
 import { IsManyQuery } from '~/types/query.js';
 import { GetSchemaFromQuery } from '~/types/schema.js';
 import { setProperty } from 'dot-prop';
-import util from 'node:util';
 
 import type { SelectInput, SelectOutput } from '~/types/select.js';
 
