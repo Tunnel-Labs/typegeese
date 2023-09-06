@@ -6,7 +6,7 @@ With typegeese, your schema migrations become the source of truth for the struct
 
 ## Migration-Defined Schemas
 
-typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema. The version first schema for a model extends from `BaseSchema`:
+typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema. The first version of a schema for a model extends from `BaseSchema`:
 
 ```typescript
 // user/v0.ts
