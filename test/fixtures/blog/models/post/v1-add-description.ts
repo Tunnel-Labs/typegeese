@@ -3,10 +3,8 @@ import {
 	createMigration,
 	defineOnForeignModelDeletedActions,
 	getModelForHyperschema,
-	modelOptions,
 	prop,
-	select,
-	index
+	select
 } from '~/index.js';
 import * as PostV0 from './v0.js';
 

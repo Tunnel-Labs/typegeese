@@ -115,10 +115,7 @@ export async function loadHyperschemas<
 
 	// For each schema, we need to merge all the typegoose metadata into the leaf schema
 	for (const hyperschema of Object.values(hyperschemas)) {
-		const mergedMetadata: Record<DecoratorKeys, Map<string, any>> = mapObject(
-			DecoratorKeys,
-			(_, decoratorKey) => [decoratorKey, new Map()]
-		);
+		const mergedPropCache: Map<string, any> = new Map();
 
 		const schemaPrototypeChain = [];
 		let currentSchema = hyperschema.schema;
@@ -132,28 +129,23 @@ export async function loadHyperschemas<
 		// Loop through the prototype chain backwards
 		// For each schema, we overwrite its metadata with our merged metadata map up to that point
 		for (const schema of schemaPrototypeChain.reverse()) {
-			for (const decoratorKey of Object.values(DecoratorKeys)) {
-				const metadataMap = Reflect.getOwnMetadata(
-					decoratorKey,
-					schema.prototype
-				) as Map<string, unknown> | undefined;
+			// Combine all the prop metadata maps
+			const propMap = Reflect.getOwnMetadata(
+				DecoratorKeys.PropCache,
+				schema.prototype
+			);
 
-				if (metadataMap === undefined) continue;
-
-				for (const [key, value] of metadataMap.entries()) {
-					mergedMetadata[decoratorKey as DecoratorKeys].set(key, value);
+			if (propMap !== undefined) {
+				for (const [key, value] of propMap.entries()) {
+					mergedPropCache.set(key, value);
 				}
 			}
 
-			for (const [decoratorKey, metadataMap] of Object.entries(
-				mergedMetadata
-			)) {
-				Reflect.defineMetadata(
-					decoratorKey,
-					new Map(metadataMap),
-					schema.prototype
-				);
-			}
+			Reflect.defineMetadata(
+				DecoratorKeys.PropCache,
+				new Map(mergedPropCache),
+				schema.prototype
+			);
 		}
 	}
 
