@@ -1,10 +1,12 @@
 # typegeese
 
-Typegeese is a fully type-safe MongoDB ORM built on top of the incredible [Typegoose](https://github.com/typegoose/typegoose) library. The main difference between Typegeese from other ORMs is that Typegeese _makes your schema migrations the source of truth for your schema._
+typegeese is a fully type-safe ORM for MongoDB built upon the incredible [typegoose](https://github.com/typegoose/typegoose) library.
+
+typegeese leverages the concept of **migration-defined schemas** that make your schema migrations the source of truth for the structure of your data schema. Combined with the flexibility of MongoDB, migration-defined schemas allow typegeese to automatically apply schema migrations on-demand without the need for migration generation scripts or migration-induced downtime.
 
 ## Migration-Defined Schemas
 
-Typegeese schemas are defined in terms of migrations, each of which creates a new "versioned schema." The version first schema for a model extends from `BaseSchema`:
+typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema. The version first schema for a model extends from `BaseSchema`:
 
 ```typescript
 // user/v0.ts
@@ -24,7 +26,7 @@ export class User extends BaseSchema {
 }
 ```
 
-When you want to add a new property, you extend the previous version of your schema using Typegeese's `Schema` function:
+When you want to add a new property, you extend the previous version of your schema using typegeese's `Schema` function:
 
 ```typescript
 // user/v1-add-posts.ts
@@ -45,7 +47,7 @@ export class User extends Schema(UserV0, "v1-add-posts") {
 When the schema change requires a migration, you can export a `Model_migration` function from the file to apply those migrations:
 
 ```typescript
-// user/v2.ts
+// user/v2-add-username.ts
 import * as UserV1 from './v1-add-posts.js';
 import {
   createMigration,
@@ -78,7 +80,7 @@ export const migration = createMigration<User>()
   });
 ```
 
-For convenience, Typegeese extends a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
+For convenience, typegeese extends a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
 
 ```typescript
 // user/$schema.ts
