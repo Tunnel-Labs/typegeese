@@ -5,7 +5,8 @@ import { createMongoose } from '~test/utils/mongoose.js';
 test('lower indexes', async () => {
 	const mongoose = await createMongoose();
 	const { UserModel } = await getBlogModels({ mongoose });
-	const userIndexes = await UserModel.listIndexes();
-	// Should only contain the `_id` index
-	expect(userIndexes.length).toBe(1);
+	await UserModel.syncIndexes();
+	const indexes = await UserModel.listIndexes();
+	console.log(indexes);
+	expect(indexes.length).toBe(1);
 });
