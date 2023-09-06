@@ -32,26 +32,26 @@ test('supports nested self-referential select', async () => {
 		description: 'This is the first post.'
 	} satisfies CreateInput<Post>);
 
-	// const post = (await select(PostModel.findById(postId), {
-	// 	title: true,
-	// 	author: {
-	// 		select: {
-	// 			posts: {
-	// 				select: {
-	// 					_id: true,
-	// 					title: true,
-	// 					author: {
-	// 						select: {
-	// 							_id: true
-	// 						}
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }))!;
+	const post = (await select(PostModel.findById(postId), {
+		title: true,
+		author: {
+			select: {
+				posts: {
+					select: {
+						_id: true,
+						title: true,
+						author: {
+							select: {
+								_id: true
+							}
+						}
+					}
+				}
+			}
+		}
+	}))!;
 
-	// expect(post.title).toBe(post.author.posts[0]?.title);
+	expect(post.title).toBe(post.author.posts[0]?.title);
 
 	const user = (await select(UserModel.findById(userId), {
 		posts: {
