@@ -7,6 +7,5 @@ test('lower indexes', async () => {
 	const { UserModel } = await getBlogModels({ mongoose });
 	await UserModel.syncIndexes();
 	const indexes = await UserModel.listIndexes();
-	console.log(indexes);
 	expect(indexes.length).toBe(1);
 });
