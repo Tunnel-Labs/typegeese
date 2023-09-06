@@ -11,6 +11,7 @@ import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js
 import { PopulateObject } from '~/types/populate.js';
 import { BaseSchema } from '../classes/$.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
+import renameFunction from 'rename-fn';
 
 export function normalizeHyperschema<Hyperschema>(
 	hyperschema: Hyperschema
@@ -76,13 +77,7 @@ export function normalizeHyperschema<Hyperschema>(
 		);
 	}
 
-	/**
-		Workaround for a typegoose bug where the modelOptions on the leaf schema aren't applied
-		@see https://github.com/typegoose/typegoose/blob/master/src/typegoose.ts#L156
-	*/
-	class schema extends (hyperschema[
-		schemaKey as keyof typeof hyperschema
-	] as any) {}
+	const schema = hyperschema[schemaKey as keyof typeof hyperschema];
 
 	return {
 		schema,
@@ -152,6 +147,18 @@ export async function loadHyperschemas<
 				new Map(mergedPropCache),
 				schema.prototype
 			);
+		}
+
+		// If the leaf schema has `disableLowerIndexes` set, we should the indexes of all the parent classes
+		const leafSchemaModelOptions = Reflect.getOwnMetadata(
+			DecoratorKeys.ModelOptions,
+			hyperschema.schema
+		);
+
+		if (leafSchemaModelOptions?.options?.disableLowerIndexes) {
+			for (const schema of schemaPrototypeChain) {
+				Reflect.deleteMetadata(DecoratorKeys.Index, schema);
+			}
 		}
 	}
 

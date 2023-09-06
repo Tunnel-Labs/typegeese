@@ -1,6 +1,6 @@
 {
 	"name": "typegeese",
-	"version": "0.0.76",
+	"version": "0.0.77",
 	"type": "module",
 	"exports": "./src/index.ts",
 	"scripts": {
@@ -17,6 +17,7 @@
 		"dot-prop": "^8.0.2",
 		"filter-obj": "^5.1.0",
 		"map-obj": "^5.0.2",
+		"rename-fn": "^2.1.0",
 		"type-fest": "^4.2.0"
 	},
 	"devDependencies": {
