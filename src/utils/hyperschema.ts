@@ -127,9 +127,11 @@ export async function loadHyperschemas<
 			schemaPrototypeChain.push(currentSchema);
 		}
 
+		schemaPrototypeChain.reverse();
+
 		// Loop through the prototype chain backwards
 		// For each schema, we overwrite its metadata with our merged metadata map up to that point
-		for (const schema of schemaPrototypeChain.reverse()) {
+		for (const schema of schemaPrototypeChain) {
 			// Combine all the prop metadata maps
 			const propMap = Reflect.getOwnMetadata(
 				DecoratorKeys.PropCache,
@@ -156,7 +158,7 @@ export async function loadHyperschemas<
 		);
 
 		if (leafSchemaModelOptions?.options?.disableLowerIndexes) {
-			for (const schema of schemaPrototypeChain) {
+			for (const schema of schemaPrototypeChain.slice(0, -1)) {
 				Reflect.deleteMetadata(DecoratorKeys.Index, schema);
 			}
 		}
