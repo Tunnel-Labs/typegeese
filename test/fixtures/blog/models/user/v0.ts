@@ -4,12 +4,14 @@ import {
 	createMigration,
 	defineOnForeignModelDeletedActions,
 	prop,
-	BaseSchema
+	BaseSchema,
+	index
 } from '~/index.js';
 
 import { virtualForeignRef } from '../../utils/refs.js';
 import type { Comment, Post } from '../$schemas.js';
 
+@index({ email: 1 })
 export class User extends BaseSchema {
 	declare __self: User;
 

@@ -17,6 +17,7 @@ export function normalizeHyperschema<Hyperschema>(
 ): NormalizedHyperschema<Hyperschema> {
 	if (
 		hyperschema === null ||
+		hyperschema === undefined ||
 		(typeof hyperschema !== 'object' && typeof hyperschema !== 'function')
 	) {
 		throw new Error(`Invalid hyperschema: ${hyperschema}`);

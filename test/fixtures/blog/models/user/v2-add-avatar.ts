@@ -2,6 +2,7 @@ import {
 	Schema,
 	defineOnForeignModelDeletedActions,
 	getModelForHyperschema,
+	modelOptions,
 	prop,
 	select
 } from '~/index.js';
