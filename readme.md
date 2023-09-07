@@ -76,7 +76,7 @@ export const User_migration = createMigration<User>()
   });
 ```
 
-For convenience, typegeese extends a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
+For convenience, typegeese exports a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
 
 ```typescript
 // user/$schema.ts
