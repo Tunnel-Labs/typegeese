@@ -37,7 +37,7 @@ import { Post } from "../post/$schema.js";
 import * as UserV0 from './v0.ts'
 
 export class User extends Schema(UserV0, "v1-add-posts") {
-  @prop(virtualForeignRef("Post", "author", "_id"), PropType.ARRAY)
+  @prop(virtualForeignRef("User", "Post", "author", "_id"), PropType.ARRAY)
   public posts!: VirtualForeignRef<User, Post, "author">[];
 }
 ```
