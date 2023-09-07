@@ -11,10 +11,12 @@ import { BaseSchema } from '../../../../../src/classes/$.js';
 export class CommentUpvote extends BaseSchema {
 	__self!: Comment;
 
-	@prop(foreignRef('User', 'commentUpvotes', { required: true }))
+	@prop(
+		foreignRef('CommentUpvote', 'User', 'commentUpvotes', { required: true })
+	)
 	public user!: ForeignRef<CommentUpvote, User, 'commentUpvotes'>;
 
-	@prop(foreignRef('Comment', 'upvotes', { required: true }))
+	@prop(foreignRef('CommentUpvote', 'Comment', 'upvotes', { required: true }))
 	public comment!: ForeignRef<CommentUpvote, Comment, 'upvotes'>;
 }
 

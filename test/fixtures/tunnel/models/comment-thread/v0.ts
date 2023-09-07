@@ -14,7 +14,7 @@ export class CommentThread extends BaseSchema {
 	declare __self: CommentThread;
 
 	@prop(
-		virtualForeignRef('Comment', 'parentCommentThread', '_id'),
+		virtualForeignRef('CommentThread', 'Comment', 'parentCommentThread', '_id'),
 		PropType.ARRAY
 	)
 	public comments!: VirtualForeignRef<

@@ -27,10 +27,10 @@ export class User extends BaseSchema {
 	})
 	public name!: string;
 
-	@prop(virtualForeignRef('Post', 'author', '_id'), PropType.ARRAY)
+	@prop(virtualForeignRef('User', 'Post', 'author', '_id'), PropType.ARRAY)
 	public posts!: VirtualForeignRef<User, Post, 'author'>[];
 
-	@prop(virtualForeignRef('Comment', 'author', '_id'), PropType.ARRAY)
+	@prop(virtualForeignRef('User', 'Comment', 'author', '_id'), PropType.ARRAY)
 	public authoredComments!: VirtualForeignRef<User, Comment, 'author'>[];
 }
 

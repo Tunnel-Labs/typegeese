@@ -17,10 +17,10 @@ export class Comment extends BaseSchema {
 	})
 	public text: string;
 
-	@prop(foreignRef('User', 'authoredComments', { required: true }))
+	@prop(foreignRef('Comment', 'User', 'authoredComments', { required: true }))
 	public author!: ForeignRef<Comment, User, 'authoredComments'>;
 
-	@prop(foreignRef('Post', 'comments', { required: true }))
+	@prop(foreignRef('Comment', 'Post', 'comments', { required: true }))
 	public post!: ForeignRef<Comment, Post, 'comments'>;
 }
 

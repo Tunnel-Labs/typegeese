@@ -11,7 +11,6 @@ import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js
 import { PopulateObject } from '~/types/populate.js';
 import { BaseSchema } from '../classes/$.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
-import renameFunction from 'rename-fn';
 
 export function normalizeHyperschema<Hyperschema>(
 	hyperschema: Hyperschema

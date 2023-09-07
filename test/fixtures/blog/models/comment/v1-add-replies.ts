@@ -13,10 +13,13 @@ import { VirtualForeignRef } from '~/types/refs.js';
 export class Comment extends Schema(CommentV0, 'v1-add-replies') {
 	__self!: Comment;
 
-	@prop(foreignRef('Comment', 'replies', { required: false }))
+	@prop(foreignRef('Comment', 'Comment', 'replies', { required: false }))
 	public parentComment!: ForeignRef<Comment, Comment, 'replies'> | null;
 
-	@prop(virtualForeignRef('Comment', 'parentComment', '_id'), PropType.ARRAY)
+	@prop(
+		virtualForeignRef('Comment', 'Comment', 'parentComment', '_id'),
+		PropType.ARRAY
+	)
 	public replies!: VirtualForeignRef<Comment, Comment, 'parentComment'>[];
 }
 

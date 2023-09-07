@@ -2,6 +2,7 @@ import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 
 export function useForeignRefs<Schemas>() {
 	function foreignRef<T extends keyof Schemas>(
+		_hostModel: keyof Schemas,
 		model: T,
 		foreignField: keyof {
 			[Field in keyof InstanceType<
@@ -31,6 +32,7 @@ export function useForeignRefs<Schemas>() {
 	}
 
 	function virtualForeignRef<T extends keyof Schemas>(
+		_hostModel: keyof Schemas,
 		model: T,
 		foreignField: keyof {
 			[Field in keyof InstanceType<

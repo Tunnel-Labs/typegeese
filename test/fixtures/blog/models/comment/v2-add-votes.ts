@@ -16,10 +16,16 @@ import {
 export class Comment extends Schema(CommentV1, 'v2-add-votes') {
 	__self!: Comment;
 
-	@prop(virtualForeignRef('Comment', 'parentComment', '_id'), PropType.ARRAY)
+	@prop(
+		virtualForeignRef('Comment', 'Comment', 'parentComment', '_id'),
+		PropType.ARRAY
+	)
 	public upvotes!: VirtualForeignRef<Comment, CommentUpvote, 'comment'>[];
 
-	@prop(virtualForeignRef('Comment', 'parentComment', '_id'), PropType.ARRAY)
+	@prop(
+		virtualForeignRef('Comment', 'Comment', 'parentComment', '_id'),
+		PropType.ARRAY
+	)
 	public downvotes!: VirtualForeignRef<Comment, CommentDownvote, 'comment'>[];
 }
 

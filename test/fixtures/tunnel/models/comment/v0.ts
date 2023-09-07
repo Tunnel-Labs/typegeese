@@ -18,7 +18,7 @@ export class Comment extends BaseSchema {
 	})
 	public rawText!: string;
 
-	@prop(foreignRef('CommentThread', 'comments', { required: true }))
+	@prop(foreignRef('Comment', 'CommentThread', 'comments', { required: true }))
 	public parentCommentThread!: ForeignRef<Comment, CommentThread, 'comments'>;
 }
 
