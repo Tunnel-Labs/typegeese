@@ -59,7 +59,7 @@ export class User extends Schema(UserV1, "v2-add-username") {
   public username!: string;
 }
 
-export const migration = createMigration<User>()
+export const User_migration = createMigration<User>()
   .from(UserV1)
   .with(async function ({ _id }) {
     const UserV1Model = getModelForHyperschema(UserV0, { mongoose: this.mongoose });
