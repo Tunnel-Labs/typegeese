@@ -2,11 +2,13 @@
 
 typegeese is a type-safe ORM for MongoDB which introduces the concept of **migration-defined schemas.**
 
-With typegeese, your schema migrations become the source of truth for the structure of your data. Combined with the flexibility of MongoDB and the incredible [typegoose](https://github.com/typegoose/typegoose) library, typegeese automatically applies schema migrations on-demand without the need for migration generation scripts or complex data migration processes.
+With typegeese, your schema migrations become the source of truth for the structure of your data. This makes it possible for typegeese to automatically apply schema migrations on-demand without the need for migration generation scripts or complex data migration processes.
 
 ## Migration-Defined Schemas
 
-typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema. The first version of a schema for a model extends from `BaseSchema`:
+typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema. These migrations are defined using TypeScript classes powered by the amazing [typegoose](https://github.com/typegoose/typegoose) library (which is where the name _typegeese_ is derived from).
+
+The first version (v0) of a schema extends from `BaseSchema`:
 
 ```typescript
 // user/v0.ts
