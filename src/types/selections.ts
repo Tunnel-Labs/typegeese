@@ -51,5 +51,3 @@ export type RecursivelyExpandSelection<
 					? SelectionMapping[K]
 					: never;
 		  }[Selections<SelectionMappingObject>]);
-
-export interface SelectionContext {}

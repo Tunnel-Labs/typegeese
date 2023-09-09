@@ -4,7 +4,6 @@ import type { Promisable, UnionToIntersection } from 'type-fest';
 import type { SelectInput } from '~/types/select.js';
 import type {
 	RecursivelyExpandSelection,
-	SelectionContext,
 	SelectionDefinition
 } from '~/types/selections.js';
 
@@ -92,17 +91,13 @@ export function defineSelectionMappings<Model>(): {
 			SelectInput<Model> & { [K in keyof SelectionMappings]?: boolean }
 		>
 	>(
-		mappings: (context: SelectionContext) => Promisable<SelectionMappings>
-	): (
-		context: SelectionContext
-	) => SelectionDefinition<SelectInput<Model>, SelectionMappings>;
+		mappings: () => Promisable<SelectionMappings>
+	): () => SelectionDefinition<SelectInput<Model>, SelectionMappings>;
 } {
-	const set = (
-		selectionsCallback: (context: SelectionContext) => Promise<any>
-	): any =>
-		async function selectionsCallbackWrapper(context: SelectionContext) {
+	const set = (selectionsCallback: () => Promise<any>): any =>
+		async function selectionsCallbackWrapper() {
 			try {
-				return await selectionsCallback(context);
+				return await selectionsCallback();
 			} catch {
 				return {};
 			}
