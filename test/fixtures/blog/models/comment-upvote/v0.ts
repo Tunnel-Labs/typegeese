@@ -9,7 +9,7 @@ import { foreignRef } from '../../utils/refs.js';
 import { BaseSchema } from '../../../../../src/classes/$.js';
 
 export class CommentUpvote extends BaseSchema {
-	__self!: Comment;
+	__type!: Comment;
 
 	@prop(
 		foreignRef('CommentUpvote', 'User', 'commentUpvotes', { required: true })

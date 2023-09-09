@@ -12,7 +12,7 @@ import { createMigration } from '~/utils/migration.js';
 
 @index({ username: 1 }, { unique: true })
 export class User extends Schema(UserV0, 'v1-add-username') {
-	declare __self: User;
+	declare __type: User;
 
 	@prop({ type: () => String, required: true })
 	public username!: string;

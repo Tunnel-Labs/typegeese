@@ -13,7 +13,7 @@ import type { Comment, Post } from '../$schemas.js';
 
 @index({ email: 1 })
 export class User extends BaseSchema {
-	declare __self: User;
+	declare __type: User;
 
 	@prop({
 		type: () => String,

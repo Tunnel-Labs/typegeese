@@ -12,7 +12,7 @@ import { foreignRef, virtualForeignRef } from '../../utils/refs.js';
 import { BaseSchema } from '~/index.js';
 
 export class Post extends BaseSchema {
-	__self!: Post;
+	__type!: Post;
 
 	@prop({
 		type: () => String,

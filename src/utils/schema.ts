@@ -14,7 +14,7 @@ export function Schema<PreviousHyperschema, V extends string>(
 ): {
 	new (): Omit<
 		GetSchemaFromHyperschema<PreviousHyperschema>,
-		'_v' | '__self'
+		'_v' | '__type'
 	> & {
 		_v: number;
 	};

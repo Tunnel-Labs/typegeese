@@ -11,7 +11,7 @@ import type { Comment } from '../$schemas.js';
 import { virtualForeignRef } from '../../utils/refs.js';
 
 export class CommentThread extends BaseSchema {
-	declare __self: CommentThread;
+	declare __type: CommentThread;
 
 	@prop(
 		virtualForeignRef('CommentThread', 'Comment', 'parentCommentThread', '_id'),

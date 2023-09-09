@@ -11,7 +11,7 @@ import * as UserV1 from './v1-add-username.js';
 import { createMigration } from '~/utils/migration.js';
 
 export class User extends Schema(UserV1, 'v2-add-avatar') {
-	declare __self: User;
+	declare __type: User;
 
 	@prop({ type: () => String, required: true })
 	public avatarUrl!: string;

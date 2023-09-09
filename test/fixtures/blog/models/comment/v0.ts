@@ -9,7 +9,7 @@ import { foreignRef } from '../../utils/refs.js';
 import { BaseSchema } from '../../../../../src/classes/$.js';
 
 export class Comment extends BaseSchema {
-	__self!: Comment;
+	__type!: Comment;
 
 	@prop({
 		type: () => String,

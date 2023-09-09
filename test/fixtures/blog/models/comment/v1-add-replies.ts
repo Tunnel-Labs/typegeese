@@ -11,7 +11,7 @@ import * as CommentV0 from './v0.js';
 import { VirtualForeignRef } from '~/types/refs.js';
 
 export class Comment extends Schema(CommentV0, 'v1-add-replies') {
-	__self!: Comment;
+	__type!: Comment;
 
 	@prop(foreignRef('Comment', 'Comment', 'replies', { required: false }))
 	public parentComment!: ForeignRef<Comment, Comment, 'replies'> | null;

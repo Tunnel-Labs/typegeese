@@ -14,7 +14,7 @@ import {
 } from '~test/fixtures/blog/models/$schemas.js';
 
 export class Comment extends Schema(CommentV1, 'v2-add-votes') {
-	__self!: Comment;
+	__type!: Comment;
 
 	@prop(
 		virtualForeignRef('Comment', 'Comment', 'parentComment', '_id'),

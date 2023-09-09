@@ -10,7 +10,7 @@ import type { CommentThread } from '../$schemas.js';
 import { foreignRef } from '../../utils/refs.js';
 
 export class Comment extends BaseSchema {
-	declare __self: Comment;
+	declare __type: Comment;
 
 	@prop({
 		type: () => String,

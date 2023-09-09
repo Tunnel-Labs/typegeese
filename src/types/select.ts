@@ -5,7 +5,7 @@ import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 export type SelectInput<Model> = {
 	[K in keyof Model as
 		| IsDeprecated<Model[K]> extends true ? never
-		: K extends '__self' ? never
+		: K extends '__type' ? never
 		: K extends '_v' ? never
 		: K
 	]?
