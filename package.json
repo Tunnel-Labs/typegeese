@@ -1,6 +1,6 @@
 {
 	"name": "typegeese",
-	"version": "0.0.78",
+	"version": "0.0.79",
 	"type": "module",
 	"exports": "./src/index.ts",
 	"scripts": {
