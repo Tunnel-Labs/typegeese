@@ -30,7 +30,7 @@ export type SelectOutputWithVersion<
 > = SelectOutput<Model, Select, true>;
 
 // prettier-ignore
-export type SelectOutputInner<Model, Select extends SelectInput<Model>, WithVersion extends boolean = false> = { _id: string } & (WithVersion extends true ? { _v: string } : {}) & {
+export type SelectOutput<Model, Select extends SelectInput<Model>, WithVersion extends boolean = false> = { _id: string, __model?: Model } & (WithVersion extends true ? { _v: string } : {}) & {
 	[K in keyof Select]
 		: Select[K] extends true
 			? K extends keyof Model
@@ -45,40 +45,33 @@ export type SelectOutputInner<Model, Select extends SelectInput<Model>, WithVers
 				? NonNullable<Model[K]> extends VirtualForeignRef<any, infer Nested, infer _ForeignField>[]
 					? null extends Model[K]
 						// @ts-expect-error: works
-						? SelectOutputInner<Nested, NestedSelect, WithVersion>[] | null
+						? SelectOutput<Nested, NestedSelect, WithVersion>[] | null
 						// @ts-expect-error: works
-						: SelectOutputInner<Nested, NestedSelect, WithVersion>[]
+						: SelectOutput<Nested, NestedSelect, WithVersion>[]
 
 				: NonNullable<Model[K]> extends ForeignRef<any, infer Nested, any>[]
 					? null extends Model[K]
 						// @ts-expect-error: works
-						? SelectOutputInner<Nested, NestedSelect, WithVersion>[] | null
+						? SelectOutput<Nested, NestedSelect, WithVersion>[] | null
 						// @ts-expect-error: works
-						: SelectOutputInner<Nested, NestedSelect, WithVersion>[]
+						: SelectOutput<Nested, NestedSelect, WithVersion>[]
 
 				: NonNullable<Model[K]> extends VirtualForeignRef<any, infer Nested, infer _ForeignField>
 						? null extends Model[K]
 							// @ts-expect-error: works
-							? SelectOutputInner<Nested, NestedSelect, WithVersion> | null
+							? SelectOutput<Nested, NestedSelect, WithVersion> | null
 							// @ts-expect-error: works
-							: SelectOutputInner<Nested, NestedSelect, WithVersion>
+							: SelectOutput<Nested, NestedSelect, WithVersion>
 
 				: NonNullable<Model[K]> extends ForeignRef<any, infer Nested, any>
 					? null extends Model[K]
 						// @ts-expect-error: works
-						? SelectOutputInner<Nested, NestedSelect, WithVersion> | null
+						? SelectOutput<Nested, NestedSelect, WithVersion> | null
 						// @ts-expect-error: works
-						: SelectOutputInner<Nested, NestedSelect, WithVersion>
+						: SelectOutput<Nested, NestedSelect, WithVersion>
 
 				: never
 
 			: never
 		: never
 };
-
-export interface SelectOutput<
-	Model,
-	Select extends SelectInput<Model>,
-	WithVersion extends boolean = false
-	// @ts-expect-error: works
-> extends SelectOutputInner<Model, Select, WithVersion> {}
