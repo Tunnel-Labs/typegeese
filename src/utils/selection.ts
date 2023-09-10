@@ -91,17 +91,12 @@ export function defineSelectionMappings<Model>(): {
 			SelectInput<Model> & { [K in keyof SelectionMappings]?: boolean }
 		>
 	>(
-		mappings: () => Promisable<SelectionMappings>
+		mappings: () => SelectionMappings
 	): () => SelectionDefinition<SelectInput<Model>, SelectionMappings>;
 } {
-	const set = (selectionsCallback: () => Promise<any>): any =>
-		async function selectionsCallbackWrapper() {
-			try {
-				return await selectionsCallback();
-			} catch {
-				return {};
-			}
-		} as any;
-
-	return { set } as any;
+	return {
+		set(cb: () => any) {
+			return cb;
+		}
+	} as any;
 }
