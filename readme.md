@@ -90,8 +90,9 @@ type User = t.Shape<
   $.User,
   {
     _id: string;
-    name: string;
+    name: string | null;
     email: string;
+    profileImageUrl: string | null;
     username: string;
   }
 >;
