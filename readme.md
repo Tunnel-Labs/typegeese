@@ -13,7 +13,7 @@ typegeese schemas are defined in terms of migrations, each of which creates a ne
 The first version (v0) of a schema extends from `BaseSchema`:
 
 ```typescript
-// user/v0.ts
+// ./user/v0.ts
 import { BaseSchema, prop } from "typegeese";
 
 export class User extends BaseSchema {
@@ -28,7 +28,7 @@ export class User extends BaseSchema {
 When you want to add a new property, you extend the previous version of your schema using typegeese's `Schema` function:
 
 ```typescript
-// user/v1-add-profile-image.ts
+// ./user/v1-add-profile-image.ts
 import { Schema, prop } from "typegeese";
 
 import * as UserV0 from './v0.ts'
@@ -42,7 +42,7 @@ export class User extends Schema(UserV0, "v1-profile-image") {
 When the schema change requires a migration, you can export a `Model_migration` function from the file to apply those migrations:
 
 ```typescript
-// user/v2-add-username.ts
+// ./user/v2-add-username.ts
 import {
   createMigration,
   getModelForHyperschema,
@@ -61,7 +61,7 @@ export class User extends Schema(UserV1, "v2-add-username") {
 export const User_migration = createMigration<User>()
   .from(UserV1)
   .with(async function ({ _id }) {
-    const UserV1Model = getModelForHyperschema(UserV0, { mongoose: this.mongoose });
+    const UserV1Model = getModelForHyperschema(UserV1, { mongoose: this.mongoose });
     const user = await select(
       UserV1Model.findById(_id),
       { email: true }
