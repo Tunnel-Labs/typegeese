@@ -8,16 +8,13 @@ With typegeese, your schema migrations become the source of truth for the struct
 
 ## Migration-Defined Schemas
 
-typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema. These migrations are defined using TypeScript classes powered by the amazing [typegoose](https://github.com/typegoose/typegoose) library (which is where the name _typegeese_ is derived from).
+typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema. These migrations are defined using TypeScript classes powered by the amazing [typegoose](https://github.com/typegoose/typegoose) library (which is where the name _typegeese_ is inspired from).
 
 The first version (v0) of a schema extends from `BaseSchema`:
 
 ```typescript
 // user/v0.ts
-import { BaseSchema, VirtualForeignRef, prop, PropType } from "typegeese";
-
-import { virtualForeignRef } from "../../utils/refs.js";
-import { Post } from "../post/$schema.js";
+import { BaseSchema, prop } from "typegeese";
 
 export class User extends BaseSchema {
   @prop({ type: () => String, required: true })
@@ -31,16 +28,14 @@ export class User extends BaseSchema {
 When you want to add a new property, you extend the previous version of your schema using typegeese's `Schema` function:
 
 ```typescript
-// user/v1-add-posts.ts
-import { Schema, VirtualForeignRef, prop, select, getModelForHyperschema } from "typegeese";
+// user/v1-add-profile-image.ts
+import { Schema, prop } from "typegeese";
 
-import { virtualForeignRef } from "~/utils/refs.js";
-import { Post } from "../post/$schema.js";
 import * as UserV0 from './v0.ts'
 
-export class User extends Schema(UserV0, "v1-add-posts") {
-  @prop(virtualForeignRef("User", "Post", "author", "_id"), PropType.ARRAY)
-  public posts!: VirtualForeignRef<User, Post, "author">[];
+export class User extends Schema(UserV0, "v1-profile-image") {
+  @prop({ type: () => String, required: false })
+  public profileImageUrl!: string | null;
 }
 ```
 
@@ -48,13 +43,15 @@ When the schema change requires a migration, you can export a `Model_migration` 
 
 ```typescript
 // user/v2-add-username.ts
-import * as UserV1 from './v1-add-posts.js';
 import {
   createMigration,
   getModelForHyperschema,
   select,
   Schema,
+  prop
 } from 'typegeese';
+
+import * as UserV1 from './v1-add-profile-image.js';
 
 export class User extends Schema(UserV1, "v2-add-username") {
   @prop({ type: () => String, required: true })
@@ -84,7 +81,6 @@ For convenience, typegeese exports a `t` helper that uses TypeScript that allows
 // user/$schema.ts
 
 import type { t } from 'typegeese';
-import type { Post } from '../$schemas.js';
 
 import * as $ from './v2-add-username.js';
 export * from './v2-add-username.js';
@@ -97,7 +93,6 @@ type User = t.Shape<
     name: string;
     email: string;
     username: string;
-    posts: t.VirtualForeignRef<Post>[];
   }
 >;
 ```
