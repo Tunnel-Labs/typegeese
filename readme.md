@@ -1,3 +1,13 @@
+<p align="center">
+  <img src="./assets/mascot.png" width="200px" align="center" alt="typegeese mascot" />
+  <h1 align="center">typegeese</h1>
+  <p align="center">
+    <br/>
+    painless database migrations via **migration-defined schemas**
+  </p>
+</p>
+<br/>
+
 # typegeese
 
 typegeese is a type-safe ORM for MongoDB which introduces the concept of **migration-defined schemas.**
