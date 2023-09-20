@@ -3,12 +3,10 @@
   <h1 align="center">typegeese</h1>
   <p align="center">
     <br/>
-    painless database migrations via **migration-defined schemas**
+    painless database migrations via <strong>migration-defined schemas</strong>
   </p>
 </p>
 <br/>
-
-# typegeese
 
 typegeese is a type-safe ORM for MongoDB which introduces the concept of **migration-defined schemas.**
 
