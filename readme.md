@@ -2,7 +2,6 @@
   <img src="./assets/mascot.png" width="200px" align="center" alt="typegeese mascot" />
   <h1 align="center">typegeese</h1>
   <p align="center">
-    <br/>
     painless database migrations via <strong>migration-defined schemas</strong>
   </p>
 </p>
