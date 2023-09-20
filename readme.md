@@ -8,9 +8,9 @@
 </p>
 <br/>
 
-typegeese is a type-safe ORM for MongoDB which introduces the concept of **migration-defined schemas.**
+typegeese is a type-safe ORM for MongoDB which introduces the concept of _migration-defined schemas._
 
-With typegeese, your schema migrations become the source of truth for the structure of your data. This makes it possible for typegeese to automatically apply schema migrations on-demand without the need for migration generation scripts or complex data migration processes.
+with typegeese, your schema migrations become the source of truth for the structure of your data. This makes it possible for typegeese to automatically apply schema migrations on-demand without the need for migration generation scripts or complex data migration processes.
 
 > **Note:** typegeese is currently _experimental_; expect bugs, breaking changes, and incomplete documentation 😅
 
@@ -18,7 +18,7 @@ With typegeese, your schema migrations become the source of truth for the struct
 
 typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema. These migrations are defined using TypeScript classes powered by the amazing [typegoose](https://github.com/typegoose/typegoose) library (which is where the name _typegeese_ is inspired from).
 
-The first version (v0) of a schema extends from `BaseSchema`:
+the first version (v0) of a schema extends from `BaseSchema`:
 
 ```typescript
 // ./user/v0.ts
@@ -33,7 +33,7 @@ export class User extends BaseSchema {
 }
 ```
 
-When you want to add a new property, you extend the previous version of your schema using typegeese's `Schema` function:
+when you want to add a new property, you extend the previous version of your schema using typegeese's `Schema` function:
 
 ```typescript
 // ./user/v1-add-profile-image.ts
@@ -47,7 +47,7 @@ export class User extends Schema(UserV0, "v1-profile-image") {
 }
 ```
 
-When the schema change requires a migration, you can export a `Model_migration` function from the file to apply those migrations:
+when the schema change requires a migration, you can export a `Model_migration` function from the file to apply those migrations:
 
 ```typescript
 // ./user/v2-add-username.ts
@@ -83,7 +83,7 @@ export const User_migration = createMigration<User>()
   });
 ```
 
-For convenience, typegeese exports a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
+for readability, typegeese exports a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
 
 ```typescript
 // user/$schema.ts
@@ -93,7 +93,7 @@ import type { t } from 'typegeese';
 import * as $ from './v2-add-username.js';
 export * from './v2-add-username.js';
 
-// This type is type-checked by TypeScript to ensure that it always stays up to date with every new migration
+// this type is type-checked by TypeScript to ensure that it always stays up to date with every new migration
 type User = t.Shape<
   $.User,
   {
