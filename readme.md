@@ -15,7 +15,7 @@ This makes it possible for Typegeese to automatically apply schema migrations on
 
 > **Note:** Typegeese is currently _experimental_; expect bugs, breaking changes, and incomplete documentation 😅
 
-## migration-defined schemas
+## Migration-defined schemas
 
 Typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema.
 
@@ -96,7 +96,7 @@ import type { t } from 'typegeese';
 import * as $ from './v2-add-username.js';
 export * from './v2-add-username.js';
 
-// this type is type-checked by TypeScript to ensure that it always stays up to date with every new migration
+// This type is type-checked by TypeScript to ensure that it always stays up to date with every new migration
 type User = t.Shape<
   $.User,
   {
