@@ -1,27 +1,27 @@
 <p align="center">
   <img src="./assets/mascot.png" width="200px" align="center" alt="typegeese mascot" />
-  <h1 align="center">typegeese</h1>
+  <h1 align="center">Typegeese</h1>
   <p align="center">
-    painless database migrations via <strong>migration-defined schemas</strong>
+    Painless database migrations via <strong>migration-defined schemas</strong>
   </p>
 </p>
 <br/>
 
-typegeese is a type-safe ORM for MongoDB which introduces the concept of _migration-defined schemas_
+Typegeese is a type-safe ORM for MongoDB which introduces the concept of _migration-defined schemas_.
 
-with typegeese, your schema migrations become the source of truth for the structure of your data
+With Typegeese, your schema migrations become the source of truth for the structure of your data.
 
-this makes it possible for typegeese to automatically apply schema migrations on-demand without the need for migration generation scripts or complex data migration processes
+This makes it possible for Typegeese to automatically apply schema migrations on-demand without the need for migration generation scripts or complex data migration processes.
 
-> **note:** typegeese is currently _experimental_; expect bugs, breaking changes, and incomplete documentation 😅
+> **Note:** Typegeese is currently _experimental_; expect bugs, breaking changes, and incomplete documentation 😅
 
 ## migration-defined schemas
 
-typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema
+Typegeese schemas are defined in terms of migrations, each of which creates a new versioned schema.
 
-these migrations are defined using TypeScript classes powered by the amazing [typegoose](https://github.com/typegoose/typegoose) library (which is where the name _typegeese_ is inspired from)
+These migrations are defined using TypeScript classes powered by the amazing [typegoose](https://github.com/typegoose/typegoose) library (which is where the name _typegeese_ is inspired from).
 
-the first version (v0) of a schema extends from `BaseSchema`:
+The first version (v0) of a schema extends from `BaseSchema`:
 
 ```typescript
 // ./user/v0.ts
@@ -36,7 +36,7 @@ export class User extends BaseSchema {
 }
 ```
 
-when you want to add a new property, you extend the previous version of your schema using typegeese's `Schema` function:
+When you want to add a new property, you extend the previous version of your schema using typegeese's `Schema` function:
 
 ```typescript
 // ./user/v1-add-profile-image.ts
@@ -50,7 +50,7 @@ export class User extends Schema(UserV0, "v1-profile-image") {
 }
 ```
 
-when the schema change requires a migration, you can export a `Model_migration` function from the file to apply those migrations:
+When the schema change requires a migration, you can export a `Model_migration` function from the file to apply those migrations:
 
 ```typescript
 // ./user/v2-add-username.ts
@@ -86,7 +86,7 @@ export const User_migration = createMigration<User>()
   });
 ```
 
-for readability, typegeese exports a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
+For readability, typegeese exports a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
 
 ```typescript
 // user/$schema.ts
