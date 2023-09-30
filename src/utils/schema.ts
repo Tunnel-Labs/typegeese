@@ -1,20 +1,37 @@
 import { prop } from '@typegoose/typegoose';
 import { SchemaOptions } from 'mongoose';
+import { IsEqual } from 'type-fest';
 import { GetSchemaFromHyperschema } from '~/types/hyperschema.js';
 import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { versionStringToVersionNumber } from '~/utils/version.js';
+import type { RequiredKeysOf } from 'type-fest';
 
 export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	return schemaOptions;
 }
 
-export function Schema<PreviousHyperschema, V extends string>(
+Schema('', '');
+
+export function Schema<
+	PreviousHyperschema,
+	V extends string,
+	Options extends {
+		omit: {
+			[K in keyof GetSchemaFromHyperschema<PreviousHyperschema>]?: true;
+		};
+	}
+>(
 	previousHyperschema: PreviousHyperschema,
-	versionString: V
+	versionString: V,
+	options?: Options
 ): {
 	new (): Omit<
 		GetSchemaFromHyperschema<PreviousHyperschema>,
-		'_v' | '__type'
+		| '_v'
+		| '__type'
+		| (Options extends Record<string, unknown>
+				? RequiredKeysOf<Options['omit']>
+				: never)
 	> & {
 		_v: number;
 	};

@@ -52,8 +52,8 @@ export interface NotSupersetError<Message, _Keys> {
 export type MigrationFunctions<PreviousModel, CurrentModel, DataType> =
 	| '_v' extends keyof CurrentModel ?
 		| CurrentModel['_v'] extends 'v0' ? null
-		: NonSupersetKeys<PreviousModel, CurrentModel> extends never
-			? {
+		// : NonSupersetKeys<PreviousModel, CurrentModel> extends never ?
+			: {
 				[K in keyof Diff<
 					ExcludeVirtualForeignRefsAndDeprecatedKeys<CurrentModel>,
 					ExcludeVirtualForeignRefsAndDeprecatedKeys<PreviousModel>
@@ -61,7 +61,7 @@ export type MigrationFunctions<PreviousModel, CurrentModel, DataType> =
 					this: DataType
 				) => Promisable<CreateType<CurrentModel[K]>>;
 			}
-			: NotSupersetError<'The current model must be a superset of the previous model in order to be backwards-compatible; the following keys are incompatible:', NonSupersetKeys<PreviousModel, CurrentModel>>
+			// : NotSupersetError<'The current model must be a superset of the previous model in order to be backwards-compatible; the following keys are incompatible:', NonSupersetKeys<PreviousModel, CurrentModel>>
 	: never
 
 export interface MigrationData {

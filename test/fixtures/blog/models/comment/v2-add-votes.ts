@@ -31,7 +31,7 @@ export class Comment extends Schema(CommentV1, 'v2-add-votes') {
 
 export const Comment_migration = createMigration<Comment>()
 	.from(CommentV1)
-	.with(() => {})
+	.with(null)
 	.migrate({});
 
 export const Comment_onForeignModelDeletedActions =

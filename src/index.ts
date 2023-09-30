@@ -13,10 +13,8 @@ export type { Ref } from './types/ref.js';
 export type * from './types/refs.js';
 export type * from './types/schema.js';
 export type * from './types/select.js';
-export type * from './types/selections.js';
 export type * from './types/t/$.js';
 export type * from './types/query.js';
-export type * from './utils/selection.js';
 
 export { BaseSchema } from './classes/$.js';
 export { defineOnForeignModelDeletedActions } from './utils/delete.js';
@@ -27,11 +25,6 @@ export { createMigration } from './utils/migration.js';
 export { getModelForHyperschema } from './utils/model.js';
 export { useForeignRefs } from './utils/ref.js';
 export { select, select as applySelect } from './utils/select.js';
-export {
-	createSelectionFunction,
-	defineSelectionMappings,
-	expandSelections
-} from './utils/selection.js';
 export {
 	prop,
 	pre,

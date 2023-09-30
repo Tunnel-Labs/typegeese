@@ -1,4 +1,4 @@
-import type { Deprecated, IsDeprecated } from '~/types/deprecated.js';
+import type { IsDeprecated } from '~/types/deprecated.js';
 import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 
 // prettier-ignore
