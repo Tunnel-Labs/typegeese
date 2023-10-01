@@ -1,14 +1,14 @@
 import {
 	ForeignRef,
+	Schema,
 	createMigration,
 	defineOnForeignModelDeletedActions,
-	prop
+	prop,
+	foreignRef
 } from '~/index.js';
 import type { Post, User } from '../$schemas.js';
-import { foreignRef } from '../../utils/refs.js';
-import { BaseSchema } from '../../../../../src/classes/$.js';
 
-export class Comment extends BaseSchema {
+export class Comment extends Schema('Comment') {
 	__type!: Comment;
 
 	@prop({
@@ -17,10 +17,16 @@ export class Comment extends BaseSchema {
 	})
 	public text: string;
 
-	@prop(foreignRef('Comment', 'User', 'authoredComments', { required: true }))
+	@prop(
+		foreignRef<Comment, User>('Comment', 'User', 'authoredComments', {
+			required: true
+		})
+	)
 	public author!: ForeignRef<Comment, User, 'authoredComments'>;
 
-	@prop(foreignRef('Comment', 'Post', 'comments', { required: true }))
+	@prop(
+		foreignRef<Comment, Post>('Comment', 'Post', 'comments', { required: true })
+	)
 	public post!: ForeignRef<Comment, Post, 'comments'>;
 }
 

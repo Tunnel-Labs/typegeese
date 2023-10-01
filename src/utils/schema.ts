@@ -14,6 +14,15 @@ export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 /**
 	Instead of inheriting from the previous schema migration, we instead create a copy of the class (this makes it easier to use discriminator types)
 */
+export function Schema<SchemaName extends string>(
+	name: SchemaName
+): {
+	new (): {
+		__name__?: SchemaName;
+		_id: string;
+		_v: 0;
+	};
+};
 export function Schema<
 	PreviousHyperschema,
 	V extends string,
@@ -37,20 +46,42 @@ export function Schema<
 	> & {
 		_v: number;
 	};
-} {
+};
+export function Schema(
+	previousHyperschema?: any,
+	versionString?: string,
+	options?: {
+		omit: Record<string, true>;
+	}
+): any {
+	if (previousHyperschema === undefined) {
+		class SchemaClass {
+			@prop({
+				type: () => String,
+				required: true
+			})
+			public _id!: string;
+
+			@prop({
+				type: () => Number,
+				default: 0,
+				required: true
+			})
+			public _v!: 0;
+		}
+
+		return SchemaClass;
+	}
+
 	const hyperschema = normalizeHyperschema(previousHyperschema);
-	const version = versionStringToVersionNumber(versionString);
+	const version = versionStringToVersionNumber(versionString!);
 
 	class SchemaClass {
-		@prop({
-			type: () => Number,
-			default: version,
-			required: true
-		})
 		public _v!: string;
 	}
 
 	const propMap = getSchemaPropMap(hyperschema.schema);
+	propMap.get('_v').options.default = version;
 
 	Reflect.defineMetadata(
 		DecoratorKeys.PropCache,

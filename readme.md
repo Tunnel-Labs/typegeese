@@ -21,13 +21,13 @@ Typegeese schemas are defined in terms of migrations, each of which creates a ne
 
 These migrations are defined using TypeScript classes powered by the amazing [typegoose](https://github.com/typegoose/typegoose) library (which is where the name _typegeese_ is inspired from).
 
-The first version (v0) of a schema extends from `BaseSchema`:
+The first version (v0) of a schema extends from `Schema()`:
 
 ```typescript
 // ./user/v0.ts
-import { BaseSchema, prop } from "typegeese";
+import { Schema, prop } from "typegeese";
 
-export class User extends BaseSchema {
+export class User extends Schema() {
   @prop({ type: () => String, required: true })
   public email!: string;
 

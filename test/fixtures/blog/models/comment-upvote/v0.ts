@@ -1,22 +1,28 @@
 import {
 	ForeignRef,
+	Schema,
 	createMigration,
 	defineOnForeignModelDeletedActions,
-	prop
+	prop,
+	foreignRef
 } from '~/index.js';
-import type { Comment, Post, User } from '../$schemas.js';
-import { foreignRef } from '../../utils/refs.js';
-import { BaseSchema } from '../../../../../src/classes/$.js';
+import type { Comment, User } from '../$schemas.js';
 
-export class CommentUpvote extends BaseSchema {
+export class CommentUpvote extends Schema('CommentUpvote') {
 	__type!: Comment;
 
 	@prop(
-		foreignRef('CommentUpvote', 'User', 'commentUpvotes', { required: true })
+		foreignRef<CommentUpvote, User>('CommentUpvote', 'User', 'commentUpvotes', {
+			required: true
+		})
 	)
 	public user!: ForeignRef<CommentUpvote, User, 'commentUpvotes'>;
 
-	@prop(foreignRef('CommentUpvote', 'Comment', 'upvotes', { required: true }))
+	@prop(
+		foreignRef<CommentUpvote, Comment>('CommentUpvote', 'Comment', 'upvotes', {
+			required: true
+		})
+	)
 	public comment!: ForeignRef<CommentUpvote, Comment, 'upvotes'>;
 }
 

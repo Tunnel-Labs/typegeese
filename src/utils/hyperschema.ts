@@ -3,13 +3,11 @@ import {
 	NormalizedHyperschema
 } from '~/types/hyperschema.js';
 import { pre, post, getModelForClass } from '@typegoose/typegoose';
-import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import mapObject from 'map-obj';
 import { Mongoose } from 'mongoose';
 import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
 import { PopulateObject } from '~/types/populate.js';
-import { BaseSchema } from '../classes/$.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
 
 export function normalizeHyperschema<Hyperschema>(
@@ -112,6 +110,8 @@ export async function loadHyperschemas<
 			return [normalizedHyperschema.schemaName, normalizedHyperschema];
 		}
 	);
+
+	// For each hyperschema, we want to make them the base class
 
 	registerOnForeignModelDeletedHooks({ hyperschemas });
 

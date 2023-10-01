@@ -5,13 +5,13 @@ import {
 	createMigration,
 	defineOnForeignModelDeletedActions,
 	prop,
-	index
+	Schema,
+	foreignRef,
+	virtualForeignRef
 } from '~/index.js';
 import type { Comment, User } from '../$schemas.js';
-import { foreignRef, virtualForeignRef } from '../../utils/refs.js';
-import { BaseSchema } from '~/index.js';
 
-export class Post extends BaseSchema {
+export class Post extends Schema('Post') {
 	__type!: Post;
 
 	@prop({
@@ -26,10 +26,13 @@ export class Post extends BaseSchema {
 	})
 	public content: string;
 
-	@prop(foreignRef('Post', 'User', 'posts', { required: true }))
+	@prop(foreignRef<Post, User>('Post', 'User', 'posts', { required: true }))
 	public author!: ForeignRef<Post, User, 'posts'>;
 
-	@prop(virtualForeignRef('Post', 'Comment', 'post', '_id'), PropType.ARRAY)
+	@prop(
+		virtualForeignRef<Post, Comment>('Post', 'Comment', 'post', '_id'),
+		PropType.ARRAY
+	)
 	public comments!: VirtualForeignRef<Post, Comment, 'post'>[];
 }
 

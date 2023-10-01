@@ -1,20 +1,25 @@
 import type { VirtualForeignRef } from '~/index.js';
 import {
 	createMigration,
-	BaseSchema,
+	Schema,
 	prop,
 	PropType,
-	defineOnForeignModelDeletedActions
+	defineOnForeignModelDeletedActions,
+	virtualForeignRef
 } from '~/index.js';
 
 import type { Comment } from '../$schemas.js';
-import { virtualForeignRef } from '../../utils/refs.js';
 
-export class CommentThread extends BaseSchema {
+export class CommentThread extends Schema('CommentThread') {
 	declare __type: CommentThread;
 
 	@prop(
-		virtualForeignRef('CommentThread', 'Comment', 'parentCommentThread', '_id'),
+		virtualForeignRef<CommentThread, Comment>(
+			'CommentThread',
+			'Comment',
+			'parentCommentThread',
+			'_id'
+		),
 		PropType.ARRAY
 	)
 	public comments!: VirtualForeignRef<

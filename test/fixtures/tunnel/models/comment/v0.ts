@@ -1,15 +1,15 @@
 import type { ForeignRef } from '~/index.js';
 import {
-	BaseSchema,
+	Schema,
 	prop,
 	defineOnForeignModelDeletedActions,
-	createMigration
+	createMigration,
+	foreignRef
 } from '~/index.js';
 
 import type { CommentThread } from '../$schemas.js';
-import { foreignRef } from '../../utils/refs.js';
 
-export class Comment extends BaseSchema {
+export class Comment extends Schema('Comment') {
 	declare __type: Comment;
 
 	@prop({
@@ -18,7 +18,11 @@ export class Comment extends BaseSchema {
 	})
 	public rawText!: string;
 
-	@prop(foreignRef('Comment', 'CommentThread', 'comments', { required: true }))
+	@prop(
+		foreignRef<Comment, CommentThread>('Comment', 'CommentThread', 'comments', {
+			required: true
+		})
+	)
 	public parentCommentThread!: ForeignRef<Comment, CommentThread, 'comments'>;
 }
 

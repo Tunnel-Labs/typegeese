@@ -4,12 +4,12 @@ import {
 	VirtualForeignRef,
 	defineOnForeignModelDeletedActions,
 	modelOptions,
-	prop
+	prop,
+	virtualForeignRef
 } from '~/index.js';
 
 import * as UserV3 from './v3-add-bio.js';
 import { createMigration } from '~/utils/migration.js';
-import { virtualForeignRef } from '~test/fixtures/blog/utils/refs.js';
 import {
 	CommentDownvote,
 	CommentUpvote
@@ -20,13 +20,23 @@ export class User extends Schema(UserV3, 'v4-add-votes') {
 	declare __type: User;
 
 	@prop(
-		virtualForeignRef('User', 'CommentDownvote', 'user', '_id'),
+		virtualForeignRef<User, CommentDownvote>(
+			'User',
+			'CommentDownvote',
+			'user',
+			'_id'
+		),
 		PropType.ARRAY
 	)
 	public commentDownvotes!: VirtualForeignRef<User, CommentDownvote, 'user'>[];
 
 	@prop(
-		virtualForeignRef('User', 'CommentDownvote', 'user', '_id'),
+		virtualForeignRef<User, CommentDownvote>(
+			'User',
+			'CommentDownvote',
+			'user',
+			'_id'
+		),
 		PropType.ARRAY
 	)
 	public commentUpvotes!: VirtualForeignRef<User, CommentUpvote, 'user'>[];

@@ -1,64 +1,65 @@
+import { IsEqual } from 'type-fest';
+import { AnySchema } from '~/index.js';
 import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 
-export function useForeignRefs<Schemas>() {
-	function foreignRef<T extends keyof Schemas>(
-		_hostModel: keyof Schemas,
-		model: T,
-		foreignField: keyof {
-			[Field in keyof InstanceType<
-				// @ts-expect-error: Works
-				Schemas[T]
-			> as NonNullable<
-				InstanceType<
-					// @ts-expect-error: Works
-					Schemas[T]
-				>[Field]
-			> extends
-				| ForeignRef<infer M, any, any>
-				| ForeignRef<infer M, any, any>[]
-				| VirtualForeignRef<infer M, any, any>
-				| VirtualForeignRef<infer M, any, any>[]
-				? Field
-				: never]: true;
-		},
-		options: { required: boolean }
-	) {
-		return {
-			ref: model,
-			type: () => String,
-			...options,
-			__foreignField: foreignField
-		};
-	}
-
-	function virtualForeignRef<T extends keyof Schemas>(
-		_hostModel: keyof Schemas,
-		model: T,
-		foreignField: keyof {
-			[Field in keyof InstanceType<
-				// @ts-expect-error: Works
-				Schemas[T]
-			> as NonNullable<
-				InstanceType<
-					// @ts-expect-error: Works
-					Schemas[T]
-				>[Field]
-			> extends ForeignRef<infer M, any, any> | ForeignRef<infer M, any, any>[]
-				? Field
-				: never]: true;
-		},
-		localField: '_id'
-	) {
-		return {
-			ref: model,
-			type: () => String,
-			foreignField,
-			localField
-		};
-	}
-
+export function foreignRef<
+	HostSchema extends AnySchema = never,
+	ForeignSchema extends AnySchema = never
+>(
+	_hostModelName: IsEqual<HostSchema, never> extends true
+		? 'Error: virtualForeignRef requires two generic type parameters'
+		: NonNullable<HostSchema['__name__']>,
+	foreignModelName: IsEqual<HostSchema, never> extends true
+		? 'Error: virtualForeignRef requires two generic type parameters'
+		: NonNullable<ForeignSchema['__name__']>,
+	foreignField: keyof {
+		[Field in keyof InstanceType<// @ts-expect-error: Works
+		ForeignSchema> as NonNullable<
+			InstanceType<// @ts-expect-error: Works
+			ForeignSchema>[Field]
+		> extends
+			| ForeignRef<infer M, any, any>
+			| ForeignRef<infer M, any, any>[]
+			| VirtualForeignRef<infer M, any, any>
+			| VirtualForeignRef<infer M, any, any>[]
+			? Field
+			: never]: true;
+	},
+	options: { required: boolean }
+) {
 	return {
-		foreignRef,
-		virtualForeignRef
+		ref: foreignModelName,
+		type: () => String,
+		...options,
+		__foreignField: foreignField
+	};
+}
+
+export function virtualForeignRef<
+	HostSchema extends AnySchema = never,
+	ForeignSchema extends AnySchema = never
+>(
+	_hostModelName: IsEqual<HostSchema, never> extends true
+		? 'Error: virtualForeignRef requires two generic type parameters'
+		: NonNullable<HostSchema['__name__']>,
+	foreignModelName: IsEqual<HostSchema, never> extends true
+		? 'Error: virtualForeignRef requires two generic type parameters'
+		: NonNullable<ForeignSchema['__name__']>,
+	foreignField: keyof {
+		[Field in keyof InstanceType<// @ts-expect-error: Works
+		ForeignSchema> as NonNullable<
+			InstanceType<// @ts-expect-error: Works
+			ForeignSchema>[Field]
+		> extends ForeignRef<infer M, any, any> | ForeignRef<infer M, any, any>[]
+			? Field
+			: never]: true;
+	},
+	localField: '_id'
+) {
+	return {
+		ref: foreignModelName,
+		type: () => String,
+		foreignField,
+		localField
 	};
 }

@@ -4,15 +4,15 @@ import {
 	createMigration,
 	defineOnForeignModelDeletedActions,
 	prop,
-	BaseSchema,
-	index
+	index,
+	Schema,
+	virtualForeignRef
 } from '~/index.js';
 
-import { virtualForeignRef } from '../../utils/refs.js';
 import type { Comment, Post } from '../$schemas.js';
 
 @index({ email: 1 })
-export class User extends BaseSchema {
+export class User extends Schema('User') {
 	declare __type: User;
 
 	@prop({
@@ -27,10 +27,16 @@ export class User extends BaseSchema {
 	})
 	public name!: string;
 
-	@prop(virtualForeignRef('User', 'Post', 'author', '_id'), PropType.ARRAY)
+	@prop(
+		virtualForeignRef<User, Post>('User', 'Post', 'author', '_id'),
+		PropType.ARRAY
+	)
 	public posts!: VirtualForeignRef<User, Post, 'author'>[];
 
-	@prop(virtualForeignRef('User', 'Comment', 'author', '_id'), PropType.ARRAY)
+	@prop(
+		virtualForeignRef<User, Comment>('User', 'Comment', 'author', '_id'),
+		PropType.ARRAY
+	)
 	public authoredComments!: VirtualForeignRef<User, Comment, 'author'>[];
 }
 

@@ -9,4 +9,5 @@ export type GetSchemaFromQuery<Query extends QueryWithHelpers<any, any>> =
 export type AnySchema = {
 	_id: string;
 	_v: number;
+	__name__?: string;
 };
