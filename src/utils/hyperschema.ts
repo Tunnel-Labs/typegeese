@@ -101,20 +101,20 @@ export function normalizeHyperschema<Hyperschema>(
 			new Map([...prototypePropMap.entries(), ...basePropMap.entries()])
 		);
 
-		const Schema = class {};
-		Object.defineProperty(Schema, 'name', { value: originalSchema.name });
+		const SchemaClass = class {};
+		Object.defineProperty(SchemaClass, 'name', { value: originalSchema.name });
 		for (const propValue of mergedPropMap.values()) {
-			(propValue as any).target = Schema.prototype;
+			(propValue as any).target = SchemaClass.prototype;
 		}
 
 		Reflect.defineMetadata(
 			DecoratorKeys.PropCache,
 			mergedPropMap,
-			Schema.prototype
+			SchemaClass.prototype
 		);
 
-		originalSchema.__typegeeseSchema = Schema;
-		schema = Schema;
+		originalSchema.__typegeeseSchema = SchemaClass;
+		schema = SchemaClass;
 	}
 
 	const normalizedHyperschema = {

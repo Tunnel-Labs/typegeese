@@ -72,6 +72,8 @@ export function Schema(
 			public _v!: 0;
 		}
 
+		Object.defineProperty(SchemaClass, 'name', { value: previousHyperschema });
+
 		return SchemaClass;
 	}
 
