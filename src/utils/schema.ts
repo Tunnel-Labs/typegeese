@@ -5,6 +5,7 @@ import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { versionStringToVersionNumber } from '~/utils/version.js';
 import type { RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
+import { getSchemaPropMap } from '~/utils/prop-map.js';
 
 export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	return schemaOptions;
@@ -49,15 +50,13 @@ export function Schema<
 		public _v!: string;
 	}
 
-	// Copy over all the metadata properties
-	for (const decoratorKey of Object.keys(DecoratorKeys)) {
-		const decoratorValue = Reflect.getOwnMetadata(
-			decoratorKey,
-			(hyperschema.schema as any).prototype
-		);
+	const propMap = getSchemaPropMap(hyperschema.schema);
 
-		Reflect.defineMetadata(decoratorKey, decoratorValue, SchemaClass.prototype);
-	}
+	Reflect.defineMetadata(
+		DecoratorKeys.PropCache,
+		propMap,
+		SchemaClass.prototype
+	);
 
 	// If this schema has `disableLowerIndexes` set, we should the indexes of all the parent classes
 	const leafSchemaModelOptions = Reflect.getOwnMetadata(
@@ -66,7 +65,7 @@ export function Schema<
 	);
 
 	if (leafSchemaModelOptions?.options?.disableLowerIndexes) {
-		Reflect.deleteMetadata(DecoratorKeys.Index, SchemaClass.prototype);
+		Reflect.deleteMetadata(DecoratorKeys.Index, SchemaClass);
 	}
 
 	return SchemaClass as any;

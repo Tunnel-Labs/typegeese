@@ -3,6 +3,7 @@ import type { NormalizedHyperschema } from '~/types/hyperschema.js';
 import { pre, getModelWithString } from '@typegoose/typegoose';
 import type { OnForeignModelDeletedActions } from '~/types/delete.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
+import { getSchemaPropMap } from '~/utils/prop-map.js';
 
 export function defineOnForeignModelDeletedActions<Model>(
 	actions: OnForeignModelDeletedActions<Model>
@@ -29,11 +30,7 @@ export function registerOnForeignModelDeletedHooks({
 		schemaName
 	} of Object.values(hyperschemas)) {
 		const childModelName = schemaName;
-
-		const propMap = Reflect.getOwnMetadata(
-			DecoratorKeys.PropCache,
-			schema.prototype
-		) as Map<string, { options?: { ref: string } }>;
+		const propMap = getSchemaPropMap(schema);
 
 		for (const [childModelField, action] of Object.entries(
 			onForeignModelDeletedActions

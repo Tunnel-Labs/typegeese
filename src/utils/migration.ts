@@ -11,6 +11,7 @@ import { getModelWithString } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import { AnySchema } from '~/types/schema.js';
 import { Mongoose } from 'mongoose';
+import { getSchemaPropMap } from '~/utils/prop-map.js';
 
 function getForeignHyperschemaFromForeignPropertyKey({
 	hyperschemas,
@@ -21,11 +22,7 @@ function getForeignHyperschemaFromForeignPropertyKey({
 	hyperschema: NormalizedHyperschema<any>;
 	foreignPropertyKey: string;
 }): NormalizedHyperschema<any> {
-	const propMap = Reflect.getOwnMetadata(
-		DecoratorKeys.PropCache,
-		hyperschema.schema.prototype
-	) as Map<string, { options?: { ref: string } }>;
-
+	const propMap = getSchemaPropMap(hyperschema.schema);
 	const foreignSchemaName = propMap.get(foreignPropertyKey)?.options?.ref;
 
 	if (foreignSchemaName === undefined) {
