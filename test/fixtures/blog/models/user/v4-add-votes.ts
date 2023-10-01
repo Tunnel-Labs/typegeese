@@ -17,7 +17,7 @@ import {
 
 @modelOptions({ options: { disableLowerIndexes: true } })
 export class User extends Schema(UserV3, 'v4-add-votes') {
-	declare __type: User;
+	declare __type__: User;
 
 	@prop(
 		virtualForeignRef<User, CommentDownvote>(

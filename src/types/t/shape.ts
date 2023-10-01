@@ -6,7 +6,7 @@ import type { t } from './$.js';
 // prettier-ignore
 export type ShapeProperties<Schema> = {
 	[K in keyof Schema as
-		| K extends '__type' ? never
+		| K extends '__type__' ? never
 		: K extends '_v' ? never
 		: IsDeprecated<Schema[K]> extends true ? never
 		: K]:

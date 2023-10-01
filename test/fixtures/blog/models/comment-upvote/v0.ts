@@ -9,7 +9,7 @@ import {
 import type { Comment, User } from '../$schemas.js';
 
 export class CommentUpvote extends Schema('CommentUpvote') {
-	__type!: Comment;
+	__type__!: Comment;
 
 	@prop(
 		foreignRef<CommentUpvote, User>('CommentUpvote', 'User', 'commentUpvotes', {

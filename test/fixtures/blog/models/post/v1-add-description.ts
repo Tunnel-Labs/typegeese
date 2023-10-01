@@ -9,7 +9,7 @@ import {
 import * as PostV0 from './v0.js';
 
 export class Post extends Schema(PostV0, 'v1-add-description') {
-	__type!: Post;
+	__type__!: Post;
 
 	@prop({ type: () => String, required: true })
 	public description!: string;

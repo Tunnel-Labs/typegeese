@@ -5,7 +5,7 @@ import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 export type SelectInput<Model> = {
 	[K in keyof Model as
 		| IsDeprecated<Model[K]> extends true ? never
-		: K extends '__type' ? never
+		: K extends '__type__' ? never
 		: K extends '_v' ? never
 		: K
 	]?
@@ -30,7 +30,7 @@ export type SelectOutputWithVersion<
 > = SelectOutput<Model, Select, true>;
 
 // prettier-ignore
-export type SelectOutput<Model, Select extends SelectInput<Model>, WithVersion extends boolean = false> = { _id: string, __type?: Model } & (WithVersion extends true ? { _v: string } : {}) & {
+export type SelectOutput<Model, Select extends SelectInput<Model>, WithVersion extends boolean = false> = { _id: string, __type__?: Model } & (WithVersion extends true ? { _v: string } : {}) & {
 	[K in keyof Select]
 		: Select[K] extends true
 			? K extends keyof Model

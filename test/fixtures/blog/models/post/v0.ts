@@ -12,7 +12,7 @@ import {
 import type { Comment, User } from '../$schemas.js';
 
 export class Post extends Schema('Post') {
-	__type!: Post;
+	__type__!: Post;
 
 	@prop({
 		type: () => String,

@@ -11,7 +11,7 @@ import * as CommentV2 from './v2-add-votes.js';
 export class Comment extends Schema(CommentV2, 'v3-rename-to-raw-text', {
 	omit: { text: true }
 }) {
-	__type!: Comment;
+	__type__!: Comment;
 
 	@prop({
 		type: () => String,

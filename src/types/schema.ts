@@ -3,7 +3,7 @@ import { ArrayInnerValue } from '~/types/array.js';
 
 export type GetSchemaFromQuery<Query extends QueryWithHelpers<any, any>> =
 	NonNullable<
-		ArrayInnerValue<NonNullable<Awaited<ReturnType<Query['exec']>>>>['__type']
+		ArrayInnerValue<NonNullable<Awaited<ReturnType<Query['exec']>>>>['__type__']
 	>;
 
 export type AnySchema = {

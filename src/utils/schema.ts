@@ -39,7 +39,7 @@ export function Schema<
 	new (): Omit<
 		GetSchemaFromHyperschema<PreviousHyperschema>,
 		| '_v'
-		| '__type'
+		| '__type__'
 		| (Options extends Record<string, unknown>
 				? RequiredKeysOf<Options['omit']>
 				: never)

@@ -10,7 +10,7 @@ import {
 import type { CommentThread } from '../$schemas.js';
 
 export class Comment extends Schema('Comment') {
-	declare __type: Comment;
+	declare __type__: Comment;
 
 	@prop({
 		type: () => String,

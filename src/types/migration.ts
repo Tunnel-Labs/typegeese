@@ -26,7 +26,7 @@ export type IsSupersetKey<
 	Key extends keyof ExcludeVirtualForeignRefsAndDeprecatedKeys<CurrentModel>
 > =
 	| Key extends '_v' ? true
-	: Key extends '__type' ? true
+	: Key extends '__type__' ? true
 	: Key extends keyof PreviousModel
 		? IsDeprecated<CurrentModel[Key]> extends true ? true
 		: CurrentModel[Key] extends PreviousModel[Key] ? true

@@ -14,7 +14,7 @@ import { getSchemaPropMap } from '~/utils/prop-map.js';
 
 @index({ username: 1 }, { unique: true })
 export class User extends Schema(UserV0, 'v1-add-username') {
-	declare __type: User;
+	declare __type__: User;
 
 	@prop({ type: () => String, required: true })
 	public username!: string;
