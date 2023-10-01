@@ -20,7 +20,7 @@ export function normalizeHyperschema<Hyperschema>(
 		hyperschema === undefined ||
 		(typeof hyperschema !== 'object' && typeof hyperschema !== 'function')
 	) {
-		throw new Error(`Invalid hyperschema: ${hyperschema}`);
+		throw new Error(`Invalid hyperschema: ${JSON.stringify(hyperschema)}`);
 	}
 
 	// If the `schemaName` property is present, the hyperschema is already normalized
@@ -112,56 +112,6 @@ export async function loadHyperschemas<
 			return [normalizedHyperschema.schemaName, normalizedHyperschema];
 		}
 	);
-
-	// For each schema, we need to merge all the typegoose metadata into the leaf schema
-	for (const hyperschema of Object.values(hyperschemas)) {
-		const mergedPropCache: Map<string, any> = new Map();
-
-		const schemaPrototypeChain = [];
-		let currentSchema = hyperschema.schema;
-		schemaPrototypeChain.push(currentSchema);
-
-		while (currentSchema !== BaseSchema) {
-			currentSchema = Object.getPrototypeOf(currentSchema);
-			schemaPrototypeChain.push(currentSchema);
-		}
-
-		schemaPrototypeChain.reverse();
-
-		// Loop through the prototype chain backwards
-		// For each schema, we overwrite its metadata with our merged metadata map up to that point
-		for (const schema of schemaPrototypeChain) {
-			// Combine all the prop metadata maps
-			const propMap = Reflect.getOwnMetadata(
-				DecoratorKeys.PropCache,
-				schema.prototype
-			);
-
-			if (propMap !== undefined) {
-				for (const [key, value] of propMap.entries()) {
-					mergedPropCache.set(key, value);
-				}
-			}
-
-			Reflect.defineMetadata(
-				DecoratorKeys.PropCache,
-				new Map(mergedPropCache),
-				schema.prototype
-			);
-		}
-
-		// If the leaf schema has `disableLowerIndexes` set, we should the indexes of all the parent classes
-		const leafSchemaModelOptions = Reflect.getOwnMetadata(
-			DecoratorKeys.ModelOptions,
-			hyperschema.schema
-		);
-
-		if (leafSchemaModelOptions?.options?.disableLowerIndexes) {
-			for (const schema of schemaPrototypeChain.slice(0, -1)) {
-				Reflect.deleteMetadata(DecoratorKeys.Index, schema);
-			}
-		}
-	}
 
 	registerOnForeignModelDeletedHooks({ hyperschemas });
 

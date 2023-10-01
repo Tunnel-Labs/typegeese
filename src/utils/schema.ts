@@ -1,17 +1,18 @@
 import { prop } from '@typegoose/typegoose';
 import { SchemaOptions } from 'mongoose';
-import { IsEqual } from 'type-fest';
 import { GetSchemaFromHyperschema } from '~/types/hyperschema.js';
 import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { versionStringToVersionNumber } from '~/utils/version.js';
 import type { RequiredKeysOf } from 'type-fest';
+import { DecoratorKeys } from '~/utils/decorator-keys.js';
 
 export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	return schemaOptions;
 }
 
-Schema('', '');
-
+/**
+	Instead of inheriting from the previous schema migration, we instead create a copy of the class (this makes it easier to use discriminator types)
+*/
 export function Schema<
 	PreviousHyperschema,
 	V extends string,
@@ -39,7 +40,7 @@ export function Schema<
 	const hyperschema = normalizeHyperschema(previousHyperschema);
 	const version = versionStringToVersionNumber(versionString);
 
-	class SubSchema extends (hyperschema.schema as any) {
+	class SchemaClass {
 		@prop({
 			type: () => Number,
 			default: version,
@@ -48,5 +49,25 @@ export function Schema<
 		public _v!: string;
 	}
 
-	return SubSchema as any;
+	// Copy over all the metadata properties
+	for (const decoratorKey of Object.keys(DecoratorKeys)) {
+		const decoratorValue = Reflect.getOwnMetadata(
+			decoratorKey,
+			(hyperschema.schema as any).prototype
+		);
+
+		Reflect.defineMetadata(decoratorKey, decoratorValue, SchemaClass.prototype);
+	}
+
+	// If this schema has `disableLowerIndexes` set, we should the indexes of all the parent classes
+	const leafSchemaModelOptions = Reflect.getOwnMetadata(
+		DecoratorKeys.ModelOptions,
+		hyperschema.schema as any
+	);
+
+	if (leafSchemaModelOptions?.options?.disableLowerIndexes) {
+		Reflect.deleteMetadata(DecoratorKeys.Index, SchemaClass.prototype);
+	}
+
+	return SchemaClass as any;
 }
