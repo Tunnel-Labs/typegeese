@@ -9,6 +9,7 @@ import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
 import { PopulateObject } from '~/types/populate.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
+import { DecoratorKeys } from '~/utils/decorator-keys.js';
 
 export function normalizeHyperschema<Hyperschema>(
 	hyperschema: Hyperschema
@@ -111,7 +112,25 @@ export async function loadHyperschemas<
 		}
 	);
 
-	// For each hyperschema, we want to make them the base class
+	// For each hyperschema, we want to make them the base class by merging the parent's prototype properties with the class properties and then unset their prototype
+	for (const hyperschema of Object.values(hyperschemas)) {
+		const basePropMap = Reflect.getMetadata(
+			DecoratorKeys.PropCache,
+			hyperschema.schema.prototype
+		) as Map<string, { options?: { ref: string } }>;
+
+		const prototypePropMap = Reflect.getMetadata(
+			DecoratorKeys.PropCache,
+			Object.getPrototypeOf(hyperschema.schema).prototype
+		) as Map<string, { options?: { ref: string } }>;
+
+		for (const [propKey, propValue] of prototypePropMap.entries()) {
+			basePropMap.set(propKey, propValue);
+		}
+
+		hyperschema.schema.prototype = Object.create(Object.prototype);
+		Object.setPrototypeOf(hyperschema.schema, Object);
+	}
 
 	registerOnForeignModelDeletedHooks({ hyperschemas });
 

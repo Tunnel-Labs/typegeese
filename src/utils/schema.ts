@@ -5,7 +5,6 @@ import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { versionStringToVersionNumber } from '~/utils/version.js';
 import type { RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
-import { getSchemaPropMap } from '~/utils/prop-map.js';
 
 export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	return schemaOptions;
@@ -54,7 +53,7 @@ export function Schema(
 		omit: Record<string, true>;
 	}
 ): any {
-	if (previousHyperschema === undefined) {
+	if (typeof previousHyperschema === 'string') {
 		class SchemaClass {
 			@prop({
 				type: () => String,
@@ -76,16 +75,27 @@ export function Schema(
 	const hyperschema = normalizeHyperschema(previousHyperschema);
 	const version = versionStringToVersionNumber(versionString!);
 
-	class SchemaClass {
-		public _v!: string;
-	}
+	class SchemaClass {}
 
-	const propMap = getSchemaPropMap(hyperschema.schema);
-	propMap.get('_v').options.default = version;
+	const hyperschemaSchemaPropMap = Reflect.getMetadata(
+		DecoratorKeys.PropCache,
+		hyperschema.schema.prototype
+	) as Map<string, { options?: { ref: string } }>;
+
+	const hyperschemaSchemaPrototypePropMap = Reflect.getMetadata(
+		DecoratorKeys.PropCache,
+		Object.getPrototypeOf(hyperschema.schema).prototype
+	) as Map<string, { options?: { ref: string } }>;
+
+	const newPropMap = new Map([
+		...hyperschemaSchemaPropMap.entries(),
+		...hyperschemaSchemaPrototypePropMap.entries()
+	]);
+	(newPropMap.get('_v') as any).options.default = version;
 
 	Reflect.defineMetadata(
 		DecoratorKeys.PropCache,
-		propMap,
+		newPropMap,
 		SchemaClass.prototype
 	);
 
@@ -99,5 +109,5 @@ export function Schema(
 		Reflect.deleteMetadata(DecoratorKeys.Index, SchemaClass);
 	}
 
-	return SchemaClass as any;
+	return SchemaClass;
 }

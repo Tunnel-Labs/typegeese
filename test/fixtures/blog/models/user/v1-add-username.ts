@@ -9,8 +9,6 @@ import {
 
 import * as UserV0 from './v0.js';
 import { createMigration } from '~/utils/migration.js';
-import { DecoratorKeys } from '@typegoose/typegoose/lib/internal/constants.js';
-import { getSchemaPropMap } from '~/utils/prop-map.js';
 
 @index({ username: 1 }, { unique: true })
 export class User extends Schema(UserV0, 'v1-add-username') {
@@ -20,9 +18,6 @@ export class User extends Schema(UserV0, 'v1-add-username') {
 	public username!: string;
 }
 
-console.log(
-	getSchemaPropMap(User)
-)
 export const User_migration = createMigration<User>()
 	.from(UserV0)
 	.with(async function ({ _id }) {
