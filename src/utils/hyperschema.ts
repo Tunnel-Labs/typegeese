@@ -124,12 +124,21 @@ export async function loadHyperschemas<
 			Object.getPrototypeOf(hyperschema.schema).prototype
 		) as Map<string, { options?: { ref: string } }>;
 
-		for (const [propKey, propValue] of prototypePropMap.entries()) {
-			basePropMap.set(propKey, propValue);
-		}
+		const mergedPropMap = new Map([
+			...basePropMap.entries(),
+			...prototypePropMap.entries()
+		]);
 
-		hyperschema.schema.prototype = Object.create(Object.prototype);
-		Object.setPrototypeOf(hyperschema.schema, Object);
+		const Schema = class {};
+		Object.defineProperty(Schema, 'name', { value: hyperschema.schemaName });
+		Reflect.defineMetadata(
+			DecoratorKeys.PropCache,
+			Schema.prototype,
+			mergedPropMap
+		);
+
+		// @ts-expect-error: Overriding schema
+		hyperschema.schema = Schema;
 	}
 
 	registerOnForeignModelDeletedHooks({ hyperschemas });
