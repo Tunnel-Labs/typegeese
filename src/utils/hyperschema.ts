@@ -10,6 +10,10 @@ import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js
 import { PopulateObject } from '~/types/populate.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
+import { getModelForHyperschema } from '~/index.js';
+import createClone from 'rfdc';
+
+const clone = createClone();
 
 export function normalizeHyperschema<Hyperschema>(
 	hyperschema: Hyperschema
@@ -75,15 +79,53 @@ export function normalizeHyperschema<Hyperschema>(
 		);
 	}
 
-	const schema = hyperschema[schemaKey as keyof typeof hyperschema];
+	const originalSchema = hyperschema[
+		schemaKey as keyof typeof hyperschema
+	] as any;
 
-	return {
+	let schema: any;
+	if (originalSchema.__typegeeseSchema !== undefined) {
+		schema = originalSchema.__typegeeseSchema;
+	} else {
+		const basePropMap = Reflect.getMetadata(
+			DecoratorKeys.PropCache,
+			originalSchema.prototype
+		) as Map<string, { options?: { ref: string } }>;
+
+		const prototypePropMap = Reflect.getMetadata(
+			DecoratorKeys.PropCache,
+			Object.getPrototypeOf(originalSchema).prototype
+		) as Map<string, { options?: { ref: string } }>;
+
+		const mergedPropMap = clone(
+			new Map([...prototypePropMap.entries(), ...basePropMap.entries()])
+		);
+
+		const Schema = class {};
+		Object.defineProperty(Schema, 'name', { value: originalSchema.name });
+		for (const propValue of mergedPropMap.values()) {
+			(propValue as any).target = Schema.prototype;
+		}
+
+		Reflect.defineMetadata(
+			DecoratorKeys.PropCache,
+			mergedPropMap,
+			Schema.prototype
+		);
+
+		originalSchema.__typegeeseSchema = Schema;
+		schema = Schema;
+	}
+
+	const normalizedHyperschema = {
 		schema,
 		schemaName: schemaKey,
 		schemaOptions,
 		migration,
 		onForeignModelDeletedActions
-	} as any;
+	};
+
+	return normalizedHyperschema as any;
 }
 
 export async function loadHyperschemas<
@@ -97,11 +139,20 @@ export async function loadHyperschemas<
 		mongoose: Mongoose;
 		meta?: any;
 	}
-): Promise<{
-	[HyperschemaKey in keyof Hyperschemas as GetSchemaKeyFromHyperschema<
-		Hyperschemas[HyperschemaKey]
-	>]: NormalizedHyperschema<Hyperschemas[HyperschemaKey]>;
-}> {
+): Promise<
+	{
+		[HyperschemaKey in keyof Hyperschemas as GetSchemaKeyFromHyperschema<
+			Hyperschemas[HyperschemaKey]
+		>]: NormalizedHyperschema<Hyperschemas[HyperschemaKey]>;
+	} & {
+		[HyperschemaKey in keyof Hyperschemas as `${GetSchemaKeyFromHyperschema<
+			Hyperschemas[HyperschemaKey]
+		> &
+			string}Model`]: ReturnType<
+			typeof getModelForHyperschema<Hyperschemas[HyperschemaKey]>
+		>;
+	}
+> {
 	const hyperschemas = mapObject(
 		unnormalizedHyperschemas,
 		(_key, unnormalizedHyperschema) => {
@@ -111,35 +162,6 @@ export async function loadHyperschemas<
 			return [normalizedHyperschema.schemaName, normalizedHyperschema];
 		}
 	);
-
-	// For each hyperschema, we want to make them the base class by merging the parent's prototype properties with the class properties and then unset their prototype
-	for (const hyperschema of Object.values(hyperschemas)) {
-		const basePropMap = Reflect.getMetadata(
-			DecoratorKeys.PropCache,
-			hyperschema.schema.prototype
-		) as Map<string, { options?: { ref: string } }>;
-
-		const prototypePropMap = Reflect.getMetadata(
-			DecoratorKeys.PropCache,
-			Object.getPrototypeOf(hyperschema.schema).prototype
-		) as Map<string, { options?: { ref: string } }>;
-
-		const mergedPropMap = new Map([
-			...basePropMap.entries(),
-			...prototypePropMap.entries()
-		]);
-
-		const Schema = class {};
-		Object.defineProperty(Schema, 'name', { value: hyperschema.schemaName });
-		Reflect.defineMetadata(
-			DecoratorKeys.PropCache,
-			Schema.prototype,
-			mergedPropMap
-		);
-
-		// @ts-expect-error: Overriding schema
-		hyperschema.schema = Schema;
-	}
 
 	registerOnForeignModelDeletedHooks({ hyperschemas });
 
@@ -211,5 +233,11 @@ export async function loadHyperschemas<
 		await migration.initialize?.({ mongoose, meta });
 	}
 
-	return hyperschemas as any;
+	return {
+		...hyperschemas,
+		...mapObject(hyperschemas, (schemaName, hyperschema) => [
+			`${schemaName}Model`,
+			getModelForHyperschema(hyperschema, { mongoose })
+		])
+	} as any;
 }

@@ -7,7 +7,7 @@ import {
 	prop,
 	Schema,
 	foreignRef,
-	virtualForeignRef
+	virtualForeignRef,
 } from '~/index.js';
 import type { Comment, User } from '../$schemas.js';
 

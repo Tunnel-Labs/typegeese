@@ -22,7 +22,7 @@ export function versionStringToVersionNumber(versionString: string): number {
 export function getVersionFromSchema(schema: Schema): number {
 	const version = Reflect.getMetadata(
 		DecoratorKeys.PropCache,
-		Object.getPrototypeOf((schema as any).prototype)
+		(schema as any).prototype
 	)?.get('_v')?.options?.default;
 
 	if (version === undefined) {

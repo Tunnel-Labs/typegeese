@@ -77,20 +77,12 @@ export function Schema(
 
 	class SchemaClass {}
 
-	const hyperschemaSchemaPropMap = Reflect.getMetadata(
+	const propMap = Reflect.getMetadata(
 		DecoratorKeys.PropCache,
 		hyperschema.schema.prototype
 	) as Map<string, { options?: { ref: string } }>;
 
-	const hyperschemaSchemaPrototypePropMap = Reflect.getMetadata(
-		DecoratorKeys.PropCache,
-		Object.getPrototypeOf(hyperschema.schema).prototype
-	) as Map<string, { options?: { ref: string } }>;
-
-	const newPropMap = new Map([
-		...hyperschemaSchemaPropMap.entries(),
-		...hyperschemaSchemaPrototypePropMap.entries()
-	]);
+	const newPropMap = new Map(propMap);
 	(newPropMap.get('_v') as any).options.default = version;
 
 	Reflect.defineMetadata(
