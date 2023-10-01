@@ -5,6 +5,9 @@ import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { versionStringToVersionNumber } from '~/utils/version.js';
 import type { RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
+import createClone from 'rfdc';
+
+const clone = createClone();
 
 export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	return schemaOptions;
@@ -82,7 +85,7 @@ export function Schema(
 		hyperschema.schema.prototype
 	) as Map<string, { options?: { ref: string } }>;
 
-	const newPropMap = new Map(propMap);
+	const newPropMap = clone(propMap);
 	(newPropMap.get('_v') as any).options.default = version;
 
 	Reflect.defineMetadata(
