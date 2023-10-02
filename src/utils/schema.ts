@@ -47,6 +47,7 @@ export function Schema<
 				: never)
 	> & {
 		_v: number;
+		_id: string;
 	};
 };
 export function Schema(
