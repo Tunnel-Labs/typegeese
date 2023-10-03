@@ -4,7 +4,6 @@ export type * from '@typegoose/typegoose/lib/types.js';
 export type * from './types/array.js';
 export type * from './types/create.js';
 export type * from './types/delete.js';
-export type * from './types/deprecated.js';
 export type * from './types/find.js';
 export type * from './types/hyperschema.js';
 export type * from './types/instance-type.js';
@@ -18,7 +17,6 @@ export type * from './types/query.js';
 
 export { defineOnForeignModelDeletedActions } from './utils/delete.js';
 export { defineSchemaOptions, Schema } from './utils/schema.js';
-export { deprecated } from './utils/deprecated.js';
 export { loadHyperschemas, normalizeHyperschema } from './utils/hyperschema.js';
 export { createMigration } from './utils/migration.js';
 export { getModelForHyperschema } from './utils/model.js';

@@ -1,6 +1,5 @@
 import type { DocumentType } from '@typegoose/typegoose';
 import type { Promisable } from 'type-fest';
-import type { IsDeprecated } from '~/types/deprecated.js';
 import type { NormalizedHyperschema } from '~/types/hyperschema.js';
 import { CreateType } from '~/types/create.js';
 import { IsVirtualForeignRef, IsVirtualForeignRefArray } from '~/types/ref.js';
@@ -11,11 +10,10 @@ export type Diff<T, V> = {
 };
 
 // prettier-ignore
-export type ExcludeVirtualForeignRefsAndDeprecatedKeys<Model> = {
+export type ExcludeVirtualForeignRefs<Model> = {
 	[K in keyof Model as
 		| IsVirtualForeignRef<Model[K]> extends true ? never
 		: IsVirtualForeignRefArray<Model[K]> extends true ? never
-		: IsDeprecated<Model[K]> extends true ? never
 		: K]: Model[K];
 };
 
@@ -23,18 +21,17 @@ export type ExcludeVirtualForeignRefsAndDeprecatedKeys<Model> = {
 export type IsSupersetKey<
 	PreviousModel,
 	CurrentModel,
-	Key extends keyof ExcludeVirtualForeignRefsAndDeprecatedKeys<CurrentModel>
+	Key extends keyof ExcludeVirtualForeignRefs<CurrentModel>
 > =
 	| Key extends '_v' ? true
 	: Key extends '__type__' ? true
 	: Key extends keyof PreviousModel
-		? IsDeprecated<CurrentModel[Key]> extends true ? true
-		: CurrentModel[Key] extends PreviousModel[Key] ? true
+		? CurrentModel[Key] extends PreviousModel[Key] ? true
 		: false
 	: true;
 
 export type NonSupersetKeys<PreviousModel, CurrentModel> = keyof {
-	[K in keyof ExcludeVirtualForeignRefsAndDeprecatedKeys<PreviousModel> as IsSupersetKey<
+	[K in keyof ExcludeVirtualForeignRefs<PreviousModel> as IsSupersetKey<
 		PreviousModel,
 		CurrentModel,
 		// @ts-expect-error: works
@@ -55,8 +52,8 @@ export type MigrationFunctions<PreviousModel, CurrentModel, DataType> =
 		// : NonSupersetKeys<PreviousModel, CurrentModel> extends never ?
 			: {
 				[K in keyof Diff<
-					ExcludeVirtualForeignRefsAndDeprecatedKeys<CurrentModel>,
-					ExcludeVirtualForeignRefsAndDeprecatedKeys<PreviousModel>
+					ExcludeVirtualForeignRefs<CurrentModel>,
+					ExcludeVirtualForeignRefs<PreviousModel>
 				>]: (
 					this: DataType
 				) => Promisable<CreateType<CurrentModel[K]>>;
