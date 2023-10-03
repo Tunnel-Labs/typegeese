@@ -154,7 +154,7 @@ export const User_migration = createMigration<User>()
     const UserV0Model = getModelForHyperschema(UserV0, { mongoose: this.mongoose });
     const user = await select(
       UserV0Model.findById(_id),
-      { username: true }
+      { email: true }
     );
     return user;
   })
