@@ -1,5 +1,6 @@
 import { IsEqual } from 'type-fest';
-import { AnySchema } from '~/index.js';
+import { AnySchema } from '~/types/schema.js';
+import type { ArrayInnerValue } from '~/types/array.js';
 import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 
 export function foreignRef<
@@ -13,17 +14,15 @@ export function foreignRef<
 		? 'Error: virtualForeignRef requires two generic type parameters'
 		: NonNullable<ForeignSchema['__name__']>,
 	foreignField: keyof {
-		[Field in keyof InstanceType<// @ts-expect-error: Works
-		ForeignSchema> as NonNullable<
-			InstanceType<// @ts-expect-error: Works
-			ForeignSchema>[Field]
-		> extends
-			| ForeignRef<infer M, any, any>
-			| ForeignRef<infer M, any, any>[]
-			| VirtualForeignRef<infer M, any, any>
-			| VirtualForeignRef<infer M, any, any>[]
+		[Field in keyof ForeignSchema as NonNullable<
+			ArrayInnerValue<ForeignSchema[Field]>
+		> extends ForeignRef<ForeignSchema, HostSchema, any>
 			? Field
-			: never]: true;
+			: NonNullable<
+					ArrayInnerValue<ForeignSchema[Field]>
+			  > extends VirtualForeignRef<ForeignSchema, HostSchema, any>
+			? Field
+			: never]: ForeignSchema[Field];
 	},
 	options: { required: boolean }
 ) {
@@ -46,13 +45,11 @@ export function virtualForeignRef<
 		? 'Error: virtualForeignRef requires two generic type parameters'
 		: NonNullable<ForeignSchema['__name__']>,
 	foreignField: keyof {
-		[Field in keyof InstanceType<// @ts-expect-error: Works
-		ForeignSchema> as NonNullable<
-			InstanceType<// @ts-expect-error: Works
-			ForeignSchema>[Field]
-		> extends ForeignRef<infer M, any, any> | ForeignRef<infer M, any, any>[]
+		[Field in keyof ForeignSchema as NonNullable<
+			ForeignSchema[Field]
+		> extends ForeignRef<ForeignSchema, HostSchema, any>
 			? Field
-			: never]: true;
+			: never]: ForeignSchema[Field];
 	},
 	localField: '_id'
 ) {
