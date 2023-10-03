@@ -27,12 +27,12 @@ The first version (v0) of a schema extends from `Schema()`:
 // ./user/v0.ts
 import { Schema, prop } from "typegeese";
 
-export class User extends Schema() {
+export class User extends Schema('User') {
   @prop({ type: () => String, required: true })
-  public email!: string;
+  email!: string;
 
   @prop({ type: () => String, required: false })
-  public name!: string | null;
+  name!: string | null;
 }
 ```
 
@@ -46,7 +46,7 @@ import * as UserV0 from './v0.ts'
 
 export class User extends Schema(UserV0, "v1-profile-image") {
   @prop({ type: () => String, required: false })
-  public profileImageUrl!: string | null;
+  profileImageUrl!: string | null;
 }
 ```
 
@@ -66,7 +66,7 @@ import * as UserV1 from './v1-add-profile-image.js';
 
 export class User extends Schema(UserV1, "v2-add-username") {
   @prop({ type: () => String, required: true })
-  public username!: string;
+  username!: string;
 }
 
 export const User_migration = createMigration<User>()
@@ -107,4 +107,115 @@ type User = t.Shape<
     username: string;
   }
 >;
+```
+
+## Examples
+
+The examples use the following UserV0 schema:
+
+```typescript
+// ./user/v0.ts
+import { Schema, prop } from "typegeese";
+
+export class User extends Schema('User') {
+  @prop({ type: () => String, required: true })
+  email!: string;
+
+  @prop({ type: () => String, required: false })
+  name!: string | null;
+}
+```
+
+### Adding a new field
+
+```typescript
+// ./user/v1-add-username.ts
+import {
+  Schema,
+  prop,
+  createMigration,
+  getModelForHyperschema,
+  select
+} from 'typegeese';
+
+import * as UserV0 from './v0.js'
+
+export class User extends Schema(
+  UserV0,
+  'v1-add-username'
+) {
+  @prop({ type: () => String, required: true })
+  username!: string
+}
+
+export const User_migration = createMigration<User>()
+  .from(UserV0)
+  .with(async function ({ _id }) {
+    const UserV0Model = getModelForHyperschema(UserV0, { mongoose: this.mongoose });
+    const user = await select(
+      UserV0Model.findById(_id),
+      { username: true }
+    );
+    return user;
+  })
+  .migrate({
+    username() {
+      return this.email.split("@")[0];
+    }
+  });
+```
+
+### Removing a field
+
+```typescript
+// ./user/v1-remove-name.ts
+import { Schema, prop } from 'typegeese';
+
+import * as UserV0 from './v0.js'
+
+export class User extends Schema(
+  UserV0,
+  'v1-remove-name',
+  { omit: { name: true } }
+) {}
+```
+
+### Renaming a field
+
+```typescript
+// ./user/v1-rename-name-to-full-name.ts
+import {
+  Schema,
+  prop,
+  createMigration,
+  getModelForHyperschema,
+  select
+} from 'typegeese';
+
+import * as UserV0 from './v0.js'
+
+export class User extends Schema(
+  UserV0,
+  'v1-rename-name-to-full-name',
+  { omit: { name: true } }
+) {
+  @prop({ type: () => String, required: false })
+  fullName!: string | null
+}
+
+export const User_migration = createMigration<User>()
+  .from(UserV0)
+  .with(async function ({ _id }) {
+    const UserV0Model = getModelForHyperschema(UserV0, { mongoose: this.mongoose });
+    const user = await select(
+      UserV0Model.findById(_id),
+      { name: true }
+    );
+    return user;
+  })
+  .migrate({
+    fullName() {
+      return this.name;
+    }
+  });
 ```
