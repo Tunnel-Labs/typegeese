@@ -6,6 +6,7 @@ import { versionStringToVersionNumber } from '~/utils/version.js';
 import type { RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import createClone from 'rfdc';
+import { NewSchemaOptions } from '~/types/schema.js';
 
 const clone = createClone();
 
@@ -17,7 +18,8 @@ export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	Instead of inheriting from the previous schema migration, we instead create a copy of the class (this makes it easier to use discriminator types)
 */
 export function Schema<SchemaName extends string>(
-	name: SchemaName
+	name: SchemaName,
+	options?: NewSchemaOptions
 ): {
 	new (): {
 		__name__?: SchemaName;
@@ -51,13 +53,18 @@ export function Schema<
 	};
 };
 export function Schema(
-	previousHyperschema?: any,
-	versionString?: string,
+	previousHyperschemaOrNewSchemaName?: any,
+	versionStringOrNewSchemaOptions?: string | NewSchemaOptions,
 	options?: {
 		omit: Record<string, true>;
 	}
 ): any {
-	if (typeof previousHyperschema === 'string') {
+	if (typeof previousHyperschemaOrNewSchemaName === 'string') {
+		const newSchemaName = previousHyperschemaOrNewSchemaName;
+		const newSchemaOptions = versionStringOrNewSchemaOptions as
+			| NewSchemaOptions
+			| undefined;
+
 		class SchemaClass {
 			@prop({
 				type: () => String,
@@ -73,13 +80,19 @@ export function Schema(
 			public _v!: 0;
 		}
 
-		Object.defineProperty(SchemaClass, 'name', { value: previousHyperschema });
+		Object.defineProperty(SchemaClass, 'name', { value: newSchemaName });
+		Object.defineProperty(SchemaClass, 'options', {
+			value: newSchemaOptions ?? {}
+		});
 
 		return SchemaClass;
 	}
 
+	const previousHyperschema = previousHyperschemaOrNewSchemaName;
+	const versionString = versionStringOrNewSchemaOptions as string;
+
 	const hyperschema = normalizeHyperschema(previousHyperschema);
-	const version = versionStringToVersionNumber(versionString!);
+	const version = versionStringToVersionNumber(versionString);
 
 	class SchemaClass {}
 

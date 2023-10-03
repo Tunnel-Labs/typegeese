@@ -219,3 +219,13 @@ export const User_migration = createMigration<User>()
     }
   });
 ```
+
+### Renaming a schema
+
+```typescript
+// ./account/v0.ts
+
+import { User } from '../../user/$schema.ts'
+
+export class Account extends Schema('Account', { from: User }) {}
+```

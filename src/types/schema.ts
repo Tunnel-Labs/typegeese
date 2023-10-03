@@ -11,3 +11,7 @@ export type AnySchema = {
 	_v: number;
 	__name__?: string;
 };
+
+export interface NewSchemaOptions {
+	from?: AnySchema;
+}
