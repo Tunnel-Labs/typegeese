@@ -1,5 +1,5 @@
 import { loadHyperschemas } from '~/index.js';
-import * as UserHyperschema from './user/$schema.js';
+import * as AccountHyperschema from './account/$schema.js';
 import * as CommentHyperschema from './comment/$schema.js';
 import * as PostHyperschema from './post/$schema.js';
 import mem from 'mem';
@@ -7,9 +7,9 @@ import { Mongoose } from 'mongoose';
 
 export const getBlogModels = mem(
 	async ({ mongoose }: { mongoose: Mongoose }) => {
-		const { CommentModel, UserModel, PostModel } = await loadHyperschemas(
+		const { AccountModel, CommentModel, PostModel } = await loadHyperschemas(
 			{
-				User: UserHyperschema,
+				Account: AccountHyperschema,
 				Comment: CommentHyperschema,
 				Post: PostHyperschema
 			},
@@ -17,7 +17,7 @@ export const getBlogModels = mem(
 		);
 
 		return {
-			UserModel,
+			AccountModel,
 			CommentModel,
 			PostModel
 		};

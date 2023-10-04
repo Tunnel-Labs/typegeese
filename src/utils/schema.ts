@@ -17,11 +17,16 @@ export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 /**
 	Instead of inheriting from the previous schema migration, we instead create a copy of the class (this makes it easier to use discriminator types)
 */
-export function Schema<SchemaName extends string>(
+export function Schema<
+	SchemaName extends string,
+	Options extends NewSchemaOptions
+>(
 	name: SchemaName,
-	options?: NewSchemaOptions
+	options?: Options
 ): {
-	new (): {
+	new (): (Options['from'] extends new () => infer Schema
+		? Omit<Schema, '_v' | '__type__' | '__name__'>
+		: {}) & {
 		__name__?: SchemaName;
 		_id: string;
 		_v: 0;

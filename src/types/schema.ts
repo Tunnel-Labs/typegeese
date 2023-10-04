@@ -13,5 +13,5 @@ export type AnySchema = {
 };
 
 export interface NewSchemaOptions {
-	from?: AnySchema;
+	from?: new () => AnySchema;
 }

@@ -10,19 +10,20 @@ import {
 } from '~/index.js';
 import * as CommentV0 from './v0.js';
 import { VirtualForeignRef } from '~/types/refs.js';
+import * as $ from './$schema.js';
 
 export class Comment extends Schema(CommentV0, 'v1-add-replies') {
 	__type__!: Comment;
 
 	@prop(
-		foreignRef<Comment, Comment>('Comment', 'Comment', 'replies', {
+		foreignRef<Comment, $.Comment>('Comment', 'Comment', 'replies', {
 			required: false
 		})
 	)
-	public parentComment!: ForeignRef<Comment, Comment, 'replies'> | null;
+	public parentComment!: ForeignRef<Comment, $.Comment, 'replies'> | null;
 
 	@prop(
-		virtualForeignRef<Comment, Comment>(
+		virtualForeignRef<Comment, $.Comment>(
 			'Comment',
 			'Comment',
 			'parentComment',
@@ -30,7 +31,7 @@ export class Comment extends Schema(CommentV0, 'v1-add-replies') {
 		),
 		PropType.ARRAY
 	)
-	public replies!: VirtualForeignRef<Comment, Comment, 'parentComment'>[];
+	public replies!: VirtualForeignRef<Comment, $.Comment, 'parentComment'>[];
 }
 
 export const Comment_migration = createMigration<Comment>()

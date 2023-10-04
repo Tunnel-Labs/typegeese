@@ -89,7 +89,7 @@ export const User_migration = createMigration<User>()
 For readability, typegeese exports a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
 
 ```typescript
-// user/$schema.ts
+// ./user/$schema.ts
 
 import type { t } from 'typegeese';
 
@@ -97,7 +97,7 @@ import * as $ from './v2-add-username.js';
 export * from './v2-add-username.js';
 
 // This type is type-checked by TypeScript to ensure that it always stays up to date with every new migration
-type User = t.Shape<
+type _User = t.Shape<
   $.User,
   {
     _id: string;
@@ -222,10 +222,29 @@ export const User_migration = createMigration<User>()
 
 ### Renaming a schema
 
+In order to preserve compatibility with a blue/green deployment strategy, typegeese handles schema renames by running queries on both the old collection and the new renamed collection, and then lazily copying over documents into the new collection as they are queried from the renamed model.
+
+```typescript
+// ./user/v1-rename-to-account.ts
+
+import {
+  Schema,
+  prop,
+  createMigration,
+  getModelForHyperschema,
+  select
+} from 'typegeese';
+
+export class _User extends Schema(
+  UserV0,
+  'v1-rename-to-account',
+) {}
+```
+
 ```typescript
 // ./account/v0.ts
 
-import { User } from '../../user/$schema.ts'
+import { _User } from '../../user/$schema.ts'
 
-export class Account extends Schema('Account', { from: User }) {}
+export class Account extends Schema('Account', { from: _User }) {}
 ```

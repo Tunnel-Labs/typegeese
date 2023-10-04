@@ -1,7 +1,11 @@
-import { Schema, defineOnForeignModelDeletedActions, prop } from '~/index.js';
+import {
+	Schema,
+	createMigration,
+	defineOnForeignModelDeletedActions,
+	prop
+} from '~/index.js';
 
 import * as UserV2 from './v2-add-avatar.js';
-import { createMigration } from '~/utils/migration.js';
 
 export class User extends Schema(UserV2, 'v3-add-bio') {
 	declare __type__: User;

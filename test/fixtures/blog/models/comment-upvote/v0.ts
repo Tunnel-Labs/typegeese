@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {
 	ForeignRef,
 	Schema,
@@ -9,7 +11,7 @@ import {
 import type { Comment, User } from '../$schemas.js';
 
 export class CommentUpvote extends Schema('CommentUpvote') {
-	__type__!: Comment;
+	__type__!: CommentUpvote;
 
 	@prop(
 		foreignRef<CommentUpvote, User>('CommentUpvote', 'User', 'commentUpvotes', {

@@ -1,14 +1,13 @@
 import type { t } from '~/index.js';
-import type { User, Comment } from '../$schemas.js';
+import type * as $ from '../$schemas.js';
 
-import * as $ from './v0.js';
-export * from './v0.js';
+export * from './v1-rename-account-to-user.js';
 
 type _CommentDownvote = t.Shape<
 	$.CommentDownvote,
 	{
 		_id: string;
-		comment: t.ForeignRef<Comment>;
-		user: t.ForeignRef<User>;
+		comment: t.ForeignRef<$.Comment>;
+		account: t.ForeignRef<$.Account>;
 	}
 >;

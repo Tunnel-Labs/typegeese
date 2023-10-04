@@ -1,5 +1,6 @@
 import {
 	Schema,
+	createMigration,
 	defineOnForeignModelDeletedActions,
 	getModelForHyperschema,
 	index,
@@ -8,7 +9,6 @@ import {
 } from '~/index.js';
 
 import * as UserV0 from './v0.js';
-import { createMigration } from '~/utils/migration.js';
 
 @index({ username: 1 }, { unique: true })
 export class User extends Schema(UserV0, 'v1-add-username') {

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {
 	ForeignRef,
 	Schema,
@@ -6,30 +8,30 @@ import {
 	prop,
 	foreignRef
 } from '~/index.js';
-import type { Comment, User } from '../$schemas.js';
+import type * as $ from '../$schemas.js';
 
 export class CommentDownvote extends Schema('CommentDownvote') {
-	__type__!: Comment;
+	__type__!: CommentDownvote;
 
 	@prop(
-		foreignRef<CommentDownvote, User>(
+		foreignRef<CommentDownvote, $.User>(
 			'CommentDownvote',
 			'User',
 			'commentDownvotes',
 			{ required: true }
 		)
 	)
-	public user!: ForeignRef<CommentDownvote, User, 'commentDownvotes'>;
+	public user!: ForeignRef<CommentDownvote, $.User, 'commentDownvotes'>;
 
 	@prop(
-		foreignRef<CommentDownvote, Comment>(
+		foreignRef<CommentDownvote, $.Comment>(
 			'CommentDownvote',
 			'Comment',
 			'downvotes',
 			{ required: true }
 		)
 	)
-	public comment!: ForeignRef<CommentDownvote, Comment, 'downvotes'>;
+	public comment!: ForeignRef<CommentDownvote, $.Comment, 'downvotes'>;
 }
 
 export const CommentDownvote_migration = createMigration<CommentDownvote>(null);

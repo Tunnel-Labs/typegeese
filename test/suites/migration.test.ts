@@ -2,7 +2,7 @@ import { beforeAll, expect, test } from 'vitest';
 import { CreateInput, getModelForHyperschema, select } from '~/index.js';
 import { createId } from '@paralleldrive/cuid2';
 import { createMongoose } from '~test/utils/mongoose.js';
-import * as UserV0 from '~test/fixtures/blog/models/user/v0.js';
+import * as UserV0 from '../fixtures/blog/models/_user/v0.js';
 import * as PostV0 from '~test/fixtures/blog/models/post/v0.js';
 import * as CommentV0 from '~test/fixtures/blog/models/comment/v0.js';
 import { getBlogModels } from '~test/fixtures/blog/models/$models.js';

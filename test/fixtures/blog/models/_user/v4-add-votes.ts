@@ -1,7 +1,10 @@
+// @ts-nocheck
+
 import {
 	PropType,
 	Schema,
 	VirtualForeignRef,
+	createMigration,
 	defineOnForeignModelDeletedActions,
 	modelOptions,
 	prop,
@@ -9,18 +12,14 @@ import {
 } from '~/index.js';
 
 import * as UserV3 from './v3-add-bio.js';
-import { createMigration } from '~/utils/migration.js';
-import {
-	CommentDownvote,
-	CommentUpvote
-} from '~test/fixtures/blog/models/$schemas.js';
+import type * as $ from '../$schemas.js';
 
 @modelOptions({ options: { disableLowerIndexes: true } })
 export class User extends Schema(UserV3, 'v4-add-votes') {
 	declare __type__: User;
 
 	@prop(
-		virtualForeignRef<User, CommentDownvote>(
+		virtualForeignRef<User, $.CommentDownvote>(
 			'User',
 			'CommentDownvote',
 			'user',
@@ -28,10 +27,10 @@ export class User extends Schema(UserV3, 'v4-add-votes') {
 		),
 		PropType.ARRAY
 	)
-	public commentDownvotes!: VirtualForeignRef<User, CommentDownvote, 'user'>[];
+	public commentDownvotes!: VirtualForeignRef<User, $.CommentDownvote, 'user'>[];
 
 	@prop(
-		virtualForeignRef<User, CommentDownvote>(
+		virtualForeignRef<User, $.CommentDownvote>(
 			'User',
 			'CommentDownvote',
 			'user',
@@ -39,7 +38,7 @@ export class User extends Schema(UserV3, 'v4-add-votes') {
 		),
 		PropType.ARRAY
 	)
-	public commentUpvotes!: VirtualForeignRef<User, CommentUpvote, 'user'>[];
+	public commentUpvotes!: VirtualForeignRef<User, $.CommentUpvote, 'user'>[];
 }
 
 export const User_migration = createMigration<User>()

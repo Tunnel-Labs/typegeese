@@ -9,7 +9,7 @@ import {
 	virtualForeignRef
 } from '~/index.js';
 
-import type { Comment, Post } from '../$schemas.js';
+import type * as $ from '../$schemas.js';
 
 @index({ email: 1 })
 export class User extends Schema('User') {
@@ -28,16 +28,16 @@ export class User extends Schema('User') {
 	public name!: string;
 
 	@prop(
-		virtualForeignRef<User, Post>('User', 'Post', 'author', '_id'),
+		virtualForeignRef<User, $.Post>('User', 'Post', 'author', '_id'),
 		PropType.ARRAY
 	)
-	public posts!: VirtualForeignRef<User, Post, 'author'>[];
+	public posts!: VirtualForeignRef<User, $.Post, 'author'>[];
 
 	@prop(
-		virtualForeignRef<User, Comment>('User', 'Comment', 'author', '_id'),
+		virtualForeignRef<User, $.Comment>('User', 'Comment', 'author', '_id'),
 		PropType.ARRAY
 	)
-	public authoredComments!: VirtualForeignRef<User, Comment, 'author'>[];
+	public authoredComments!: VirtualForeignRef<User, $.Comment, 'author'>[];
 }
 
 export const User_migration = createMigration<User>(null);
