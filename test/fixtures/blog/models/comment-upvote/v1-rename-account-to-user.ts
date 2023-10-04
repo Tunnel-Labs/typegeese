@@ -27,7 +27,7 @@ export class CommentUpvote extends Schema(
 			{ required: true }
 		)
 	)
-	public account!: ForeignRef<CommentUpvote, $.Account, 'commentUpvotes'>;
+	account!: ForeignRef<CommentUpvote, $.Account, 'commentUpvotes'>;
 }
 
 export const CommentUpvote_migration = createMigration<CommentUpvote>()

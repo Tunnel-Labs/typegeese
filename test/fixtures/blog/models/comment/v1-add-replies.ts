@@ -20,7 +20,7 @@ export class Comment extends Schema(CommentV0, 'v1-add-replies') {
 			required: false
 		})
 	)
-	public parentComment!: ForeignRef<Comment, $.Comment, 'replies'> | null;
+	parentComment!: ForeignRef<Comment, $.Comment, 'replies'> | null;
 
 	@prop(
 		virtualForeignRef<Comment, $.Comment>(
@@ -31,7 +31,7 @@ export class Comment extends Schema(CommentV0, 'v1-add-replies') {
 		),
 		PropType.ARRAY
 	)
-	public replies!: VirtualForeignRef<Comment, $.Comment, 'parentComment'>[];
+	replies!: VirtualForeignRef<Comment, $.Comment, 'parentComment'>[];
 }
 
 export const Comment_migration = createMigration<Comment>()

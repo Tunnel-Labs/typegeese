@@ -13,7 +13,7 @@ export class User extends Schema(UserV1, 'v2-add-avatar') {
 	declare __type__: User;
 
 	@prop({ type: () => String, required: true })
-	public avatarUrl!: string;
+	avatarUrl!: string;
 }
 
 export const User_migration = createMigration<User>()

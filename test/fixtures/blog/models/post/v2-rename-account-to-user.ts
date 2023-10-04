@@ -15,7 +15,7 @@ export class Post extends Schema(PostV1, 'v2-rename-account-to-user') {
 	@prop(
 		foreignRef<Post, $.Account>('Post', 'Account', 'posts', { required: true })
 	)
-	public author!: ForeignRef<Post, $.Account, 'posts'>;
+	author!: ForeignRef<Post, $.Account, 'posts'>;
 }
 
 export const Post_migration = createMigration<Post>()

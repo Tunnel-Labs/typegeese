@@ -25,7 +25,7 @@ export class Comment extends Schema(CommentV1, 'v2-add-votes') {
 		),
 		PropType.ARRAY
 	)
-	public upvotes!: VirtualForeignRef<Comment, CommentUpvote, 'comment'>[];
+	upvotes!: VirtualForeignRef<Comment, CommentUpvote, 'comment'>[];
 
 	@prop(
 		virtualForeignRef<Comment, Comment>(
@@ -36,7 +36,7 @@ export class Comment extends Schema(CommentV1, 'v2-add-votes') {
 		),
 		PropType.ARRAY
 	)
-	public downvotes!: VirtualForeignRef<Comment, CommentDownvote, 'comment'>[];
+	downvotes!: VirtualForeignRef<Comment, CommentDownvote, 'comment'>[];
 }
 
 export const Comment_migration = createMigration<Comment>()

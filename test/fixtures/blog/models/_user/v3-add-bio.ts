@@ -11,7 +11,7 @@ export class User extends Schema(UserV2, 'v3-add-bio') {
 	declare __type__: User;
 
 	@prop({ type: () => String, required: false })
-	public bio!: string | null;
+	bio!: string | null;
 }
 
 export const User_migration = createMigration<User>()

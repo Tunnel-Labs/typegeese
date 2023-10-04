@@ -19,25 +19,25 @@ export class User extends Schema('User') {
 		type: () => String,
 		required: true
 	})
-	public email!: string;
+	email!: string;
 
 	@prop({
 		type: () => String,
 		required: false
 	})
-	public name!: string;
+	name!: string;
 
 	@prop(
 		virtualForeignRef<User, $.Post>('User', 'Post', 'author', '_id'),
 		PropType.ARRAY
 	)
-	public posts!: VirtualForeignRef<User, $.Post, 'author'>[];
+	posts!: VirtualForeignRef<User, $.Post, 'author'>[];
 
 	@prop(
 		virtualForeignRef<User, $.Comment>('User', 'Comment', 'author', '_id'),
 		PropType.ARRAY
 	)
-	public authoredComments!: VirtualForeignRef<User, $.Comment, 'author'>[];
+	authoredComments!: VirtualForeignRef<User, $.Comment, 'author'>[];
 }
 
 export const User_migration = createMigration<User>(null);

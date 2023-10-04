@@ -17,19 +17,19 @@ export class Comment extends Schema('Comment') {
 		type: () => String,
 		required: true
 	})
-	public text: string;
+	text: string;
 
 	@prop(
 		foreignRef<Comment, User>('Comment', 'User', 'authoredComments', {
 			required: true
 		})
 	)
-	public author!: ForeignRef<Comment, User, 'authoredComments'>;
+	author!: ForeignRef<Comment, User, 'authoredComments'>;
 
 	@prop(
 		foreignRef<Comment, Post>('Comment', 'Post', 'comments', { required: true })
 	)
-	public post!: ForeignRef<Comment, Post, 'comments'>;
+	post!: ForeignRef<Comment, Post, 'comments'>;
 }
 
 export const Comment_migration = createMigration<Comment>(null);

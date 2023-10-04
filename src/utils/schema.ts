@@ -75,14 +75,14 @@ export function Schema(
 				type: () => String,
 				required: true
 			})
-			public _id!: string;
+			_id!: string;
 
 			@prop({
 				type: () => Number,
 				default: 0,
 				required: true
 			})
-			public _v!: 0;
+			_v!: 0;
 		}
 
 		Object.defineProperty(SchemaClass, 'name', { value: newSchemaName });

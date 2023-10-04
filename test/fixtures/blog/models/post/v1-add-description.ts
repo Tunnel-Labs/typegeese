@@ -12,7 +12,7 @@ export class Post extends Schema(PostV0, 'v1-add-description') {
 	__type__!: Post;
 
 	@prop({ type: () => String, required: true })
-	public description!: string;
+	description!: string;
 }
 
 export const Post_migration = createMigration<Post>()

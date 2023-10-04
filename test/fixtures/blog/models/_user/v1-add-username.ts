@@ -15,7 +15,7 @@ export class User extends Schema(UserV0, 'v1-add-username') {
 	declare __type__: User;
 
 	@prop({ type: () => String, required: true })
-	public username!: string;
+	username!: string;
 }
 
 export const User_migration = createMigration<User>()

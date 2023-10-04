@@ -21,7 +21,7 @@ export class CommentDownvote extends Schema('CommentDownvote') {
 			{ required: true }
 		)
 	)
-	public user!: ForeignRef<CommentDownvote, $.User, 'commentDownvotes'>;
+	user!: ForeignRef<CommentDownvote, $.User, 'commentDownvotes'>;
 
 	@prop(
 		foreignRef<CommentDownvote, $.Comment>(
@@ -31,7 +31,7 @@ export class CommentDownvote extends Schema('CommentDownvote') {
 			{ required: true }
 		)
 	)
-	public comment!: ForeignRef<CommentDownvote, $.Comment, 'downvotes'>;
+	comment!: ForeignRef<CommentDownvote, $.Comment, 'downvotes'>;
 }
 
 export const CommentDownvote_migration = createMigration<CommentDownvote>(null);

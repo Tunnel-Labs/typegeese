@@ -22,7 +22,7 @@ export class CommentThread extends Schema('CommentThread') {
 		),
 		PropType.ARRAY
 	)
-	public comments!: VirtualForeignRef<
+	comments!: VirtualForeignRef<
 		CommentThread,
 		Comment,
 		'parentCommentThread'

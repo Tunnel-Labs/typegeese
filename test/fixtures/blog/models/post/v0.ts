@@ -20,22 +20,22 @@ export class Post extends Schema('Post') {
 		type: () => String,
 		required: true
 	})
-	public title: string;
+	title: string;
 
 	@prop({
 		type: () => String,
 		required: true
 	})
-	public content: string;
+	content: string;
 
 	@prop(foreignRef<Post, $.User>('Post', 'User', 'posts', { required: true }))
-	public author!: ForeignRef<Post, $.User, 'posts'>;
+	author!: ForeignRef<Post, $.User, 'posts'>;
 
 	@prop(
 		virtualForeignRef<Post, $.Comment>('Post', 'Comment', 'post', '_id'),
 		PropType.ARRAY
 	)
-	public comments!: VirtualForeignRef<Post, $.Comment, 'post'>[];
+	comments!: VirtualForeignRef<Post, $.Comment, 'post'>[];
 }
 
 export const Post_migration = createMigration<Post>(null);

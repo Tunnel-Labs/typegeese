@@ -18,14 +18,14 @@ export class CommentUpvote extends Schema('CommentUpvote') {
 			required: true
 		})
 	)
-	public user!: ForeignRef<CommentUpvote, User, 'commentUpvotes'>;
+	user!: ForeignRef<CommentUpvote, User, 'commentUpvotes'>;
 
 	@prop(
 		foreignRef<CommentUpvote, Comment>('CommentUpvote', 'Comment', 'upvotes', {
 			required: true
 		})
 	)
-	public comment!: ForeignRef<CommentUpvote, Comment, 'upvotes'>;
+	comment!: ForeignRef<CommentUpvote, Comment, 'upvotes'>;
 }
 
 export const CommentUpvote_migration = createMigration<CommentUpvote>(null);
