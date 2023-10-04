@@ -36,6 +36,11 @@ export class User extends Schema('User') {
 }
 ```
 
+```typescript
+// ./user/$schema.ts
+export * from './v0.js';
+```
+
 When you want to add a new property, you extend the previous version of your schema using typegeese's `Schema` function:
 
 ```typescript
@@ -48,6 +53,11 @@ export class User extends Schema(UserV0, "v1-profile-image") {
   @prop({ type: () => String, required: false })
   profileImageUrl!: string | null;
 }
+```
+
+```typescript
+// ./user/$schema.ts
+export * from './v1-add-profile-image.js';
 ```
 
 When the schema change requires a migration, you can export a `Model_migration` function from the file to apply those migrations:
@@ -86,14 +96,19 @@ export const User_migration = createMigration<User>()
   });
 ```
 
+```typescript
+// ./user/$schema.ts
+export * from './v2-add-username.js';
+```
+
 For readability, typegeese exports a `t` helper that uses TypeScript that allows you to define a TypeScript type containing all of your schema's properties in one place:
 
 ```typescript
 // ./user/$schema.ts
 
 import type { t } from 'typegeese';
+import type * as $ from '../$schemas.js';
 
-import * as $ from './v2-add-username.js';
 export * from './v2-add-username.js';
 
 // This type is type-checked by TypeScript to ensure that it always stays up to date with every new migration
@@ -138,7 +153,7 @@ import {
   select
 } from 'typegeese';
 
-import * as UserV0 from './v0.js'
+import * as UserV0 from './v0.js';
 
 export class User extends Schema(
   UserV0,
@@ -171,7 +186,7 @@ export const User_migration = createMigration<User>()
 // ./user/v1-remove-name.ts
 import { Schema, prop } from 'typegeese';
 
-import * as UserV0 from './v0.js'
+import * as UserV0 from './v0.js';
 
 export class User extends Schema(
   UserV0,
@@ -192,7 +207,7 @@ import {
   select
 } from 'typegeese';
 
-import * as UserV0 from './v0.js'
+import * as UserV0 from './v0.js';
 
 export class User extends Schema(
   UserV0,
@@ -200,7 +215,7 @@ export class User extends Schema(
   { omit: { name: true } }
 ) {
   @prop({ type: () => String, required: false })
-  fullName!: string | null
+  fullName!: string | null;
 }
 
 export const User_migration = createMigration<User>()
@@ -244,7 +259,7 @@ export class _User extends Schema(
 ```typescript
 // ./account/v0.ts
 
-import { _User } from '../../user/$schema.ts'
+import { _User } from '../user/$schema.ts'
 
 export class Account extends Schema('Account', { from: _User }) {}
 ```
