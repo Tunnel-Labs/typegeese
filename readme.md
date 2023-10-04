@@ -47,7 +47,7 @@ When you want to add a new property, you extend the previous version of your sch
 // ./user/v1-add-profile-image.ts
 import { Schema, prop } from "typegeese";
 
-import * as UserV0 from './v0.ts'
+import * as UserV0 from './v0.js';
 
 export class User extends Schema(UserV0, "v1-profile-image") {
   @prop({ type: () => String, required: false })
@@ -250,6 +250,7 @@ import {
   select
 } from 'typegeese';
 
+// We prefix the class name with an underscore to indicate that it was renamed
 export class _User extends Schema(
   UserV0,
   'v1-rename-to-account',
@@ -259,7 +260,7 @@ export class _User extends Schema(
 ```typescript
 // ./account/v0.ts
 
-import { _User } from '../user/$schema.ts'
+import { _User } from '../user/$schema.js'
 
 export class Account extends Schema('Account', { from: _User }) {}
 ```
