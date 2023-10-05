@@ -48,16 +48,13 @@ export function normalizeHyperschema<Hyperschema>(
 			key === 'onForeignModelDeletedActions' ||
 			key.endsWith('_onForeignModelDeletedActions')
 	);
-	if (onForeignModelDeletedActionsKey === undefined) {
-		throw new Error(
-			`Missing "onForeignModelDeletedActions" key in hyperschema: "${JSON.stringify(
-				hyperschema
-			)}"`
-		);
-	}
 
 	const onForeignModelDeletedActions =
-		hyperschema[onForeignModelDeletedActionsKey as keyof typeof hyperschema];
+		onForeignModelDeletedActionsKey === undefined
+			? {}
+			: hyperschema[
+					onForeignModelDeletedActionsKey as keyof typeof hyperschema
+			  ];
 
 	const schemaOptionsKey =
 		Object.keys(hyperschema).find(
