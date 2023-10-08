@@ -105,11 +105,10 @@ For readability, typegeese exports a `t` helper that uses TypeScript that allows
 
 ```typescript
 // ./user/$schema.ts
+export * from './v2-add-username.js';
 
 import type { t } from 'typegeese';
 import type * as $ from '../$schemas.js';
-
-export * from './v2-add-username.js';
 
 // This type is type-checked by TypeScript to ensure that it always stays up to date with every new migration
 type _User = t.Shape<
@@ -240,7 +239,8 @@ export const User_migration = createMigration<User>()
 In order to preserve compatibility with a blue/green deployment strategy, typegeese handles schema renames by running queries on both the old collection and the new renamed collection, and then lazily copying over documents into the new collection as they are queried from the renamed model.
 
 ```typescript
-// ./user/v1-rename-to-account.ts
+// ./_user/v1-rename-to-account.ts
+// ^ We rename the folder to use an underscore prefix to indicate that it was renamed
 
 import {
   Schema,
@@ -250,8 +250,7 @@ import {
   select
 } from 'typegeese';
 
-// We prefix the class name with an underscore to indicate that it was renamed
-export class _User extends Schema(
+export class User extends Schema(
   UserV0,
   'v1-rename-to-account',
 ) {}
@@ -260,7 +259,7 @@ export class _User extends Schema(
 ```typescript
 // ./account/v0.ts
 
-import { _User } from '../user/$schema.js'
+import { User } from '../_user/$schema.js'
 
-export class Account extends Schema('Account', { from: _User }) {}
+export class Account extends Schema('Account', { from: User }) {}
 ```
