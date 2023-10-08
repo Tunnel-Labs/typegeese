@@ -21,7 +21,7 @@ Typegeese schemas are defined in terms of migrations, each of which creates a ne
 
 These migrations are defined using TypeScript classes powered by the amazing [typegoose](https://github.com/typegoose/typegoose) library (which is where the name _typegeese_ is inspired from).
 
-The first version (v0) of a schema extends from `Schema()`:
+The first version (v0) of a schema extends from `Schema('Name')`:
 
 ```typescript
 // ./user/v0.ts
@@ -41,7 +41,7 @@ export class User extends Schema('User') {
 export * from './v0.js';
 ```
 
-When you want to add a new property, you extend the previous version of your schema using typegeese's `Schema` function:
+When you want to add a new property, you extend the previous version of your schema by passing it to typegeese's `Schema` function:
 
 ```typescript
 // ./user/v1-add-profile-image.ts
