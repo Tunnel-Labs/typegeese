@@ -1,11 +1,4 @@
-import {
-	ForeignRef,
-	Schema,
-	createMigration,
-	defineRelations,
-	prop,
-	foreignRef
-} from '~/index.js';
+import { ForeignRef, Schema, prop, foreignRef } from '~/index.js';
 import type { Comment, User } from '../$schemas.js';
 
 export class CommentUpvote extends Schema('CommentUpvote')<CommentUpvote> {

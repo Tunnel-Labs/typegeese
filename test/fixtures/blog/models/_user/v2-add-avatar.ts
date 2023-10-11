@@ -1,7 +1,6 @@
 import {
 	Schema,
 	createMigration,
-	defineRelations,
 	getModelForHyperschema,
 	prop,
 	select
