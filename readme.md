@@ -263,3 +263,22 @@ import { User } from '../_user/$schema.js'
 
 export class Account extends Schema('Account', { from: User }) {}
 ```
+
+## Implementation
+
+Under the hood, calls to `Schema(...)` return the `Object` constructor:
+
+```typescript
+class User extends Schema('User') {}
+class Post extends Schema(PostV0) {
+  get _v() { return 'v1'; }
+}
+
+// Equivalent at runtime to:
+class User extends Object {}
+class Post extends Object {}
+```
+
+In practice, this behavior is basically equivalent to omitting the `extends` parameter, avoiding conflicts with the intended usage of inheritance for discriminator types in typegoose.
+
+Instead of using an inheritance chain, the `Schema` function maintains an internal mapping of the migration order based on the properties passed to it.

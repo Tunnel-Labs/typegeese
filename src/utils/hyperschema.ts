@@ -12,6 +12,7 @@ import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import { getModelForHyperschema } from '~/index.js';
 import createClone from 'rfdc';
+import { createSchema } from '~/utils/class.js';
 
 const clone = createClone();
 
@@ -81,37 +82,30 @@ export function normalizeHyperschema<Hyperschema>(
 	] as any;
 
 	let schema: any;
-	if (originalSchema.__typegeeseSchema !== undefined) {
+	if ('__typegeeseSchema' in originalSchema) {
 		schema = originalSchema.__typegeeseSchema;
 	} else {
-		const basePropMap = Reflect.getMetadata(
-			DecoratorKeys.PropCache,
+		createFlatSchema()
+
+		const schemaVersion = Reflect.getMetadata(
+			'typegeese:version',
 			originalSchema.prototype
-		) as Map<string, { options?: { ref: string } }>;
-
-		const prototypePropMap = Reflect.getMetadata(
-			DecoratorKeys.PropCache,
-			Object.getPrototypeOf(originalSchema).prototype
-		) as Map<string, { options?: { ref: string } }>;
-
-		const mergedPropMap = clone(
-			new Map([...prototypePropMap.entries(), ...basePropMap.entries()])
 		);
 
-		const SchemaClass = class {};
-		Object.defineProperty(SchemaClass, 'name', { value: originalSchema.name });
-		for (const propValue of mergedPropMap.values()) {
-			(propValue as any).target = SchemaClass.prototype;
+		if (schemaVersion === undefined) {
+			throw new Error(
+				`Schema "${schemaKey}" is missing a version number (the "_v" property)`
+			);
 		}
 
-		Reflect.defineMetadata(
-			DecoratorKeys.PropCache,
-			mergedPropMap,
-			SchemaClass.prototype
-		);
-
-		originalSchema.__typegeeseSchema = SchemaClass;
-		schema = SchemaClass;
+		const clonedSchema = cloneSchema(originalSchema, {
+			version: schemaVersion
+		});
+		Object.defineProperty(originalSchema, '__typegeeseSchema', {
+			value: clonedSchema,
+			enumerable: false
+		});
+		originalSchema.__typegeeseSchema = clonedSchema;
 	}
 
 	const normalizedHyperschema = {

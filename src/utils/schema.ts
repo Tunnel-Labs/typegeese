@@ -6,9 +6,85 @@ import { versionStringToVersionNumber } from '~/utils/version.js';
 import type { RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import createClone from 'rfdc';
-import { NewSchemaOptions } from '~/types/schema.js';
+import { NewSchemaOptions, BaseSchema } from '~/types/schema.js';
 
 const clone = createClone();
+
+export function getFlattenedSchema(schema: BaseSchema) {
+	const schemaVersion = schema._v;
+	const flattenedSchema = createBaseSchema({
+		version: schemaVersion,
+		schemaName: schema.name
+	});
+
+	copySchemaMetadata({
+		from: schema,
+		to: flattenedSchema
+	});
+
+	return flattenedSchema;
+}
+
+export function createBaseSchema<Version extends number>({
+	version,
+	schemaName
+}: {
+	version: Version;
+	schemaName: string;
+}): BaseSchema {
+	const baseSchema = class {} as BaseSchema;
+
+	prop({ type: () => String, required: true })(baseSchema, '_id');
+	prop({ type: () => Number, default: version, required: true })(
+		baseSchema,
+		'_v'
+	);
+
+	Object.defineProperty(baseSchema, 'name', { value: schemaName });
+	Object.defineProperty(baseSchema, '_v', { value: version });
+
+	return baseSchema;
+}
+
+export function copySchemaMetadata({
+	from: fromSchema,
+	to: toSchema
+}: {
+	from: BaseSchema;
+	to: BaseSchema;
+}) {
+	const fromSchemaBasePropMap = Reflect.getMetadata(
+		DecoratorKeys.PropCache,
+		fromSchema.prototype
+	) as Map<string, { options?: { ref: string } }>;
+
+	const fromSchemaPrototypePropMap = Reflect.getMetadata(
+		DecoratorKeys.PropCache,
+		Object.getPrototypeOf(fromSchema).prototype
+	) as Map<string, { options?: { ref: string } }>;
+
+	const toSchemaPropMap = Reflect.getMetadata(
+		DecoratorKeys.PropCache,
+		toSchema.prototype
+	) as Map<string, { options?: { ref: string } }>;
+
+	const newPropMap = clone(
+		new Map([
+			...fromSchemaBasePropMap.entries(),
+			...fromSchemaPrototypePropMap.entries(),
+			// This needs to be last in order to make sure the "_v" prop always reflects the latest schema version
+			...toSchemaPropMap.entries()
+		])
+	);
+
+	Reflect.defineMetadata(
+		DecoratorKeys.PropCache,
+		newPropMap,
+		toSchema.prototype
+	);
+
+	return toSchema;
+}
 
 export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	return schemaOptions;
@@ -66,31 +142,10 @@ export function Schema(
 ): any {
 	if (typeof previousHyperschemaOrNewSchemaName === 'string') {
 		const newSchemaName = previousHyperschemaOrNewSchemaName;
-		const newSchemaOptions = versionStringOrNewSchemaOptions as
-			| NewSchemaOptions
-			| undefined;
-
-		class SchemaClass {
-			@prop({
-				type: () => String,
-				required: true
-			})
-			_id!: string;
-
-			@prop({
-				type: () => Number,
-				default: 0,
-				required: true
-			})
-			_v!: 0;
-		}
-
-		Object.defineProperty(SchemaClass, 'name', { value: newSchemaName });
-		Object.defineProperty(SchemaClass, 'options', {
-			value: newSchemaOptions ?? {}
+		return createBaseSchema({
+			schemaName: newSchemaName,
+			version: 0
 		});
-
-		return SchemaClass;
 	}
 
 	const previousHyperschema = previousHyperschemaOrNewSchemaName;
@@ -99,21 +154,10 @@ export function Schema(
 	const hyperschema = normalizeHyperschema(previousHyperschema);
 	const version = versionStringToVersionNumber(versionString);
 
-	class SchemaClass {}
-
-	const propMap = Reflect.getMetadata(
-		DecoratorKeys.PropCache,
-		hyperschema.schema.prototype
-	) as Map<string, { options?: { ref: string } }>;
-
-	const newPropMap = clone(propMap);
-	(newPropMap.get('_v') as any).options.default = version;
-
-	Reflect.defineMetadata(
-		DecoratorKeys.PropCache,
-		newPropMap,
-		SchemaClass.prototype
-	);
+	const prototypeSchema = createBaseSchema({
+		schemaName: hyperschema.schemaName,
+		version
+	});
 
 	// If this schema has `disableLowerIndexes` set, we should the indexes of all the parent classes
 	const leafSchemaModelOptions = Reflect.getOwnMetadata(
@@ -122,8 +166,8 @@ export function Schema(
 	);
 
 	if (leafSchemaModelOptions?.options?.disableLowerIndexes) {
-		Reflect.deleteMetadata(DecoratorKeys.Index, SchemaClass);
+		Reflect.deleteMetadata(DecoratorKeys.Index, newSchema);
 	}
 
-	return SchemaClass;
+	return newSchema;
 }
