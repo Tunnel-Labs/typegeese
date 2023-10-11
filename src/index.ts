@@ -3,13 +3,13 @@ export type * from '@typegoose/typegoose/lib/types.js';
 
 export type * from './types/array.js';
 export type * from './types/create.js';
-export type * from './types/delete.js';
 export type * from './types/find.js';
 export type * from './types/hyperschema.js';
 export type * from './types/instance-type.js';
 export type * from './types/migration.js';
 export type { Ref } from './types/ref.js';
 export type * from './types/refs.js';
+export type * from './types/relations.js';
 export type * from './types/schema.js';
 export type * from './types/select.js';
 export type * from './types/t/$.js';
@@ -17,7 +17,7 @@ export type * from './types/query.js';
 
 export { defineRelations } from './utils/delete.js';
 export { defineSchemaOptions, Schema } from './utils/schema.js';
-export { loadHyperschemas, normalizeHyperschema } from './utils/hyperschema.js';
+export { createHyperschema, createHyperschemas } from './utils/hyperschema.js';
 export { createMigration } from './utils/migration.js';
 export { getModelForHyperschema } from './utils/model.js';
 export { foreignRef, virtualForeignRef } from './utils/ref.js';

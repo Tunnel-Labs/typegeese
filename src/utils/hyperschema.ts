@@ -65,12 +65,7 @@ export async function createHyperschemas<
 			UnnormalizedHyperschemaModules[HyperschemaKey]
 		> & string}Model`]: ReturnType<
 			typeof getModelForHyperschema<
-				Hyperschema<
-					// @ts-expect-error: works
-					NormalizeHyperschemaModule<
-						UnnormalizedHyperschemaModules[HyperschemaKey]
-					>
-				>
+				UnnormalizedHyperschemaModules[HyperschemaKey]
 			>
 		>;
 	}

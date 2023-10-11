@@ -1,11 +1,18 @@
 import { getModelForClass } from '@typegoose/typegoose';
-import { Mongoose } from 'mongoose';
-import { NormalizedHyperschema } from '~/types/hyperschema.js';
-import { normalizeHyperschema } from '~/utils/hyperschema.js';
-import { getVersionFromSchema } from '~/utils/version.js';
+import type { Mongoose } from 'mongoose';
+import { createHyperschema } from '~/utils/hyperschema.js';
+import type {
+	AnyUnnormalizedHyperschemaModule,
+	NormalizeHyperschemaModule
+} from '~/types/hyperschema-module.js';
+import type { Hyperschema } from '~/types/hyperschema.js';
+import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
+import { versionStringToVersionNumber } from '~/utils/version.js';
 
-export function getModelForHyperschema<Hyperschema>(
-	unnormalizedHyperschema: Hyperschema,
+export function getModelForHyperschema<
+	UnnormalizedHyperschemaModule extends AnyUnnormalizedHyperschemaModule
+>(
+	unnormalizedHyperschemaModule: UnnormalizedHyperschemaModule,
 	{
 		mongoose
 	}: {
@@ -13,13 +20,22 @@ export function getModelForHyperschema<Hyperschema>(
 	}
 ): ReturnType<
 	typeof getModelForClass<{
-		new (): NormalizedHyperschema<Hyperschema>['schema'];
+		new (): Hyperschema<
+			// @ts-expect-error: works
+			NormalizeHyperschemaModule<UnnormalizedHyperschemaModule>
+		>['schema'];
 	}>
 > {
-	const hyperschema = normalizeHyperschema(unnormalizedHyperschema);
-	const version = getVersionFromSchema(hyperschema.schema as any);
+	const normalizedHyperschemaModule = normalizeHyperschemaModule(
+		unnormalizedHyperschemaModule
+	);
+	const version = versionStringToVersionNumber(
+		normalizedHyperschemaModule.migrationSchema.prototype._v
+	);
 
-	const model = getModelForClass(hyperschema.schema as any, {
+	const hyperschema = createHyperschema(normalizedHyperschemaModule as any);
+
+	const model = getModelForClass(hyperschema.schema, {
 		existingMongoose: mongoose,
 		schemaOptions: {
 			collection: hyperschema.schemaName
