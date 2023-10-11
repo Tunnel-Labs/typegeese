@@ -1,9 +1,12 @@
 import type { DocumentType } from '@typegoose/typegoose';
 import type { Promisable } from 'type-fest';
-import type { NormalizedHyperschema } from '~/types/hyperschema.js';
-import { CreateType } from '~/types/create.js';
-import { IsVirtualForeignRef, IsVirtualForeignRefArray } from '~/types/ref.js';
-import { Mongoose } from 'mongoose';
+import type { CreateType } from '~/types/create.js';
+import type {
+	IsVirtualForeignRef,
+	IsVirtualForeignRefArray
+} from '~/types/ref.js';
+import type { Mongoose } from 'mongoose';
+import type { AnyHyperschema } from '~/types/hyperschema.js';
 
 export type Diff<T, V> = {
 	[P in Exclude<keyof T, keyof V>]: T[P];
@@ -48,23 +51,23 @@ export interface NotSupersetError<Message, _Keys> {
 }
 
 // prettier-ignore
-export type MigrationFunctions<PreviousModel, CurrentModel, DataType> =
-	| '_v' extends keyof CurrentModel ?
-		| CurrentModel['_v'] extends 'v0' ? null
+export type MigrationFunctions<PreviousSchema, CurrentSchema, DataType> =
+	| '_v' extends keyof CurrentSchema ?
+		| CurrentSchema['_v'] extends 'v0' ? null
 		// : NonSupersetKeys<PreviousModel, CurrentModel> extends never ?
 			: {
 				[K in keyof Diff<
-					ExcludeVirtualForeignRefs<CurrentModel>,
-					ExcludeVirtualForeignRefs<PreviousModel>
+					ExcludeVirtualForeignRefs<CurrentSchema>,
+					ExcludeVirtualForeignRefs<PreviousSchema>
 				>]: (
 					this: DataType
-				) => Promisable<CreateType<CurrentModel[K]>>;
+				) => Promisable<CreateType<CurrentSchema[K]>>;
 			}
 			// : NotSupersetError<'The current model must be a superset of the previous model in order to be backwards-compatible; the following keys are incompatible:', NonSupersetKeys<PreviousModel, CurrentModel>>
 	: never
 
 export interface MigrationData {
-	previousHyperschema: NormalizedHyperschema<any>;
+	previousHyperschema: AnyHyperschema;
 	migrationFunctions: Record<string, (this: DocumentType<any>) => void>;
 	getData:
 		| null

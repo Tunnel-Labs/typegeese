@@ -1,4 +1,4 @@
-import type { Schema } from 'mongoose';
+import type { AnySchema } from '~/index.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 
 export function versionStringToVersionNumber(versionString: string): number {
@@ -19,7 +19,7 @@ export function versionStringToVersionNumber(versionString: string): number {
 	return versionNumber;
 }
 
-export function getVersionFromSchema(schema: Schema): number {
+export function getVersionFromSchema(schema: AnySchema): number {
 	const version = Reflect.getMetadata(
 		DecoratorKeys.PropCache,
 		(schema as any).prototype

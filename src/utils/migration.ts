@@ -3,23 +3,22 @@ import {
 	MigrationFunctions,
 	MigrationOptions
 } from '~/types/migration.js';
-import { NormalizedHyperschema } from '~/types/hyperschema.js';
 import { getVersionFromSchema, isVersionedDocument } from '~/utils/version.js';
-import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { IsEqual, Promisable } from 'type-fest';
 import { getModelWithString } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import { Mongoose } from 'mongoose';
+import { AnyHyperschema, AnySchema, AnySchemaInstance } from '~/index.js';
 
 function getForeignHyperschemaFromForeignPropertyKey({
 	hyperschemas,
 	hyperschema,
 	foreignPropertyKey
 }: {
-	hyperschemas: Record<string, any>;
-	hyperschema: NormalizedHyperschema<any>;
+	hyperschemas: Record<string, AnyHyperschema>;
+	hyperschema: AnyHyperschema;
 	foreignPropertyKey: string;
-}): NormalizedHyperschema<any> {
+}): AnyHyperschema {
 	const propMap = Reflect.getMetadata(
 		DecoratorKeys.PropCache,
 		hyperschema.schema.prototype
@@ -62,7 +61,7 @@ export async function applyHyperschemaMigrationsToDocument({
 		_id: string;
 		_v: number;
 	};
-	hyperschema: NormalizedHyperschema<any>;
+	hyperschema: AnyHyperschema;
 	updatedProperties: Record<string, unknown>;
 }): Promise<{ updatedProperties: Record<string, unknown> }> {
 	const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
@@ -99,14 +98,16 @@ export async function applyHyperschemaMigrationsToDocument({
 	return { updatedProperties };
 }
 
-export function createMigration<CurrentSchema extends AnySchema>(
+export function createMigration<CurrentSchema extends AnySchemaInstance>(
 	...args: IsEqual<CurrentSchema['_v'], 'v0'> extends true
 		? [null]
 		: [MigrationOptions?]
 ): IsEqual<CurrentSchema['_v'], 'v0'> extends true
 	? MigrationData
 	: {
-			from: <PreviousHyperschema>(previousHyperschema: PreviousHyperschema) => {
+			from: <PreviousUnnormalizedHyperschemaModule>(
+				previousUnnormalizedHyperschemaModule: PreviousUnnormalizedHyperschemaModule
+			) => {
 				with: <DataType>(
 					getData:
 						| null

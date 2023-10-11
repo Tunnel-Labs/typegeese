@@ -1,122 +1,49 @@
-import {
-	GetSchemaKeyFromHyperschema,
-	NormalizedHyperschema
-} from '~/types/hyperschema.js';
+import type { Hyperschema } from '~/types/hyperschema.js';
 import { pre, post, getModelForClass } from '@typegoose/typegoose';
 import mapObject from 'map-obj';
-import { Mongoose } from 'mongoose';
+import type { Mongoose } from 'mongoose';
 import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
-import { PopulateObject } from '~/types/populate.js';
+import type { PopulateObject } from '~/types/populate.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
-import { getModelForHyperschema } from '~/index.js';
-import { DecoratorKeys } from '~/utils/decorator-keys.js';
+import { getModelForHyperschema } from '~/utils/model.js';
+import type {
+	AnyNormalizedHyperschemaModule,
+	AnyUnnormalizedHyperschemaModule,
+	GetUnnormalizedHyperschemaModuleMigrationKey,
+	NormalizeHyperschemaModule
+} from '~/types/hyperschema-module.js';
+import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
 
-/**
-	Un-namespaces the keys of a hyperschema.
-*/
-export function createHyperschema<Hyperschema>(
-	hyperschema: Hyperschema
-): NormalizedHyperschema<Hyperschema> {
-	if (
-		hyperschema === null ||
-		hyperschema === undefined ||
-		(typeof hyperschema !== 'object' && typeof hyperschema !== 'function')
-	) {
-		throw new Error(`Invalid hyperschema: ${JSON.stringify(hyperschema)}`);
-	}
-
-	// If the `schemaName` property is present, the hyperschema is already normalized
-	if ('schemaName' in hyperschema) {
-		return hyperschema as any;
-	}
-
-	const migrationKey = Object.keys(hyperschema).find(
-		(key) => key === 'migration' || key.endsWith('_migration')
-	);
-
-	if (migrationKey === undefined) {
-		throw new Error(
-			`Missing migration key in hyperschema: ${JSON.stringify(hyperschema)}`
-		);
-	}
-
-	const migration = hyperschema[migrationKey as keyof typeof hyperschema];
-
-	const relationsKey = Object.keys(hyperschema).find(
-		(key) => key === 'relations' || key.endsWith('_relations')
-	);
-
-	if (relationsKey !== undefined) {
-		if (
-			typeof hyperschema[relationsKey as keyof typeof hyperschema] !== 'object'
-		) {
-			throw new Error(
-				`Missing relations key in hyperschema: ${JSON.stringify(hyperschema)}`
-			);
-		}
-	}
-
-	const relations =
-		relationsKey === undefined
-			? {}
-			: hyperschema[relationsKey as keyof typeof hyperschema];
-
-	const schemaOptionsKey =
-		Object.keys(hyperschema).find(
-			(key) => key === 'schemaOptions' || key.endsWith('_schemaOptions')
-		) ?? 'schemaOptions';
-
-	const schemaOptions =
-		hyperschema[schemaOptionsKey as keyof typeof hyperschema] ?? {};
-
-	const schemaKey = Object.keys(hyperschema).find(
-		(key) =>
-			key !== migrationKey && key !== relationsKey && key !== schemaOptionsKey
-	);
-	if (schemaKey === undefined) {
-		throw new Error(
-			`Missing schema key in hyperschema: "${JSON.stringify(hyperschema)}}"`
-		);
-	}
-
-	const originalSchema = hyperschema[
-		schemaKey as keyof typeof hyperschema
-	] as any;
-
-	let schema: any;
-	if ('__typegeeseSchema' in originalSchema) {
-		schema = originalSchema.__typegeeseSchema;
-	} else {
-		const previousMigrationSchemaVersion = Reflect.getMetadata(
-			DecoratorKeys.PreviousMigrationSchemaVersion,
-			originalSchema.prototype
-		) as Map<>;
-
-		const clonedSchema = cloneSchema(originalSchema, {
-			version: schemaVersion
-		});
-		Object.defineProperty(originalSchema, '__typegeeseSchema', {
-			value: clonedSchema,
-			enumerable: false
-		});
-	}
+export function createHyperschema<H extends AnyNormalizedHyperschemaModule>(
+	hyperschemaModule: H
+): Hyperschema<H> {
+	const {
+		migration,
+		migrationSchema: schema,
+		relations,
+		schemaName,
+		schemaOptions
+	} = hyperschemaModule;
 
 	const normalizedHyperschema = {
 		schema,
-		schemaName: schemaKey,
+		schemaName,
 		schemaOptions,
 		migration,
 		relations
 	};
 
-	return normalizedHyperschema as any;
+	return normalizedHyperschema;
 }
 
-export async function loadHyperschemas<
-	Hyperschemas extends Record<string, any>
+export async function createHyperschemas<
+	UnnormalizedHyperschemaModules extends Record<
+		string,
+		AnyUnnormalizedHyperschemaModule
+	>
 >(
-	unnormalizedHyperschemas: Hyperschemas,
+	unnormalizedHyperschemaModules: UnnormalizedHyperschemaModules,
 	{
 		mongoose,
 		meta
@@ -126,25 +53,36 @@ export async function loadHyperschemas<
 	}
 ): Promise<
 	{
-		[HyperschemaKey in keyof Hyperschemas as GetSchemaKeyFromHyperschema<
-			Hyperschemas[HyperschemaKey]
-		>]: NormalizedHyperschema<Hyperschemas[HyperschemaKey]>;
+		[HyperschemaKey in keyof UnnormalizedHyperschemaModules as GetUnnormalizedHyperschemaModuleMigrationKey<
+			UnnormalizedHyperschemaModules[HyperschemaKey]
+		>]: Hyperschema<
+			// @ts-expect-error: works
+			NormalizeHyperschemaModule<UnnormalizedHyperschemaModules[HyperschemaKey]>
+		>;
 	} & {
-		[HyperschemaKey in keyof Hyperschemas as `${GetSchemaKeyFromHyperschema<
-			Hyperschemas[HyperschemaKey]
-		> &
-			string}Model`]: ReturnType<
-			typeof getModelForHyperschema<Hyperschemas[HyperschemaKey]>
+		// prettier-ignore
+		[HyperschemaKey in keyof UnnormalizedHyperschemaModules as `${GetUnnormalizedHyperschemaModuleMigrationKey<
+			UnnormalizedHyperschemaModules[HyperschemaKey]
+		> & string}Model`]: ReturnType<
+			typeof getModelForHyperschema<
+				Hyperschema<
+					// @ts-expect-error: works
+					NormalizeHyperschemaModule<
+						UnnormalizedHyperschemaModules[HyperschemaKey]
+					>
+				>
+			>
 		>;
 	}
 > {
 	const hyperschemas = mapObject(
-		unnormalizedHyperschemas,
+		unnormalizedHyperschemaModules,
 		(_key, unnormalizedHyperschema) => {
-			const normalizedHyperschema = normalizeHyperschema(
+			const normalizedHyperschemaModule = normalizeHyperschemaModule(
 				unnormalizedHyperschema
 			);
-			return [normalizedHyperschema.schemaName, normalizedHyperschema];
+			const hyperschema = createHyperschema(normalizedHyperschemaModule as any);
+			return [hyperschema.schemaName, hyperschema];
 		}
 	);
 

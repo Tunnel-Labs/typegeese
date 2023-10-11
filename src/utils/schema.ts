@@ -6,8 +6,9 @@ import { versionStringToVersionNumber } from '~/utils/version.js';
 import type { Class, RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import createClone from 'rfdc';
-import { BaseSchemaClass, NewSchemaOptions } from '~/types/schema.js';
+import { BaseSchemaClass, MigrationSchemaExtends, NewSchemaOptions } from '~/types/schema.js';
 import { MigrationData } from '~/index.js';
+import { BaseSchemaExtends } from '~/types/migration-schema.js';
 
 const clone = createClone();
 
@@ -91,42 +92,6 @@ export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	return schemaOptions;
 }
 
-export interface BaseSchemaExtends<
-	SchemaName extends string,
-	Options extends NewSchemaOptions
-> {
-	new <T>(): (Options['from'] extends new () => infer Schema
-		? Omit<Schema, '_v' | '__type__' | '__name__'>
-		: {}) & {
-		__type__?: T;
-		__name__?: SchemaName;
-		_id: string;
-		_v: 'v0';
-	};
-}
-
-export interface MigrationSchemaExtends<
-	PreviousHyperschema,
-	Options extends {
-		omit: {
-			[K in keyof GetSchemaFromHyperschema<PreviousHyperschema>]?: true;
-		};
-	}
-> {
-	new <T extends { _v: string; __migration__: MigrationData }>(): Omit<
-		GetSchemaFromHyperschema<PreviousHyperschema>,
-		| '_v'
-		| '__type__'
-		| '__migration__'
-		| (Options extends Record<string, unknown>
-				? RequiredKeysOf<Options['omit']>
-				: never)
-	> & {
-		__type__?: T;
-		_id: string;
-	};
-}
-
 /**
 	Instead of inheriting from the previous schema migration, we instead create a copy of the class (this makes it easier to use discriminator types)
 */
@@ -151,29 +116,22 @@ export function Schema(
 		omit: Record<string, true>;
 	}
 ): any {
-	let parentMigrationSchemas = Reflect.getMetadata(
-		DecoratorKeys.ParentMigrationSchema,
-		Schema
-	) as Map<
+	let schemas = Reflect.getMetadata(DecoratorKeys.Schemas, Schema) as Map<
 		string, // schema name
-		Map<number, BaseSchemaClass | null> // map from version to parent schema (previous version)
+		Map<number, BaseSchemaClass | null> // map from version number to schema
 	>;
 
-	if (parentMigrationSchemas === undefined) {
-		parentMigrationSchemas = new Map();
-		Reflect.defineMetadata(
-			DecoratorKeys.ParentMigrationSchema,
-			Schema,
-			parentMigrationSchemas
-		);
+	if (schemas === undefined) {
+		schemas = new Map();
+		Reflect.defineMetadata(DecoratorKeys.Schemas, Schema, schemas);
 	}
 
 	if (typeof previousHyperschemaOrNewSchemaName === 'string') {
 		const schemaName = previousHyperschemaOrNewSchemaName;
-		let schemaMap = parentMigrationSchemas.get(schemaName);
+		let schemaMap = schemas.get(schemaName);
 		if (schemaMap === undefined) {
 			schemaMap = new Map();
-			parentMigrationSchemas.set(schemaName, schemaMap);
+			schemas.set(schemaName, schemaMap);
 		}
 
 		schemaMap.set(0, null);
@@ -182,10 +140,10 @@ export function Schema(
 			previousHyperschemaOrNewSchemaName
 		);
 		const { schemaName } = previousHyperschema;
-		let schemaMap = parentMigrationSchemas.get(schemaName);
+		let schemaMap = schemas.get(schemaName);
 		if (schemaMap === undefined) {
 			schemaMap = new Map();
-			parentMigrationSchemas.set(schemaName, schemaMap);
+			schemas.set(schemaName, schemaMap);
 		}
 
 		const previousVersionString = previousHyperschema.schema.prototype._v;

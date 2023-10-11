@@ -1,6 +1,6 @@
 import type * as mongoose from 'mongoose';
 import type { DocumentType } from '@typegoose/typegoose';
-import { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
+import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 
 export interface Ref<
 	PopulatedType,

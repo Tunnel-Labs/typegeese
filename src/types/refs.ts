@@ -1,6 +1,6 @@
 import type { Ref } from '~/types/ref.js';
 import type { Opaque } from 'type-fest';
-import { ArrayInnerValue } from '~/types/array.js';
+import type { ArrayInnerValue } from '~/types/array.js';
 
 // eslint-disable-next-line @typescript-eslint/ban-types -- All we need is the `name` parameter
 export interface ModelRef<Model> {

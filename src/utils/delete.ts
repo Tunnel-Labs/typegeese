@@ -1,19 +1,17 @@
 import { PreMiddlewareFunction, Query } from 'mongoose';
-import type { NormalizedHyperschema } from '~/types/hyperschema.js';
 import { pre, getModelWithString } from '@typegoose/typegoose';
-import type { OnForeignModelDeletedActions } from '~/types/delete.js';
+import type { Relations } from '~/types/relations.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
+import type { Hyperschema } from '~/types/hyperschema.js';
 
-export function defineRelations<Model>(
-	actions: OnForeignModelDeletedActions<Model>
-) {
+export function defineRelations<Schema>(actions: Relations<Schema>) {
 	return actions;
 }
 
 export function registerOnForeignModelDeletedHooks({
 	hyperschemas
 }: {
-	hyperschemas: Record<string, NormalizedHyperschema<any>>;
+	hyperschemas: Record<string, Hyperschema<any>>;
 }) {
 	const parentModelOnDeleteActions: {
 		childModelName: string;
@@ -23,11 +21,7 @@ export function registerOnForeignModelDeletedHooks({
 	}[] = [];
 
 	// Loop through each schema assuming they are the child model
-	for (const {
-		onForeignModelDeletedActions,
-		schema,
-		schemaName
-	} of Object.values(hyperschemas)) {
+	for (const { relations, schema, schemaName } of Object.values(hyperschemas)) {
 		const childModelName = schemaName;
 
 		const propMap = Reflect.getMetadata(
@@ -35,9 +29,7 @@ export function registerOnForeignModelDeletedHooks({
 			schema.prototype
 		);
 
-		for (const [childModelField, action] of Object.entries(
-			onForeignModelDeletedActions
-		)) {
+		for (const [childModelField, action] of Object.entries(relations)) {
 			// For each foreign ref field, get the name of the parent model
 			// We want to perform an action based on when the parent model is deleted
 			const parentModelName = propMap.get(childModelField)?.options?.ref;
