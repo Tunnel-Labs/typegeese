@@ -2,7 +2,6 @@ import {
 	ForeignRef,
 	Schema,
 	createMigration,
-	defineOnForeignModelDeletedActions,
 	foreignRef,
 	prop
 } from '~/index.js';
@@ -18,14 +17,11 @@ export class Post extends Schema(PostV1)<Post> {
 		foreignRef<Post, $.Account>('Post', 'Account', 'posts', { required: true })
 	)
 	author!: ForeignRef<Post, $.Account, 'posts'>;
+
+	__migration__: typeof Post_migration;
 }
 
 export const Post_migration = createMigration<Post>()
 	.from(PostV1)
 	.with(null)
 	.migrate({});
-
-export const Post_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<Post>({
-		author: 'Cascade'
-	});

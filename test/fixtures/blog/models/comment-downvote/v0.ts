@@ -1,18 +1,15 @@
-// @ts-nocheck
-
 import {
 	ForeignRef,
 	Schema,
 	createMigration,
-	defineOnForeignModelDeletedActions,
 	prop,
 	foreignRef
 } from '~/index.js';
 import type * as $ from '../$schemas.js';
 
-export class CommentDownvote extends Schema('CommentDownvote') {
-	__type__!: CommentDownvote;
-
+export class CommentDownvote extends Schema(
+	'CommentDownvote'
+)<CommentDownvote> {
 	@prop(
 		foreignRef<CommentDownvote, $.User>(
 			'CommentDownvote',
@@ -35,9 +32,3 @@ export class CommentDownvote extends Schema('CommentDownvote') {
 }
 
 export const CommentDownvote_migration = createMigration<CommentDownvote>(null);
-
-export const CommentDownvote_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<CommentDownvote>({
-		user: 'Cascade',
-		comment: 'Cascade'
-	});

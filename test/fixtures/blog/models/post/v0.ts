@@ -1,11 +1,7 @@
-// @ts-nocheck
-
 import {
 	ForeignRef,
 	PropType,
 	VirtualForeignRef,
-	createMigration,
-	defineOnForeignModelDeletedActions,
 	prop,
 	Schema,
 	foreignRef,
@@ -35,10 +31,3 @@ export class Post extends Schema('Post')<Post> {
 	)
 	comments!: VirtualForeignRef<Post, $.Comment, 'post'>[];
 }
-
-export const Post_migration = createMigration<Post>(null);
-
-export const Post_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<Post>({
-		author: 'Cascade'
-	});

@@ -2,7 +2,6 @@ import {
 	ForeignRef,
 	Schema,
 	createMigration,
-	defineOnForeignModelDeletedActions,
 	foreignRef,
 	getModelForHyperschema,
 	prop,
@@ -11,12 +10,12 @@ import {
 import * as CommentDownvoteV0 from './v0.js';
 import * as $ from '../$schemas.js';
 
-export class CommentDownvote extends Schema(
-	CommentDownvoteV0,
-	'v1-rename-account-to-user',
-	{ omit: { user: true } }
-) {
-	__type__!: CommentDownvote;
+export class CommentDownvote extends Schema(CommentDownvoteV0, {
+	omit: { user: true }
+})<CommentDownvote> {
+	get _v() {
+		return 'v1-rename-account-to-user';
+	}
 
 	@prop(
 		foreignRef<CommentDownvote, $.Account>(
@@ -27,6 +26,8 @@ export class CommentDownvote extends Schema(
 		)
 	)
 	account!: ForeignRef<CommentDownvote, $.Account, 'commentDownvotes'>;
+
+	__migration__: typeof CommentDownvote_migration;
 }
 
 export const CommentDownvote_migration = createMigration<CommentDownvote>()
@@ -51,10 +52,4 @@ export const CommentDownvote_migration = createMigration<CommentDownvote>()
 		account() {
 			return this.user._id;
 		}
-	});
-
-export const CommentDownvote_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<CommentDownvote>({
-		account: 'Cascade',
-		comment: 'Cascade'
 	});

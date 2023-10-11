@@ -1,7 +1,6 @@
 import {
 	Schema,
 	createMigration,
-	defineOnForeignModelDeletedActions,
 	getModelForHyperschema,
 	prop,
 	select
@@ -15,6 +14,8 @@ export class Post extends Schema(PostV0)<Post> {
 
 	@prop({ type: () => String, required: true })
 	description!: string;
+
+	__migration__: typeof Post_migration;
 }
 
 export const Post_migration = createMigration<Post>()
@@ -30,9 +31,4 @@ export const Post_migration = createMigration<Post>()
 		description() {
 			return this.content.slice(0, 10) + '...';
 		}
-	});
-
-export const Post_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<Post>({
-		author: 'Cascade'
 	});

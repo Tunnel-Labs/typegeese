@@ -4,7 +4,7 @@ import {
 	Schema,
 	prop,
 	PropType,
-	defineOnForeignModelDeletedActions,
+	defineRelations,
 	virtualForeignRef
 } from '~/index.js';
 
@@ -30,6 +30,6 @@ export class CommentThread extends Schema('CommentThread') {
 }
 
 export const CommentThread_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<CommentThread>({});
+	defineRelations<CommentThread>({});
 
 export const CommentThread_migration = createMigration<CommentThread>(null);

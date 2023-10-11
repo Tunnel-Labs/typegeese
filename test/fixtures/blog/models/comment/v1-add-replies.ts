@@ -3,7 +3,7 @@ import {
 	PropType,
 	Schema,
 	createMigration,
-	defineOnForeignModelDeletedActions,
+	defineRelations,
 	prop,
 	foreignRef,
 	virtualForeignRef
@@ -12,8 +12,10 @@ import * as CommentV0 from './v0.js';
 import { VirtualForeignRef } from '~/types/refs.js';
 import * as $ from './$schema.js';
 
-export class Comment extends Schema(CommentV0, 'v1-add-replies') {
-	__type__!: Comment;
+export class Comment extends Schema(CommentV0)<Comment> {
+	get _v() {
+		return 'v1-add-replies';
+	}
 
 	@prop(
 		foreignRef<Comment, $.Comment>('Comment', 'Comment', 'replies', {
@@ -32,6 +34,8 @@ export class Comment extends Schema(CommentV0, 'v1-add-replies') {
 		PropType.ARRAY
 	)
 	replies!: VirtualForeignRef<Comment, $.Comment, 'parentComment'>[];
+
+	__migration__: typeof Comment_migration;
 }
 
 export const Comment_migration = createMigration<Comment>()
@@ -41,11 +45,4 @@ export const Comment_migration = createMigration<Comment>()
 		parentComment() {
 			return null;
 		}
-	});
-
-export const Comment_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<Comment>({
-		author: 'Cascade',
-		post: 'Cascade',
-		parentComment: 'Cascade'
 	});

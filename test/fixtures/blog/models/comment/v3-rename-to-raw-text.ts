@@ -1,23 +1,27 @@
 import {
 	Schema,
 	createMigration,
-	defineOnForeignModelDeletedActions,
+	defineRelations,
 	getModelForHyperschema,
 	prop,
 	select
 } from '~/index.js';
 import * as CommentV2 from './v2-add-votes.js';
 
-export class Comment extends Schema(CommentV2, 'v3-rename-to-raw-text', {
+export class Comment extends Schema(CommentV2, {
 	omit: { text: true }
-}) {
-	__type__!: Comment;
+})<Comment> {
+	get _v() {
+		return 'v3-rename-to-raw-text';
+	}
 
 	@prop({
 		type: () => String,
 		required: true
 	})
 	rawText!: string;
+
+	__migration__: typeof Comment_migration
 }
 
 export const Comment_migration = createMigration<Comment>()
@@ -33,11 +37,4 @@ export const Comment_migration = createMigration<Comment>()
 		rawText() {
 			return this.text;
 		}
-	});
-
-export const Comment_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<Comment>({
-		author: 'Cascade',
-		post: 'Cascade',
-		parentComment: 'Cascade'
 	});

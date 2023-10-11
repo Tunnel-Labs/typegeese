@@ -101,10 +101,10 @@ export async function applyHyperschemaMigrationsToDocument({
 }
 
 export function createMigration<CurrentSchema extends AnySchema>(
-	...args: IsEqual<CurrentSchema['_v'], 0> extends true
+	...args: IsEqual<CurrentSchema['_v'], 'v0'> extends true
 		? [null]
 		: [MigrationOptions?]
-): IsEqual<CurrentSchema['_v'], 0> extends true
+): IsEqual<CurrentSchema['_v'], 'v0'> extends true
 	? MigrationData
 	: {
 			from: <PreviousHyperschema>(previousHyperschema: PreviousHyperschema) => {

@@ -1,9 +1,4 @@
-import {
-	Schema,
-	createMigration,
-	defineOnForeignModelDeletedActions,
-	prop
-} from '~/index.js';
+import { Schema, createMigration, prop } from '~/index.js';
 
 import * as UserV2 from './v2-add-avatar.js';
 
@@ -14,6 +9,8 @@ export class User extends Schema(UserV2)<User> {
 
 	@prop({ type: () => String, required: false })
 	bio!: string | null;
+
+	__migration__: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()

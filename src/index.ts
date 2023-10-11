@@ -15,7 +15,7 @@ export type * from './types/select.js';
 export type * from './types/t/$.js';
 export type * from './types/query.js';
 
-export { defineOnForeignModelDeletedActions } from './utils/delete.js';
+export { defineRelations } from './utils/delete.js';
 export { defineSchemaOptions, Schema } from './utils/schema.js';
 export { loadHyperschemas, normalizeHyperschema } from './utils/hyperschema.js';
 export { createMigration } from './utils/migration.js';

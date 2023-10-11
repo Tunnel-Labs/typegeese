@@ -2,7 +2,7 @@ import type { ForeignRef } from '~/index.js';
 import {
 	Schema,
 	prop,
-	defineOnForeignModelDeletedActions,
+	defineRelations,
 	createMigration,
 	foreignRef
 } from '~/index.js';
@@ -27,7 +27,7 @@ export class Comment extends Schema('Comment') {
 }
 
 export const Comment_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<Comment>({
+	defineRelations<Comment>({
 		parentCommentThread: 'Cascade'
 	});
 

@@ -1,4 +1,4 @@
-import type { t } from '~/index.js';
+import { defineRelations, type t } from '~/index.js';
 import type * as $ from '../$schemas.js';
 
 export * from './v0.js';
@@ -16,5 +16,8 @@ type _Account = t.Shape<
 		bio: string;
 		commentDownvotes: t.VirtualForeignRef<$.CommentDownvote>[];
 		commentUpvotes: t.VirtualForeignRef<$.CommentUpvote>[];
-	}
+	},
+	typeof Account_relations
 >;
+
+export const Account_relations = defineRelations<$.Account>({});

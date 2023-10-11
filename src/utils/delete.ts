@@ -4,7 +4,7 @@ import { pre, getModelWithString } from '@typegoose/typegoose';
 import type { OnForeignModelDeletedActions } from '~/types/delete.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 
-export function defineOnForeignModelDeletedActions<Model>(
+export function defineRelations<Model>(
 	actions: OnForeignModelDeletedActions<Model>
 ) {
 	return actions;

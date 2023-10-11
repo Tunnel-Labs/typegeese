@@ -1,7 +1,6 @@
 import {
 	Schema,
 	createMigration,
-	defineOnForeignModelDeletedActions,
 	getModelForHyperschema,
 	index,
 	prop,
@@ -18,6 +17,8 @@ export class User extends Schema(UserV0)<User> {
 
 	@prop({ type: () => String, required: true })
 	username!: string;
+
+	__migration__: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()

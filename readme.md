@@ -81,6 +81,10 @@ export class User extends Schema(UserV1)<User> {
 
   @prop({ type: () => String, required: true })
   username!: string;
+
+  // This property is required by TypeScript to ensure that we don't forget to
+  // add a migration (even if the migration is a no-op).
+  __migration__: typeof User_migration
 }
 
 export const User_migration = createMigration<User>()

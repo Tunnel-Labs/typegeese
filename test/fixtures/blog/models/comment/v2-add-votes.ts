@@ -2,7 +2,6 @@ import {
 	PropType,
 	Schema,
 	createMigration,
-	defineOnForeignModelDeletedActions,
 	prop,
 	virtualForeignRef
 } from '~/index.js';
@@ -13,8 +12,10 @@ import {
 	CommentDownvote
 } from '~test/fixtures/blog/models/$schemas.js';
 
-export class Comment extends Schema(CommentV1, 'v2-add-votes') {
-	__type__!: Comment;
+export class Comment extends Schema(CommentV1)<Comment> {
+	get _v() {
+		return 'v2-add-votes';
+	}
 
 	@prop(
 		virtualForeignRef<Comment, Comment>(
@@ -37,16 +38,11 @@ export class Comment extends Schema(CommentV1, 'v2-add-votes') {
 		PropType.ARRAY
 	)
 	downvotes!: VirtualForeignRef<Comment, CommentDownvote, 'comment'>[];
+
+	__migration__: typeof Comment_migration;
 }
 
 export const Comment_migration = createMigration<Comment>()
 	.from(CommentV1)
 	.with(null)
 	.migrate({});
-
-export const Comment_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<Comment>({
-		author: 'Cascade',
-		post: 'Cascade',
-		parentComment: 'Cascade'
-	});

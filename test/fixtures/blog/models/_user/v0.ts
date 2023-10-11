@@ -1,8 +1,6 @@
 import {
 	PropType,
 	VirtualForeignRef,
-	createMigration,
-	defineOnForeignModelDeletedActions,
 	prop,
 	index,
 	Schema,
@@ -37,8 +35,3 @@ export class User extends Schema('User')<User> {
 	)
 	authoredComments!: VirtualForeignRef<User, $.Comment, 'author'>[];
 }
-
-export const User_migration = createMigration<User>(null);
-
-export const User_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<User>({});

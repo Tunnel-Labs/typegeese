@@ -18,18 +18,3 @@ export type BaseSchemaClass = Class<BaseSchemaInstance> & { _v: string };
 export interface NewSchemaOptions {
 	from?: new () => BaseSchemaInstance;
 }
-
-export interface AbstractBaseSchema<InstanceT> {
-	new (): InstanceT;
-}
-export abstract class AbstractBaseSchema<InstanceT> {
-	abstract __type__: any;
-}
-
-export interface AbstractMigrationSchema<InstanceT> {
-	new (): InstanceT;
-}
-export abstract class AbstractMigrationSchema<InstanceT> {
-	abstract get _v(): string;
-	abstract __type__: any;
-}

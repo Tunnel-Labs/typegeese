@@ -14,6 +14,7 @@ export type ExcludeVirtualForeignRefs<Model> = {
 	[K in keyof Model as
 		| IsVirtualForeignRef<Model[K]> extends true ? never
 		: IsVirtualForeignRefArray<Model[K]> extends true ? never
+		: K extends '__migration__' ? never
 		: K]: Model[K];
 };
 
@@ -25,6 +26,7 @@ export type IsSupersetKey<
 > =
 	| Key extends '_v' ? true
 	: Key extends '__type__' ? true
+	: Key extends '__migration__' ? true
 	: Key extends keyof PreviousModel
 		? CurrentModel[Key] extends PreviousModel[Key] ? true
 		: false

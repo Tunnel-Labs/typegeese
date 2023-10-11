@@ -1,9 +1,10 @@
+// @ts-nocheck
+
 import {
 	PropType,
 	Schema,
 	VirtualForeignRef,
 	createMigration,
-	defineOnForeignModelDeletedActions,
 	modelOptions,
 	prop,
 	virtualForeignRef
@@ -39,6 +40,8 @@ export class User extends Schema(UserV3)<User> {
 		PropType.ARRAY
 	)
 	commentUpvotes!: VirtualForeignRef<User, $.CommentUpvote, 'user'>[];
+
+	__migration__: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()

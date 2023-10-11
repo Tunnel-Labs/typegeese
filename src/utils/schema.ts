@@ -6,12 +6,8 @@ import { versionStringToVersionNumber } from '~/utils/version.js';
 import type { RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import createClone from 'rfdc';
-import {
-	NewSchemaOptions,
-	BaseSchema,
-	AbstractBaseSchema,
-	AbstractMigrationSchema
-} from '~/types/schema.js';
+import { NewSchemaOptions } from '~/types/schema.js';
+import { MigrationData } from '~/index.js';
 
 const clone = createClone();
 
@@ -95,7 +91,21 @@ export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	return schemaOptions;
 }
 
-export interface SchemaExtends<
+export interface BaseSchemaExtends<
+	SchemaName extends string,
+	Options extends NewSchemaOptions
+> {
+	new <T>(): (Options['from'] extends new () => infer Schema
+		? Omit<Schema, '_v' | '__type__' | '__name__'>
+		: {}) & {
+		__type__?: T;
+		__name__?: SchemaName;
+		_id: string;
+		_v: 'v0';
+	};
+}
+
+export interface MigrationSchemaExtends<
 	PreviousHyperschema,
 	Options extends {
 		omit: {
@@ -103,10 +113,11 @@ export interface SchemaExtends<
 		};
 	}
 > {
-	new <T extends { _v: string }>(): Omit<
+	new <T extends { _v: string; __migration__: MigrationData }>(): Omit<
 		GetSchemaFromHyperschema<PreviousHyperschema>,
 		| '_v'
 		| '__type__'
+		| '__migration__'
 		| (Options extends Record<string, unknown>
 				? RequiredKeysOf<Options['omit']>
 				: never)
@@ -122,19 +133,7 @@ export interface SchemaExtends<
 export function Schema<
 	SchemaName extends string,
 	Options extends NewSchemaOptions
->(
-	name: SchemaName,
-	options?: Options
-): {
-	new <T>(): (Options['from'] extends new () => infer Schema
-		? Omit<Schema, '_v' | '__type__' | '__name__'>
-		: {}) & {
-		__type__?: T;
-		__name__?: SchemaName;
-		_id: string;
-		_v: 'v0';
-	};
-};
+>(name: SchemaName, options?: Options): BaseSchemaExtends<SchemaName, Options>;
 export function Schema<
 	PreviousHyperschema,
 	Options extends {
@@ -145,7 +144,7 @@ export function Schema<
 >(
 	previousHyperschema: PreviousHyperschema,
 	options?: Options
-): SchemaExtends<PreviousHyperschema, Options>;
+): MigrationSchemaExtends<PreviousHyperschema, Options>;
 export function Schema(
 	previousHyperschemaOrNewSchemaName?: any,
 	versionStringOrNewSchemaOptions?: string | NewSchemaOptions,

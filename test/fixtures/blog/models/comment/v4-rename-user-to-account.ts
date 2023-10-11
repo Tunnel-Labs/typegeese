@@ -2,17 +2,18 @@ import {
 	ForeignRef,
 	Schema,
 	createMigration,
-	defineOnForeignModelDeletedActions,
 	foreignRef,
 	prop
 } from '~/index.js';
 import * as CommentV3 from './v3-rename-to-raw-text.js';
 import type * as $ from '../$schemas.js';
 
-export class Comment extends Schema(CommentV3, 'v4-rename-user-to-account', {
+export class Comment extends Schema(CommentV3, {
 	omit: { author: true }
-}) {
-	__type__!: Comment;
+})<Comment> {
+	get _v() {
+		return 'v4-rename-user-to-account';
+	}
 
 	@prop(
 		foreignRef<Comment, $.Account>('Comment', 'Account', 'authoredComments', {
@@ -20,16 +21,11 @@ export class Comment extends Schema(CommentV3, 'v4-rename-user-to-account', {
 		})
 	)
 	author!: ForeignRef<Comment, $.Account, 'authoredComments'>;
+
+	__migration__: typeof Comment_migration;
 }
 
 export const Comment_migration = createMigration<Comment>()
 	.from(CommentV3)
 	.with(null)
 	.migrate({});
-
-export const Comment_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<Comment>({
-		author: 'Cascade',
-		post: 'Cascade',
-		parentComment: 'Cascade'
-	});

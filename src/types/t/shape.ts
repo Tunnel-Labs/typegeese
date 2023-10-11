@@ -5,8 +5,9 @@ import type { t } from './$.js';
 // prettier-ignore
 export type ShapeProperties<Schema> = {
 	[K in keyof Schema as
-		| K extends '__type__' ? never
-		: K extends '_v' ? never
+		| K extends '_v' ? never
+		: K extends '__type__' ? never
+		: K extends '__migration__' ? never
 		: K]:
 
 		| Schema[K] extends ForeignRef<any, infer ForeignSchema, any>
@@ -20,4 +21,8 @@ export type ShapeProperties<Schema> = {
 		: Schema[K];
 }
 
-export type Shape<Schema, T extends Exact<ShapeProperties<Schema>, T>> = Schema;
+export type Shape<
+	Schema,
+	T extends Exact<ShapeProperties<Schema>, T>,
+	_OnForeignModelDeletedActions
+> = Schema;

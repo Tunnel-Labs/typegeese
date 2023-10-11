@@ -1,11 +1,4 @@
-import {
-	ForeignRef,
-	Schema,
-	createMigration,
-	defineOnForeignModelDeletedActions,
-	prop,
-	foreignRef
-} from '~/index.js';
+import { ForeignRef, Schema, prop, foreignRef } from '~/index.js';
 import type { Post, User } from '../$schemas.js';
 
 export class Comment extends Schema('Comment')<Comment> {
@@ -27,11 +20,3 @@ export class Comment extends Schema('Comment')<Comment> {
 	)
 	post!: ForeignRef<Comment, Post, 'comments'>;
 }
-
-export const Comment_migration = createMigration<Comment>(null);
-
-export const Comment_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<Comment>({
-		author: 'Cascade',
-		post: 'Cascade'
-	});
