@@ -80,6 +80,10 @@ export function createModelSchemaFromMigrationSchema({
 		] of currentMigrationSchemaPropMap.entries()) {
 			propMap.set(propKey, propValue);
 		}
+
+		for (const propValue of propMap.values()) {
+			(propValue as any).target = modelSchema.prototype;
+		}
 	}
 
 	return modelSchema;
