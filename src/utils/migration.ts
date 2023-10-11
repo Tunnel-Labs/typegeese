@@ -9,7 +9,6 @@ import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { IsEqual, Promisable } from 'type-fest';
 import { getModelWithString } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
-import { AnySchema } from '~/types/schema.js';
 import { Mongoose } from 'mongoose';
 
 function getForeignHyperschemaFromForeignPropertyKey({

@@ -10,9 +10,6 @@ import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js
 import { PopulateObject } from '~/types/populate.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
 import { getModelForHyperschema } from '~/index.js';
-import createClone from 'rfdc';
-
-const clone = createClone();
 
 export function normalizeHyperschema<Hyperschema>(
 	hyperschema: Hyperschema
@@ -81,7 +78,6 @@ export function normalizeHyperschema<Hyperschema>(
 	if ('__typegeeseSchema' in originalSchema) {
 		schema = originalSchema.__typegeeseSchema;
 	} else {
-		createFlatSchema();
 
 		const schemaVersion = Reflect.getMetadata(
 			'typegeese:version',
@@ -101,7 +97,6 @@ export function normalizeHyperschema<Hyperschema>(
 			value: clonedSchema,
 			enumerable: false
 		});
-		originalSchema.__typegeeseSchema = clonedSchema;
 	}
 
 	const normalizedHyperschema = {

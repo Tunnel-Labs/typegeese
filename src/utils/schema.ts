@@ -3,10 +3,10 @@ import { SchemaOptions } from 'mongoose';
 import { GetSchemaFromHyperschema } from '~/types/hyperschema.js';
 import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { versionStringToVersionNumber } from '~/utils/version.js';
-import type { RequiredKeysOf } from 'type-fest';
+import type { Class, RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import createClone from 'rfdc';
-import { NewSchemaOptions } from '~/types/schema.js';
+import { BaseSchemaClass, NewSchemaOptions } from '~/types/schema.js';
 import { MigrationData } from '~/index.js';
 
 const clone = createClone();
@@ -152,34 +152,44 @@ export function Schema(
 		omit: Record<string, true>;
 	}
 ): any {
+	let typegeeseSchemas = Reflect.getMetadata(
+		'typegeese:schemaParent',
+		Schema
+	) as Map<
+		string, // schema name
+		Map<string, BaseSchemaClass | null> // map from version to parent schema (previous version)
+	>;
+
+	if (typegeeseSchemas === undefined) {
+		typegeeseSchemas = new Map();
+		Reflect.defineMetadata('typegeese:schemas', Schema, typegeeseSchemas);
+	}
+
 	if (typeof previousHyperschemaOrNewSchemaName === 'string') {
-		const newSchemaName = previousHyperschemaOrNewSchemaName;
-		return createBaseSchema({
-			schemaName: newSchemaName,
-			version: 0
-		});
+		const schemaName = previousHyperschemaOrNewSchemaName;
+		let schemaMap = typegeeseSchemas.get(schemaName);
+		if (schemaMap === undefined) {
+			schemaMap = new Map();
+			typegeeseSchemas.set(schemaName, schemaMap);
+		}
+
+		schemaMap.set('v0', null);
+	} else {
+		const previousHyperschema = normalizeHyperschema(
+			previousHyperschemaOrNewSchemaName
+		);
+		const { schemaName } = previousHyperschema;
+		let schemaMap = typegeeseSchemas.get(schemaName);
+		if (schemaMap === undefined) {
+			schemaMap = new Map();
+			typegeeseSchemas.set(schemaName, schemaMap);
+		}
+
+		const versionString = versionStringOrNewSchemaOptions as string;
+		schemaMap.set(versionString, previousHyperschema.schema);
 	}
 
-	const previousHyperschema = previousHyperschemaOrNewSchemaName;
-	const versionString = versionStringOrNewSchemaOptions as string;
-
-	const hyperschema = normalizeHyperschema(previousHyperschema);
-	const version = versionStringToVersionNumber(versionString);
-
-	const prototypeSchema = createBaseSchema({
-		schemaName: hyperschema.schemaName,
-		version
-	});
-
-	// If this schema has `disableLowerIndexes` set, we should the indexes of all the parent classes
-	const leafSchemaModelOptions = Reflect.getOwnMetadata(
-		DecoratorKeys.ModelOptions,
-		hyperschema.schema as any
-	);
-
-	if (leafSchemaModelOptions?.options?.disableLowerIndexes) {
-		Reflect.deleteMetadata(DecoratorKeys.Index, newSchema);
-	}
-
-	return newSchema;
+	// We return the `Object` constructor (which is basically equivalent to a no-op `extends` clause)
+	// to avoid schema inheritance that might conflict with typegoose
+	return Object;
 }
