@@ -10,8 +10,12 @@ import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js
 import { PopulateObject } from '~/types/populate.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
 import { getModelForHyperschema } from '~/index.js';
+import { DecoratorKeys } from '~/utils/decorator-keys.js';
 
-export function normalizeHyperschema<Hyperschema>(
+/**
+	Un-namespaces the keys of a hyperschema.
+*/
+export function createHyperschema<Hyperschema>(
 	hyperschema: Hyperschema
 ): NormalizedHyperschema<Hyperschema> {
 	if (
@@ -33,22 +37,30 @@ export function normalizeHyperschema<Hyperschema>(
 
 	if (migrationKey === undefined) {
 		throw new Error(
-			`Missing "migration" key in hyperschema: ${JSON.stringify(hyperschema)}`
+			`Missing migration key in hyperschema: ${JSON.stringify(hyperschema)}`
 		);
 	}
 
 	const migration = hyperschema[migrationKey as keyof typeof hyperschema];
 
-	const onForeignModelDeletedActionsKey = Object.keys(hyperschema).find(
+	const relationsKey = Object.keys(hyperschema).find(
 		(key) => key === 'relations' || key.endsWith('_relations')
 	);
 
-	const onForeignModelDeletedActions =
-		onForeignModelDeletedActionsKey === undefined
+	if (relationsKey !== undefined) {
+		if (
+			typeof hyperschema[relationsKey as keyof typeof hyperschema] !== 'object'
+		) {
+			throw new Error(
+				`Missing relations key in hyperschema: ${JSON.stringify(hyperschema)}`
+			);
+		}
+	}
+
+	const relations =
+		relationsKey === undefined
 			? {}
-			: hyperschema[
-					onForeignModelDeletedActionsKey as keyof typeof hyperschema
-			  ];
+			: hyperschema[relationsKey as keyof typeof hyperschema];
 
 	const schemaOptionsKey =
 		Object.keys(hyperschema).find(
@@ -60,13 +72,11 @@ export function normalizeHyperschema<Hyperschema>(
 
 	const schemaKey = Object.keys(hyperschema).find(
 		(key) =>
-			key !== migrationKey &&
-			key !== onForeignModelDeletedActionsKey &&
-			key !== schemaOptionsKey
+			key !== migrationKey && key !== relationsKey && key !== schemaOptionsKey
 	);
 	if (schemaKey === undefined) {
 		throw new Error(
-			`Missing "schema" key in hyperschema: "${JSON.stringify(hyperschema)}}"`
+			`Missing schema key in hyperschema: "${JSON.stringify(hyperschema)}}"`
 		);
 	}
 
@@ -78,17 +88,10 @@ export function normalizeHyperschema<Hyperschema>(
 	if ('__typegeeseSchema' in originalSchema) {
 		schema = originalSchema.__typegeeseSchema;
 	} else {
-
-		const schemaVersion = Reflect.getMetadata(
-			'typegeese:version',
+		const previousMigrationSchemaVersion = Reflect.getMetadata(
+			DecoratorKeys.PreviousMigrationSchemaVersion,
 			originalSchema.prototype
-		);
-
-		if (schemaVersion === undefined) {
-			throw new Error(
-				`Schema "${schemaKey}" is missing a version number (the "_v" property)`
-			);
-		}
+		) as Map<>;
 
 		const clonedSchema = cloneSchema(originalSchema, {
 			version: schemaVersion
@@ -104,7 +107,7 @@ export function normalizeHyperschema<Hyperschema>(
 		schemaName: schemaKey,
 		schemaOptions,
 		migration,
-		onForeignModelDeletedActions
+		relations
 	};
 
 	return normalizedHyperschema as any;

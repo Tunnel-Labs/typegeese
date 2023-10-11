@@ -147,50 +147,52 @@ export function Schema<
 ): MigrationSchemaExtends<PreviousHyperschema, Options>;
 export function Schema(
 	previousHyperschemaOrNewSchemaName?: any,
-	versionStringOrNewSchemaOptions?: string | NewSchemaOptions,
 	options?: {
 		omit: Record<string, true>;
 	}
 ): any {
-	let typegeeseSchemas = Reflect.getMetadata(
+	let parentMigrationSchemas = Reflect.getMetadata(
 		DecoratorKeys.ParentMigrationSchema,
 		Schema
 	) as Map<
 		string, // schema name
-		Map<string, BaseSchemaClass | null> // map from version to parent schema (previous version)
+		Map<number, BaseSchemaClass | null> // map from version to parent schema (previous version)
 	>;
 
-	if (typegeeseSchemas === undefined) {
-		typegeeseSchemas = new Map();
+	if (parentMigrationSchemas === undefined) {
+		parentMigrationSchemas = new Map();
 		Reflect.defineMetadata(
 			DecoratorKeys.ParentMigrationSchema,
 			Schema,
-			typegeeseSchemas
+			parentMigrationSchemas
 		);
 	}
 
 	if (typeof previousHyperschemaOrNewSchemaName === 'string') {
 		const schemaName = previousHyperschemaOrNewSchemaName;
-		let schemaMap = typegeeseSchemas.get(schemaName);
+		let schemaMap = parentMigrationSchemas.get(schemaName);
 		if (schemaMap === undefined) {
 			schemaMap = new Map();
-			typegeeseSchemas.set(schemaName, schemaMap);
+			parentMigrationSchemas.set(schemaName, schemaMap);
 		}
 
-		schemaMap.set('v0', null);
+		schemaMap.set(0, null);
 	} else {
 		const previousHyperschema = normalizeHyperschema(
 			previousHyperschemaOrNewSchemaName
 		);
 		const { schemaName } = previousHyperschema;
-		let schemaMap = typegeeseSchemas.get(schemaName);
+		let schemaMap = parentMigrationSchemas.get(schemaName);
 		if (schemaMap === undefined) {
 			schemaMap = new Map();
-			typegeeseSchemas.set(schemaName, schemaMap);
+			parentMigrationSchemas.set(schemaName, schemaMap);
 		}
 
-		const versionString = versionStringOrNewSchemaOptions as string;
-		schemaMap.set(versionString, previousHyperschema.schema);
+		const previousVersionString = previousHyperschema.schema.prototype._v;
+		const currentVersionNumber =
+			versionStringToVersionNumber(previousVersionString) + 1;
+
+		schemaMap.set(currentVersionNumber, previousHyperschema.schema);
 	}
 
 	// We return the `Object` constructor (which is basically equivalent to a no-op `extends` clause)
