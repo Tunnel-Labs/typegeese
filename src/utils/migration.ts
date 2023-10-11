@@ -8,7 +8,12 @@ import { IsEqual, Promisable } from 'type-fest';
 import { getModelWithString } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import { Mongoose } from 'mongoose';
-import { AnyHyperschema, AnySchema, AnySchemaInstance } from '~/index.js';
+import { AnyHyperschema, AnySchemaInstance } from '~/index.js';
+import {
+	AnyUnnormalizedHyperschemaModule,
+	GetUnnormalizedHyperschemaModuleMigrationSchema
+} from '~/types/hyperschema-module.js';
+import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
 
 function getForeignHyperschemaFromForeignPropertyKey({
 	hyperschemas,
@@ -105,7 +110,10 @@ export function createMigration<CurrentSchema extends AnySchemaInstance>(
 ): IsEqual<CurrentSchema['_v'], 'v0'> extends true
 	? MigrationData
 	: {
-			from: <PreviousUnnormalizedHyperschemaModule>(
+			from: <
+				PreviousUnnormalizedHyperschemaModule extends
+					AnyUnnormalizedHyperschemaModule
+			>(
 				previousUnnormalizedHyperschemaModule: PreviousUnnormalizedHyperschemaModule
 			) => {
 				with: <DataType>(
@@ -118,7 +126,7 @@ export function createMigration<CurrentSchema extends AnySchemaInstance>(
 				) => {
 					migrate(
 						migrationFunctions: MigrationFunctions<
-							NormalizedHyperschema<PreviousHyperschema>['schema'],
+							GetUnnormalizedHyperschemaModuleMigrationSchema<PreviousUnnormalizedHyperschemaModule>,
 							CurrentSchema,
 							NonNullable<DataType>
 						>
@@ -135,12 +143,14 @@ export function createMigration<CurrentSchema extends AnySchemaInstance>(
 	}
 
 	return {
-		from: (previousHyperschema: any) => ({
+		from: (previousUnnormalizedHyperschemaModule: any) => ({
 			with: (getData: any) => ({
 				migrate: (migrationFunctions: any) => ({
 					getData,
 					migrationFunctions,
-					previousHyperschema: normalizeHyperschema(previousHyperschema),
+					previousHyperschema: normalizeHyperschemaModule(
+						previousUnnormalizedHyperschemaModule
+					),
 					initialize: args[0]?.initialize
 				})
 			})
@@ -152,7 +162,7 @@ export function createMigrateFunction({
 	hyperschemas,
 	meta
 }: {
-	hyperschemas: Record<string, NormalizedHyperschema<any>>;
+	hyperschemas: Record<string, AnyHyperschema>;
 	meta: any;
 }) {
 	return async function migrate({
@@ -161,7 +171,7 @@ export function createMigrateFunction({
 		documents
 	}: {
 		mongoose: Mongoose;
-		hyperschema: NormalizedHyperschema<any>;
+		hyperschema: AnyHyperschema;
 		documents: Array<{ _id: string; _v: number }>;
 	}) {
 		const documentIdToMigrationPromise = new Map<
