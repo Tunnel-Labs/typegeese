@@ -56,7 +56,6 @@ export async function createHyperschemas<
 		[HyperschemaKey in keyof UnnormalizedHyperschemaModules as GetUnnormalizedHyperschemaModuleMigrationKey<
 			UnnormalizedHyperschemaModules[HyperschemaKey]
 		>]: Hyperschema<
-			// @ts-expect-error: works
 			NormalizeHyperschemaModule<UnnormalizedHyperschemaModules[HyperschemaKey]>
 		>;
 	} & {

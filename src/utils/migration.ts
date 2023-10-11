@@ -111,8 +111,7 @@ export function createMigration<CurrentSchema extends AnySchemaInstance>(
 	? MigrationData
 	: {
 			from: <
-				PreviousUnnormalizedHyperschemaModule extends
-					AnyUnnormalizedHyperschemaModule
+				PreviousUnnormalizedHyperschemaModule extends AnyUnnormalizedHyperschemaModule
 			>(
 				previousUnnormalizedHyperschemaModule: PreviousUnnormalizedHyperschemaModule
 			) => {

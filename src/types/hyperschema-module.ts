@@ -2,13 +2,9 @@ import type { SchemaOptions } from 'mongoose';
 import type { MigrationData } from '~/types/migration.js';
 import type { AnyRelations } from './relations.js';
 import type { AnySchemaClass, BaseSchemaClass } from '~/types/schema.js';
+import { InstanceTypeOrSelf } from '~/index.js';
 
-// prettier-ignore
-export type AnyUnnormalizedHyperschemaModule =
-	& Record<`${string}_relations`, Record<string, string>>
-	& Record<`${string}_migration`, MigrationData>
-	& Record<`${string}_schemaOptions`, unknown>
-	& Record<string, BaseSchemaClass>;
+export type AnyUnnormalizedHyperschemaModule = any;
 
 export type GetUnnormalizedHyperschemaModuleMigrationKey<
 	H extends AnyUnnormalizedHyperschemaModule
@@ -55,7 +51,10 @@ export type GetUnnormalizedHyperschemaModuleSchemaOptions<
 export type GetUnnormalizedHyperschemaModuleMigrationSchema<
 	H extends AnyUnnormalizedHyperschemaModule
 > = GetUnnormalizedHyperschemaModuleMigrationSchemaKey<H> extends keyof H
-	? H[GetUnnormalizedHyperschemaModuleMigrationSchemaKey<H>]
+	? InstanceTypeOrSelf<
+			// @ts-expect-error: works
+			Exclude<H[GetUnnormalizedHyperschemaModuleMigrationSchemaKey<H>], string>
+	  >
 	: never;
 
 export type NormalizeHyperschemaModule<

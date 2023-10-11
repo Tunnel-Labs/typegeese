@@ -3,7 +3,6 @@ import {
 	PropType,
 	Schema,
 	createMigration,
-	defineRelations,
 	prop,
 	foreignRef,
 	virtualForeignRef
