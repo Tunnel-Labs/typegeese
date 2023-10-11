@@ -13,7 +13,7 @@ import type * as $ from '../$schemas.js';
 
 @index({ email: 1 })
 export class User extends Schema('User') {
-	declare __type__: User;
+	__type__: User;
 
 	@prop({
 		type: () => String,

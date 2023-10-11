@@ -6,7 +6,12 @@ import { versionStringToVersionNumber } from '~/utils/version.js';
 import type { RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import createClone from 'rfdc';
-import { NewSchemaOptions, BaseSchema } from '~/types/schema.js';
+import {
+	NewSchemaOptions,
+	BaseSchema,
+	AbstractBaseSchema,
+	AbstractMigrationSchema
+} from '~/types/schema.js';
 
 const clone = createClone();
 
@@ -99,15 +104,15 @@ export function Schema<
 >(
 	name: SchemaName,
 	options?: Options
-): {
-	new (): (Options['from'] extends new () => infer Schema
+): typeof AbstractBaseSchema<
+	(Options['from'] extends new () => infer Schema
 		? Omit<Schema, '_v' | '__type__' | '__name__'>
 		: {}) & {
 		__name__?: SchemaName;
 		_id: string;
 		_v: 0;
-	};
-};
+	}
+>;
 export function Schema<
 	PreviousHyperschema,
 	V extends string,
@@ -120,8 +125,8 @@ export function Schema<
 	previousHyperschema: PreviousHyperschema,
 	versionString: V,
 	options?: Options
-): {
-	new (): Omit<
+): typeof AbstractMigrationSchema<
+	Omit<
 		GetSchemaFromHyperschema<PreviousHyperschema>,
 		| '_v'
 		| '__type__'
@@ -131,8 +136,8 @@ export function Schema<
 	> & {
 		_v: number;
 		_id: string;
-	};
-};
+	}
+>;
 export function Schema(
 	previousHyperschemaOrNewSchemaName?: any,
 	versionStringOrNewSchemaOptions?: string | NewSchemaOptions,

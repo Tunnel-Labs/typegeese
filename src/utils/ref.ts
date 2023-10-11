@@ -1,28 +1,32 @@
 import { IsEqual } from 'type-fest';
-import { AnySchema } from '~/types/schema.js';
+import { BaseSchemaInstance } from '~/types/schema.js';
 import type { ArrayInnerValue } from '~/types/array.js';
 import type { ForeignRef, VirtualForeignRef } from '~/types/refs.js';
 
 export function foreignRef<
-	HostSchema extends AnySchema = never,
-	ForeignSchema extends AnySchema = never
+	HostSchemaInstance extends BaseSchemaInstance = never,
+	ForeignSchemaInstance extends BaseSchemaInstance = never
 >(
-	_hostModelName: IsEqual<HostSchema, never> extends true
+	_hostModelName: IsEqual<HostSchemaInstance, never> extends true
 		? 'Error: virtualForeignRef requires two generic type parameters'
-		: NonNullable<HostSchema['__name__']>,
-	foreignModelName: IsEqual<HostSchema, never> extends true
+		: NonNullable<HostSchemaInstance['__name__']>,
+	foreignModelName: IsEqual<HostSchemaInstance, never> extends true
 		? 'Error: virtualForeignRef requires two generic type parameters'
-		: NonNullable<ForeignSchema['__name__']>,
+		: NonNullable<ForeignSchemaInstance['__name__']>,
 	foreignField: keyof {
-		[Field in keyof ForeignSchema as NonNullable<
-			ArrayInnerValue<ForeignSchema[Field]>
-		> extends ForeignRef<ForeignSchema, HostSchema, any>
+		[Field in keyof ForeignSchemaInstance as NonNullable<
+			ArrayInnerValue<ForeignSchemaInstance[Field]>
+		> extends ForeignRef<ForeignSchemaInstance, HostSchemaInstance, any>
 			? Field
 			: NonNullable<
-					ArrayInnerValue<ForeignSchema[Field]>
-			  > extends VirtualForeignRef<ForeignSchema, HostSchema, any>
+					ArrayInnerValue<ForeignSchemaInstance[Field]>
+			  > extends VirtualForeignRef<
+					ForeignSchemaInstance,
+					HostSchemaInstance,
+					any
+			  >
 			? Field
-			: never]: ForeignSchema[Field];
+			: never]: ForeignSchemaInstance[Field];
 	},
 	options: { required: boolean }
 ) {
@@ -35,21 +39,21 @@ export function foreignRef<
 }
 
 export function virtualForeignRef<
-	HostSchema extends AnySchema = never,
-	ForeignSchema extends AnySchema = never
+	HostSchemaInstance extends BaseSchemaInstance = never,
+	ForeignSchemaInstance extends BaseSchemaInstance = never
 >(
-	_hostModelName: IsEqual<HostSchema, never> extends true
+	_hostModelName: IsEqual<HostSchemaInstance, never> extends true
 		? 'Error: virtualForeignRef requires two generic type parameters'
-		: NonNullable<HostSchema['__name__']>,
-	foreignModelName: IsEqual<HostSchema, never> extends true
+		: NonNullable<HostSchemaInstance['__name__']>,
+	foreignModelName: IsEqual<HostSchemaInstance, never> extends true
 		? 'Error: virtualForeignRef requires two generic type parameters'
-		: NonNullable<ForeignSchema['__name__']>,
+		: NonNullable<ForeignSchemaInstance['__name__']>,
 	foreignField: keyof {
-		[Field in keyof ForeignSchema as NonNullable<
-			ForeignSchema[Field]
-		> extends ForeignRef<ForeignSchema, HostSchema, any>
+		[Field in keyof ForeignSchemaInstance as NonNullable<
+			ForeignSchemaInstance[Field]
+		> extends ForeignRef<ForeignSchemaInstance, HostSchemaInstance, any>
 			? Field
-			: never]: ForeignSchema[Field];
+			: never]: ForeignSchemaInstance[Field];
 	},
 	localField: '_id'
 ) {

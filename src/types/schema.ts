@@ -7,12 +7,29 @@ export type GetSchemaFromQuery<Query extends QueryWithHelpers<any, any>> =
 		ArrayInnerValue<NonNullable<Awaited<ReturnType<Query['exec']>>>>['__type__']
 	>;
 
-export type BaseSchema = Class<{
+export type BaseSchemaInstance = {
 	_id: string;
 	_v: number;
 	__name__?: string;
-}> & { _v: number };
+};
+
+export type BaseSchemaClass = Class<BaseSchemaInstance> & { _v: string };
 
 export interface NewSchemaOptions {
-	from?: new () => BaseSchema;
+	from?: new () => BaseSchemaInstance;
+}
+
+export interface AbstractBaseSchema<InstanceT> {
+	new (): InstanceT;
+}
+export abstract class AbstractBaseSchema<InstanceT> {
+	abstract __type__: any;
+}
+
+export interface AbstractMigrationSchema<InstanceT> {
+	new (): InstanceT;
+}
+export abstract class AbstractMigrationSchema<InstanceT> {
+	abstract get _v(): string;
+	abstract __type__: any;
 }
