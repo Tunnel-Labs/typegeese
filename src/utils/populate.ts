@@ -10,6 +10,7 @@ export function recursivelyAddSelectVersionToPopulateObject(
 			);
 		}
 
+		// Note that this "1" just tells mongoose to select the field (it doesn't actually set the _v field to 1)
 		populateObject.select._v = 1;
 	}
 
