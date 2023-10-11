@@ -12,9 +12,7 @@ import {
 import type * as $ from '../$schemas.js';
 
 @index({ email: 1 })
-export class User extends Schema('User') {
-	__type__: User;
-
+export class User extends Schema('User')<User> {
 	@prop({
 		type: () => String,
 		required: true

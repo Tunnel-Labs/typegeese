@@ -31,7 +31,7 @@ export function foreignRef<
 	options: { required: boolean }
 ) {
 	return {
-		ref: foreignModelName,
+		ref: foreignModelName as string,
 		type: () => String,
 		...options,
 		__foreignField: foreignField
@@ -58,7 +58,7 @@ export function virtualForeignRef<
 	localField: '_id'
 ) {
 	return {
-		ref: foreignModelName,
+		ref: foreignModelName as string,
 		type: () => String,
 		foreignField,
 		localField

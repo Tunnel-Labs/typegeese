@@ -9,8 +9,10 @@ import {
 
 import * as UserV1 from './v1-add-username.js';
 
-export class User extends Schema(UserV1, 'v2-add-avatar') {
-	declare __type__: User;
+export class User extends Schema(UserV1)<User> {
+	get _v() {
+		return 'v2-add-avatar';
+	}
 
 	@prop({ type: () => String, required: true })
 	avatarUrl!: string;
@@ -30,6 +32,3 @@ export const User_migration = createMigration<User>()
 			return `https://www.gravatar.com/avatar/${this._id}?s=32&d=identicon&r=PG`;
 		}
 	});
-
-export const User_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<User>({});

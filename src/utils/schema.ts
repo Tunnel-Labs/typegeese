@@ -95,6 +95,27 @@ export function defineSchemaOptions(schemaOptions: SchemaOptions) {
 	return schemaOptions;
 }
 
+export interface SchemaExtends<
+	PreviousHyperschema,
+	Options extends {
+		omit: {
+			[K in keyof GetSchemaFromHyperschema<PreviousHyperschema>]?: true;
+		};
+	}
+> {
+	new <T extends { _v: string }>(): Omit<
+		GetSchemaFromHyperschema<PreviousHyperschema>,
+		| '_v'
+		| '__type__'
+		| (Options extends Record<string, unknown>
+				? RequiredKeysOf<Options['omit']>
+				: never)
+	> & {
+		__type__?: T;
+		_id: string;
+	};
+}
+
 /**
 	Instead of inheriting from the previous schema migration, we instead create a copy of the class (this makes it easier to use discriminator types)
 */
@@ -104,18 +125,18 @@ export function Schema<
 >(
 	name: SchemaName,
 	options?: Options
-): typeof AbstractBaseSchema<
-	(Options['from'] extends new () => infer Schema
+): {
+	new <T>(): (Options['from'] extends new () => infer Schema
 		? Omit<Schema, '_v' | '__type__' | '__name__'>
 		: {}) & {
+		__type__?: T;
 		__name__?: SchemaName;
 		_id: string;
-		_v: 0;
-	}
->;
+		_v: 'v0';
+	};
+};
 export function Schema<
 	PreviousHyperschema,
-	V extends string,
 	Options extends {
 		omit: {
 			[K in keyof GetSchemaFromHyperschema<PreviousHyperschema>]?: true;
@@ -123,21 +144,8 @@ export function Schema<
 	}
 >(
 	previousHyperschema: PreviousHyperschema,
-	versionString: V,
 	options?: Options
-): typeof AbstractMigrationSchema<
-	Omit<
-		GetSchemaFromHyperschema<PreviousHyperschema>,
-		| '_v'
-		| '__type__'
-		| (Options extends Record<string, unknown>
-				? RequiredKeysOf<Options['omit']>
-				: never)
-	> & {
-		_v: number;
-		_id: string;
-	}
->;
+): SchemaExtends<PreviousHyperschema, Options>;
 export function Schema(
 	previousHyperschemaOrNewSchemaName?: any,
 	versionStringOrNewSchemaOptions?: string | NewSchemaOptions,

@@ -1,7 +1,7 @@
 import { Schema, createMigration } from '~/index.js';
-import { _User } from '../_user/$schema.js';
+import { User } from '../_user/$schema.js';
 
-export class Account extends Schema('Account', { from: _User }) {
+export class Account extends Schema('Account', { from: User })<Account> {
 	declare __type__: Account;
 }
 

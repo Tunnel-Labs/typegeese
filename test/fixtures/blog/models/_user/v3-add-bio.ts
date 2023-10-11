@@ -7,8 +7,10 @@ import {
 
 import * as UserV2 from './v2-add-avatar.js';
 
-export class User extends Schema(UserV2, 'v3-add-bio') {
-	declare __type__: User;
+export class User extends Schema(UserV2)<User> {
+	get _v() {
+		return 'v3-add-bio';
+	}
 
 	@prop({ type: () => String, required: false })
 	bio!: string | null;
@@ -22,6 +24,3 @@ export const User_migration = createMigration<User>()
 			return null;
 		}
 	});
-
-export const User_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<User>({});

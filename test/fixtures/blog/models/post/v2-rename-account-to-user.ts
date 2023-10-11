@@ -9,8 +9,10 @@ import {
 import * as PostV1 from './v1-add-description.js';
 import type * as $ from '../$schemas.js';
 
-export class Post extends Schema(PostV1, 'v2-rename-account-to-user') {
-	__type__!: Post;
+export class Post extends Schema(PostV1)<Post> {
+	get _v() {
+		return 'v2-rename-account-to-user';
+	}
 
 	@prop(
 		foreignRef<Post, $.Account>('Post', 'Account', 'posts', { required: true })

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import {
 	ForeignRef,
 	Schema,
@@ -10,9 +8,7 @@ import {
 } from '~/index.js';
 import type { Post, User } from '../$schemas.js';
 
-export class Comment extends Schema('Comment') {
-	__type__!: Comment;
-
+export class Comment extends Schema('Comment')<Comment> {
 	@prop({
 		type: () => String,
 		required: true

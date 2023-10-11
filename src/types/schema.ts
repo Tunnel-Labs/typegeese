@@ -9,7 +9,7 @@ export type GetSchemaFromQuery<Query extends QueryWithHelpers<any, any>> =
 
 export type BaseSchemaInstance = {
 	_id: string;
-	_v: number;
+	_v: string;
 	__name__?: string;
 };
 

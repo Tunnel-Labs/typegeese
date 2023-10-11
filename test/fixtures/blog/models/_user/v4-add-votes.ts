@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import {
 	PropType,
 	Schema,
@@ -15,8 +13,10 @@ import * as UserV3 from './v3-add-bio.js';
 import type * as $ from '../$schemas.js';
 
 @modelOptions({ options: { disableLowerIndexes: true } })
-export class User extends Schema(UserV3, 'v4-add-votes') {
-	declare __type__: User;
+export class User extends Schema(UserV3)<User> {
+	get _v() {
+		return 'v4-add-votes';
+	}
 
 	@prop(
 		virtualForeignRef<User, $.CommentDownvote>(
@@ -45,6 +45,3 @@ export const User_migration = createMigration<User>()
 	.from(UserV3)
 	.with(() => ({}))
 	.migrate({});
-
-export const User_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<User>({});

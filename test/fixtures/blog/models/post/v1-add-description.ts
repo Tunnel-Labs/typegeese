@@ -8,8 +8,10 @@ import {
 } from '~/index.js';
 import * as PostV0 from './v0.js';
 
-export class Post extends Schema(PostV0, 'v1-add-description') {
-	__type__!: Post;
+export class Post extends Schema(PostV0)<Post> {
+	get _v() {
+		return 'v1-add-description';
+	}
 
 	@prop({ type: () => String, required: true })
 	description!: string;

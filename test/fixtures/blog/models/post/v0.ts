@@ -13,9 +13,7 @@ import {
 } from '~/index.js';
 import type * as $ from '../$schemas.js';
 
-export class Post extends Schema('Post') {
-	__type__!: Post;
-
+export class Post extends Schema('Post')<Post> {
 	@prop({
 		type: () => String,
 		required: true

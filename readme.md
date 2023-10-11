@@ -27,7 +27,7 @@ The first version (v0) of a schema extends from `Schema('Name')`:
 // ./user/v0.ts
 import { Schema, prop } from "typegeese";
 
-export class User extends Schema('User') {
+export class User extends Schema('User')<User> {
   @prop({ type: () => String, required: true })
   email!: string;
 
@@ -49,7 +49,9 @@ import { Schema, prop } from "typegeese";
 
 import * as UserV0 from './v0.js';
 
-export class User extends Schema(UserV0, "v1-profile-image") {
+export class User extends Schema(UserV0)<User> {
+  get _v() { return 'v1-profile-image' };
+
   @prop({ type: () => String, required: false })
   profileImageUrl!: string | null;
 }
@@ -74,7 +76,9 @@ import {
 
 import * as UserV1 from './v1-add-profile-image.js';
 
-export class User extends Schema(UserV1, "v2-add-username") {
+export class User extends Schema(UserV1)<User> {
+  get _v() { return 'v2-add-username' };
+
   @prop({ type: () => String, required: true })
   username!: string;
 }

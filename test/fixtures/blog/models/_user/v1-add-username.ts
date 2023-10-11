@@ -11,8 +11,10 @@ import {
 import * as UserV0 from './v0.js';
 
 @index({ username: 1 }, { unique: true })
-export class User extends Schema(UserV0, 'v1-add-username') {
-	declare __type__: User;
+export class User extends Schema(UserV0)<User> {
+	get _v() {
+		return 'v1-add-username';
+	}
 
 	@prop({ type: () => String, required: true })
 	username!: string;
@@ -32,6 +34,3 @@ export const User_migration = createMigration<User>()
 			return this.email.split('@')[0] ?? 'user';
 		}
 	});
-
-export const User_onForeignModelDeletedActions =
-	defineOnForeignModelDeletedActions<User>({});
