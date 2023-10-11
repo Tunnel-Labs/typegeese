@@ -4,10 +4,10 @@ import { InstanceTypeOrSelf } from '~/types/instance-type.js';
 export type GetSchemaKeyFromHyperschema<Hyperschema> = Exclude<
 	keyof Hyperschema,
 	| 'migration'
-	| 'onForeignModelDeletedActions'
+	| 'relations'
 	| 'schemaOptions'
 	| `${string}_migration`
-	| `${string}_onForeignModelDeletedActions`
+	| `${string}_relations`
 	| `${string}_schemaOptions`
 >;
 
@@ -31,7 +31,7 @@ export type GetMigrationFromHyperschema<Hyperschema> =
 
 export type GetOnForeignModelDeletedKeyFromHyperschema<Hyperschema> = Extract<
 	keyof Hyperschema,
-	'onForeignModelDeletedActions' | `${string}_onForeignModelDeletedActions`
+	'relations' | `${string}_relations`
 >;
 
 export type GetOnForeignModelDeletedFromHyperschema<Hyperschema> =

@@ -29,7 +29,7 @@ export class CommentThread extends Schema('CommentThread') {
 	>[];
 }
 
-export const CommentThread_onForeignModelDeletedActions =
+export const CommentThread_relations =
 	defineRelations<CommentThread>({});
 
 export const CommentThread_migration = createMigration<CommentThread>(null);

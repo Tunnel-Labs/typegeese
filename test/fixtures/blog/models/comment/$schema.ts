@@ -15,10 +15,10 @@ type _Comment = t.Shape<
 		upvotes: t.VirtualForeignRef<$.CommentUpvote>[];
 		downvotes: t.VirtualForeignRef<$.CommentDownvote>[];
 	},
-	typeof Comment_onForeignModelDeletedActions
+	typeof Comment_relations
 >;
 
-export const Comment_onForeignModelDeletedActions =
+export const Comment_relations =
 	defineRelations<Comment>({
 		author: 'Cascade',
 		post: 'Cascade',

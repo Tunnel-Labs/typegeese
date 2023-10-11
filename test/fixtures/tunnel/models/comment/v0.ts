@@ -26,7 +26,7 @@ export class Comment extends Schema('Comment') {
 	parentCommentThread!: ForeignRef<Comment, CommentThread, 'comments'>;
 }
 
-export const Comment_onForeignModelDeletedActions =
+export const Comment_relations =
 	defineRelations<Comment>({
 		parentCommentThread: 'Cascade'
 	});

@@ -24,5 +24,5 @@ export type ShapeProperties<Schema> = {
 export type Shape<
 	Schema,
 	T extends Exact<ShapeProperties<Schema>, T>,
-	_OnForeignModelDeletedActions
+	_Relations
 > = Schema;

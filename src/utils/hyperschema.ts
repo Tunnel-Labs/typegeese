@@ -9,10 +9,8 @@ import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
 import { PopulateObject } from '~/types/populate.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
-import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import { getModelForHyperschema } from '~/index.js';
 import createClone from 'rfdc';
-import { createSchema } from '~/utils/class.js';
 
 const clone = createClone();
 
@@ -45,9 +43,7 @@ export function normalizeHyperschema<Hyperschema>(
 	const migration = hyperschema[migrationKey as keyof typeof hyperschema];
 
 	const onForeignModelDeletedActionsKey = Object.keys(hyperschema).find(
-		(key) =>
-			key === 'onForeignModelDeletedActions' ||
-			key.endsWith('_onForeignModelDeletedActions')
+		(key) => key === 'relations' || key.endsWith('_relations')
 	);
 
 	const onForeignModelDeletedActions =
@@ -85,7 +81,7 @@ export function normalizeHyperschema<Hyperschema>(
 	if ('__typegeeseSchema' in originalSchema) {
 		schema = originalSchema.__typegeeseSchema;
 	} else {
-		createFlatSchema()
+		createFlatSchema();
 
 		const schemaVersion = Reflect.getMetadata(
 			'typegeese:version',

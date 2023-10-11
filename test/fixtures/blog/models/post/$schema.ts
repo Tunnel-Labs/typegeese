@@ -1,7 +1,7 @@
+export * from './v2-rename-account-to-user.js';
+
 import { defineRelations, type t } from '~/index.js';
 import type * as $ from '../$schemas.js';
-
-export * from './v2-rename-account-to-user.js';
 
 type _Post = t.Shape<
 	$.Post,
@@ -13,10 +13,9 @@ type _Post = t.Shape<
 		content: string;
 		description: string;
 	},
-	typeof Post_onForeignModelDeletedActions
+	typeof Post_relations
 >;
 
-export const Post_onForeignModelDeletedActions =
-	defineRelations<$.Post>({
-		author: 'Cascade'
-	});
+export const Post_relations = defineRelations<$.Post>({
+	author: 'Cascade'
+});

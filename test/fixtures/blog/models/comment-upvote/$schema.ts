@@ -1,7 +1,7 @@
+export * from './v1-rename-account-to-user.js';
+
 import { defineRelations, type t } from '~/index.js';
 import type * as $ from '../$schemas.js';
-
-export * from './v1-rename-account-to-user.js';
 
 type _CommentUpvote = t.Shape<
 	$.CommentUpvote,
@@ -10,10 +10,10 @@ type _CommentUpvote = t.Shape<
 		comment: t.ForeignRef<$.Comment>;
 		account: t.ForeignRef<$.Account>;
 	},
-	typeof CommentUpvote_onForeignModelDeletedActions
+	typeof CommentUpvote_relations
 >;
 
-export const CommentUpvote_onForeignModelDeletedActions =
+export const CommentUpvote_relations =
 	defineRelations<$.CommentUpvote>({
 		account: 'Cascade',
 		comment: 'Cascade'

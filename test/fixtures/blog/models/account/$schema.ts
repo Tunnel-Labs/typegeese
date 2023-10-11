@@ -1,7 +1,7 @@
+export * from './v0.js';
+
 import { defineRelations, type t } from '~/index.js';
 import type * as $ from '../$schemas.js';
-
-export * from './v0.js';
 
 type _Account = t.Shape<
 	$.Account,
