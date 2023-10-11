@@ -139,7 +139,7 @@ The examples use the following UserV0 schema:
 // ./user/v0.ts
 import { Schema, prop } from "typegeese";
 
-export class User extends Schema('User') {
+export class User extends Schema('User')<User> {
   @prop({ type: () => String, required: true })
   email!: string;
 
@@ -162,12 +162,13 @@ import {
 
 import * as UserV0 from './v0.js';
 
-export class User extends Schema(
-  UserV0,
-  'v1-add-username'
-) {
+export class User extends Schema(UserV0)<User> {
+  get _v() { return 'v1-add-username' };
+
   @prop({ type: () => String, required: true })
-  username!: string
+  username!: string;
+
+  __migration__: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()
@@ -196,10 +197,18 @@ import { Schema, prop } from 'typegeese';
 import * as UserV0 from './v0.js';
 
 export class User extends Schema(
-  UserV0,
-  'v1-remove-name',
+  UserV0
   { omit: { name: true } }
-) {}
+) {
+  get _v() { return 'v1-remove-name' };
+
+  __migration__: typeof User_migration
+}
+
+export const User_migration = createMigration<User>()
+  .from(UserV0)
+  .with(null)
+  .migrate({});
 ```
 
 ### Renaming a field
@@ -218,11 +227,14 @@ import * as UserV0 from './v0.js';
 
 export class User extends Schema(
   UserV0,
-  'v1-rename-name-to-full-name',
   { omit: { name: true } }
-) {
+)<User> {
+  get _v() { return 'v1-rename-name-to-full-name' };
+
   @prop({ type: () => String, required: false })
   fullName!: string | null;
+
+  __migration__: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()
@@ -258,10 +270,16 @@ import {
   select
 } from 'typegeese';
 
-export class User extends Schema(
-  UserV0,
-  'v1-rename-to-account',
-) {}
+export class User extends Schema(UserV0)<User> {
+  get _v() { return 'v1-rename-to-account' };
+
+  __migration__: typeof User_migration;
+}
+
+export const User_migration = createMigration<User>()
+  .from(UserV0)
+  .with(null)
+  .migrate({});
 ```
 
 ```typescript
@@ -269,7 +287,7 @@ export class User extends Schema(
 
 import { User } from '../_user/$schema.js'
 
-export class Account extends Schema('Account', { from: User }) {}
+export class Account extends Schema('Account', { from: User })<Account> {}
 ```
 
 ## Implementation
@@ -277,9 +295,9 @@ export class Account extends Schema('Account', { from: User }) {}
 Under the hood, the `Schema(...)` function always returns the `Object` constructor and is only used for type inference:
 
 ```typescript
-class User extends Schema('User') {}
-class Post extends Schema(PostV0) {
-  get _v() { return 'v1'; }
+class User extends Schema('User')<User> {}
+class Post extends Schema(PostV0)<Post> {
+  get _v() { return 'v1' };
 }
 
 // Equivalent at runtime to:
