@@ -49,5 +49,7 @@ export enum DecoratorKeys {
 	 * Storage location for Cached Schemas
 	 * -> Use only for a class
 	 */
-	CachedSchema = 'typegoose:cachedSchema'
+	CachedSchema = 'typegoose:cachedSchema',
+
+	ParentMigrationSchema = 'typegoose:parentMigrationSchema'
 }

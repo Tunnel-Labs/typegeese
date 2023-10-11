@@ -274,7 +274,7 @@ export class Account extends Schema('Account', { from: User }) {}
 
 ## Implementation
 
-Under the hood, calls to `Schema(...)` return the `Object` constructor:
+Under the hood, the `Schema(...)` function always returns the `Object` constructor and is only used for type inference:
 
 ```typescript
 class User extends Schema('User') {}
@@ -287,6 +287,8 @@ class User extends Object {}
 class Post extends Object {}
 ```
 
-In practice, this behavior is basically equivalent to omitting the `extends` parameter, avoiding conflicts with the intended usage of inheritance for discriminator types in typegoose.
+> In practice, the `extends Object` is equivalent to omitting the `extends` clause.
 
-Instead of using an inheritance chain, the `Schema` function maintains an internal mapping of the migration order based on the properties passed to it.
+By avoiding the use of inheritance for migrations, we avoid conflicts with typegoose's intended uses of inheritance (e.g. discriminator types).
+
+Instead of creating the full schemas at declaration time, we dynamically construct them when the functions `getModelForHyperschema` or `loadHyperschemas` are called.

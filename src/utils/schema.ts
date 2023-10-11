@@ -153,7 +153,7 @@ export function Schema(
 	}
 ): any {
 	let typegeeseSchemas = Reflect.getMetadata(
-		'typegeese:schemaParent',
+		DecoratorKeys.ParentMigrationSchema,
 		Schema
 	) as Map<
 		string, // schema name
@@ -162,7 +162,11 @@ export function Schema(
 
 	if (typegeeseSchemas === undefined) {
 		typegeeseSchemas = new Map();
-		Reflect.defineMetadata('typegeese:schemas', Schema, typegeeseSchemas);
+		Reflect.defineMetadata(
+			DecoratorKeys.ParentMigrationSchema,
+			Schema,
+			typegeeseSchemas
+		);
 	}
 
 	if (typeof previousHyperschemaOrNewSchemaName === 'string') {
