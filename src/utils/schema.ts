@@ -1,91 +1,88 @@
 import { prop } from '@typegoose/typegoose';
 import { SchemaOptions } from 'mongoose';
-import { GetSchemaFromHyperschema } from '~/types/hyperschema.js';
-import { normalizeHyperschema } from '~/utils/hyperschema.js';
 import { versionStringToVersionNumber } from '~/utils/version.js';
-import type { Class, RequiredKeysOf } from 'type-fest';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import createClone from 'rfdc';
-import { BaseSchemaClass, MigrationSchemaExtends, NewSchemaOptions } from '~/types/schema.js';
-import { MigrationData } from '~/index.js';
-import { BaseSchemaExtends } from '~/types/migration-schema.js';
+import {
+	AnySchemaClass,
+	BaseSchemaExtends,
+	MigrationSchemaExtends,
+	NewSchemaOptions
+} from '~/types/schema.js';
+import {
+	AnyUnnormalizedHyperschemaModule,
+	GetUnnormalizedHyperschemaModuleMigrationSchema
+} from '~/types/hyperschema-module.js';
+import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
 
 const clone = createClone();
 
-export function getFlattenedSchema(schema: BaseSchema) {
-	const schemaVersion = schema._v;
-	const flattenedSchema = createBaseSchema({
-		version: schemaVersion,
-		schemaName: schema.name
-	});
-
-	copySchemaMetadata({
-		from: schema,
-		to: flattenedSchema
-	});
-
-	return flattenedSchema;
-}
-
-export function createBaseSchema<Version extends number>({
-	version,
-	schemaName
+/**
+	Dynamically creates a full schema by going up the migration chain from a specified migration schema.
+*/
+export function createModelSchemaFromMigrationSchema({
+	schemaName,
+	migrationSchema
 }: {
-	version: Version;
 	schemaName: string;
-}): BaseSchema {
-	const baseSchema = class {} as BaseSchema;
+	migrationSchema: AnySchemaClass;
+}): AnySchemaClass {
+	const modelSchema = class {} as AnySchemaClass;
 
-	prop({ type: () => String, required: true })(baseSchema, '_id');
-	prop({ type: () => Number, default: version, required: true })(
-		baseSchema,
+	const migrationSchemasMap = Reflect.getMetadata(
+		DecoratorKeys.MigrationSchemas,
+		Schema
+	) as Map<string, Map<number, AnySchemaClass>>;
+
+	const migrationSchemaMap = migrationSchemasMap.get(schemaName);
+	if (migrationSchemaMap === undefined) {
+		throw new Error(`Could not find migration schema map for "${schemaName}"`);
+	}
+
+	const migrationSchemaVersion = versionStringToVersionNumber(
+		migrationSchema.prototype._v
+	);
+
+	prop({ type: () => String, required: true })(modelSchema, '_id');
+	prop({ type: () => Number, default: migrationSchemaVersion, required: true })(
+		modelSchema,
 		'_v'
 	);
 
-	Object.defineProperty(baseSchema, 'name', { value: schemaName });
-	Object.defineProperty(baseSchema, '_v', { value: version });
+	Object.defineProperty(modelSchema, 'name', { value: schemaName });
+	Object.defineProperty(modelSchema, '_v', { value: migrationSchemaVersion });
 
-	return baseSchema;
-}
+	// Loop through the migration chain
+	const propMap = new Map();
 
-export function copySchemaMetadata({
-	from: fromSchema,
-	to: toSchema
-}: {
-	from: BaseSchema;
-	to: BaseSchema;
-}) {
-	const fromSchemaBasePropMap = Reflect.getMetadata(
-		DecoratorKeys.PropCache,
-		fromSchema.prototype
-	) as Map<string, { options?: { ref: string } }>;
+	for (
+		let currentMigrationSchemaVersion = migrationSchemaVersion;
+		currentMigrationSchemaVersion >= 0;
+		currentMigrationSchemaVersion -= 1
+	) {
+		const currentMigrationSchema = migrationSchemaMap.get(
+			currentMigrationSchemaVersion
+		);
+		if (currentMigrationSchema === undefined) {
+			throw new Error(
+				`Could not find migration schema "${schemaName}" for version "${currentMigrationSchemaVersion}"`
+			);
+		}
 
-	const fromSchemaPrototypePropMap = Reflect.getMetadata(
-		DecoratorKeys.PropCache,
-		Object.getPrototypeOf(fromSchema).prototype
-	) as Map<string, { options?: { ref: string } }>;
+		const currentMigrationSchemaPropMap = Reflect.getMetadata(
+			DecoratorKeys.PropCache,
+			currentMigrationSchema.prototype
+		) as Map<string, { options?: { ref: string } }>;
 
-	const toSchemaPropMap = Reflect.getMetadata(
-		DecoratorKeys.PropCache,
-		toSchema.prototype
-	) as Map<string, { options?: { ref: string } }>;
+		for (const [
+			propKey,
+			propValue
+		] of currentMigrationSchemaPropMap.entries()) {
+			propMap.set(propKey, propValue);
+		}
+	}
 
-	const newPropMap = clone(
-		new Map([
-			...fromSchemaBasePropMap.entries(),
-			...fromSchemaPrototypePropMap.entries(),
-			// This needs to be last in order to make sure the "_v" prop always reflects the latest schema version
-			...toSchemaPropMap.entries()
-		])
-	);
-
-	Reflect.defineMetadata(
-		DecoratorKeys.PropCache,
-		newPropMap,
-		toSchema.prototype
-	);
-
-	return toSchema;
+	return modelSchema;
 }
 
 export function defineSchemaOptions(schemaOptions: SchemaOptions) {
@@ -100,57 +97,67 @@ export function Schema<
 	Options extends NewSchemaOptions
 >(name: SchemaName, options?: Options): BaseSchemaExtends<SchemaName, Options>;
 export function Schema<
-	PreviousHyperschema,
+	PreviousUnnormalizedHyperschemaModule extends
+		AnyUnnormalizedHyperschemaModule,
 	Options extends {
 		omit: {
-			[K in keyof GetSchemaFromHyperschema<PreviousHyperschema>]?: true;
+			[K in keyof GetUnnormalizedHyperschemaModuleMigrationSchema<PreviousUnnormalizedHyperschemaModule>]?: true;
 		};
 	}
 >(
-	previousHyperschema: PreviousHyperschema,
+	previousUnnormalizedHyperschemaModule: PreviousUnnormalizedHyperschemaModule,
 	options?: Options
-): MigrationSchemaExtends<PreviousHyperschema, Options>;
+): MigrationSchemaExtends<PreviousUnnormalizedHyperschemaModule, Options>;
 export function Schema(
 	previousHyperschemaOrNewSchemaName?: any,
 	options?: {
 		omit: Record<string, true>;
 	}
 ): any {
-	let schemas = Reflect.getMetadata(DecoratorKeys.Schemas, Schema) as Map<
+	let migrationSchemasMap = Reflect.getMetadata(
+		DecoratorKeys.MigrationSchemas,
+		Schema
+	) as Map<
 		string, // schema name
-		Map<number, BaseSchemaClass | null> // map from version number to schema
+		Map<number, AnySchemaClass | null> // map from version number to schema
 	>;
 
-	if (schemas === undefined) {
-		schemas = new Map();
-		Reflect.defineMetadata(DecoratorKeys.Schemas, Schema, schemas);
+	if (migrationSchemasMap === undefined) {
+		migrationSchemasMap = new Map();
+		Reflect.defineMetadata(
+			DecoratorKeys.MigrationSchemas,
+			Schema,
+			migrationSchemasMap
+		);
 	}
 
 	if (typeof previousHyperschemaOrNewSchemaName === 'string') {
 		const schemaName = previousHyperschemaOrNewSchemaName;
-		let schemaMap = schemas.get(schemaName);
+		let schemaMap = migrationSchemasMap.get(schemaName);
 		if (schemaMap === undefined) {
 			schemaMap = new Map();
-			schemas.set(schemaName, schemaMap);
+			migrationSchemasMap.set(schemaName, schemaMap);
 		}
-
-		schemaMap.set(0, null);
 	} else {
-		const previousHyperschema = normalizeHyperschema(
+		const previousHyperschemaModule = normalizeHyperschemaModule(
 			previousHyperschemaOrNewSchemaName
 		);
-		const { schemaName } = previousHyperschema;
-		let schemaMap = schemas.get(schemaName);
-		if (schemaMap === undefined) {
-			schemaMap = new Map();
-			schemas.set(schemaName, schemaMap);
+		const { schemaName } = previousHyperschemaModule;
+		let migrationSchemaMap = migrationSchemasMap.get(schemaName);
+		if (migrationSchemaMap === undefined) {
+			migrationSchemaMap = new Map();
+			migrationSchemasMap.set(schemaName, migrationSchemaMap);
 		}
 
-		const previousVersionString = previousHyperschema.schema.prototype._v;
+		const previousVersionString =
+			previousHyperschemaModule.migrationSchema.prototype._v;
 		const currentVersionNumber =
 			versionStringToVersionNumber(previousVersionString) + 1;
 
-		schemaMap.set(currentVersionNumber, previousHyperschema.schema);
+		migrationSchemaMap.set(
+			currentVersionNumber,
+			previousHyperschemaModule.migrationSchema
+		);
 	}
 
 	// We return the `Object` constructor (which is basically equivalent to a no-op `extends` clause)
