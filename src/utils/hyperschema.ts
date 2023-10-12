@@ -132,15 +132,17 @@ export async function registerActiveHyperschemas<
 						.find(this.getQuery(), fullProjection)
 						.exec();
 
-					const model = getModelForHyperschema(hyperschema, { mongoose });
-					try {
-						await model.collection.insertMany(oldDocuments as any, {
-							// This is needed to avoid erroring on documents with duplicate IDs
-							ordered: false
-						});
-					} catch (error: any) {
-						if (error.code !== 11000) {
-							throw error;
+					if (oldDocuments.length > 0) {
+						const model = getModelForHyperschema(hyperschema, { mongoose });
+						try {
+							await model.collection.insertMany(oldDocuments as any, {
+								// This is needed to avoid erroring on documents with duplicate IDs
+								ordered: false
+							});
+						} catch (error: any) {
+							if (error.code !== 11000) {
+								throw error;
+							}
 						}
 					}
 				}
