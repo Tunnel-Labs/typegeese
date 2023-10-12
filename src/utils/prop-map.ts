@@ -117,7 +117,7 @@ export function getModelSchemaPropMapFromMigrationSchema({
 		) {
 			const fromModelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
 				migrationSchema: currentMigrationSchemaOptions.from,
-				schemaName,
+				schemaName: currentMigrationSchemaOptions.from.name,
 				updateTarget
 			});
 
