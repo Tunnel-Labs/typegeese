@@ -14,11 +14,16 @@ export type Diff<T, V> = {
 
 // prettier-ignore
 export type ExcludeVirtualForeignRefs<Model> = {
-	[K in keyof Model as
-		| IsVirtualForeignRef<Model[K]> extends true ? never
-		: IsVirtualForeignRefArray<Model[K]> extends true ? never
-		: K extends '__migration__' ? never
-		: K]: Model[K];
+	[
+		K in keyof Model as
+			IsVirtualForeignRef<Model[K]> extends true ?
+				never :
+			IsVirtualForeignRefArray<Model[K]> extends true ?
+				never :
+			K extends '__migration__' ?
+				never :
+			K
+	]: Model[K];
 };
 
 // prettier-ignore
@@ -27,13 +32,13 @@ export type IsSupersetKey<
 	CurrentModel,
 	Key extends keyof ExcludeVirtualForeignRefs<CurrentModel>
 > =
-	| Key extends '_v' ? true
-	: Key extends '__type__' ? true
-	: Key extends '__migration__' ? true
-	: Key extends keyof PreviousModel
-		? CurrentModel[Key] extends PreviousModel[Key] ? true
-		: false
-	: true;
+	Key extends '_v' | '__type__' | '__migration__' ?
+		true :
+	Key extends keyof PreviousModel ?
+		CurrentModel[Key] extends PreviousModel[Key] ?
+			true :
+		false :
+	true;
 
 export type NonSupersetKeys<PreviousModel, CurrentModel> = keyof {
 	[K in keyof ExcludeVirtualForeignRefs<PreviousModel> as IsSupersetKey<
@@ -51,17 +56,14 @@ export interface NotSupersetError<Message, _Keys> {
 }
 
 // prettier-ignore
-export type MigrationFunctions<PreviousSchema, CurrentSchema, DataType> =
-		// NonSupersetKeys<PreviousModel, CurrentModel> extends never ?
-			 {
-				[K in keyof Diff<
-					ExcludeVirtualForeignRefs<CurrentSchema>,
-					ExcludeVirtualForeignRefs<PreviousSchema>
-				>]: (
-					this: DataType
-				) => Promisable<CreateType<CurrentSchema[K]>>;
-			}
-// : NotSupersetError<'The current model must be a superset of the previous model in order to be backwards-compatible; the following keys are incompatible:', NonSupersetKeys<PreviousModel, CurrentModel>>
+export type MigrationFunctions<PreviousSchema, CurrentSchema, DataType> = {
+	[
+		K in keyof Diff<
+			ExcludeVirtualForeignRefs<CurrentSchema>,
+			ExcludeVirtualForeignRefs<PreviousSchema>
+		>
+	]: (this: DataType) => Promisable<CreateType<CurrentSchema[K]>>;
+}
 
 export interface MigrationData {
 	previousHyperschema: AnyHyperschema;
