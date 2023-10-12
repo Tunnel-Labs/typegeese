@@ -9,21 +9,13 @@ import {
 } from '~/index.js';
 import type * as $ from '../$schemas.js';
 
-export class Post extends Schema('Post')<Post> {
-	get _v() {
-		return 'v0' as const;
-	}
+export class Post extends Schema('Post')<typeof Post> {
+	static _v = 0;
 
-	@prop({
-		type: () => String,
-		required: true
-	})
+	@prop({ type: String, required: true })
 	title: string;
 
-	@prop({
-		type: () => String,
-		required: true
-	})
+	@prop({ type: String, required: true })
 	content: string;
 
 	// @ts-ignore: renamed

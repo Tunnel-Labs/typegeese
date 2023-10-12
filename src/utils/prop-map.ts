@@ -1,4 +1,4 @@
-import { versionStringToVersionNumber } from '~/utils/version.js';
+import { toVersionNumber } from '~/utils/version.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import type { AnySchemaClass } from '~/types/schema.js';
 import {
@@ -37,9 +37,7 @@ export function getModelSchemaPropMapFromMigrationSchema({
 		throw new Error(`Could not find migration option map for "${schemaName}"`);
 	}
 
-	const migrationSchemaVersion = versionStringToVersionNumber(
-		migrationSchema.prototype._v
-	);
+	const migrationSchemaVersion = toVersionNumber(migrationSchema._v);
 
 	const currentMigrationSchemaPropMap =
 		Reflect.getMetadata(DecoratorKeys.PropCache, migrationSchema.prototype) ??

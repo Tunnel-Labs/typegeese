@@ -1,13 +1,13 @@
 import { ForeignRef, Schema, prop, foreignRef } from '~/index.js';
 import type * as $ from '../$schemas.js';
 
-export class CommentUpvote extends Schema('CommentUpvote')<CommentUpvote> {
-	get _v() {
-		return 'v0' as const;
-	}
+export class CommentUpvote extends Schema('CommentUpvote')<
+	typeof CommentUpvote
+> {
+	static _v = 0;
 
 	@prop(
-	// @ts-ignore: renamed
+		// @ts-ignore: renamed
 		foreignRef<CommentUpvote, $.User>(
 			'CommentUpvote',
 			'User',

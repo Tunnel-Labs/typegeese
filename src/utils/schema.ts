@@ -18,7 +18,7 @@ import {
 	getMigrationSchemasMap
 } from '~/utils/migration-schema.js';
 import { getModelSchemaPropMapFromMigrationSchema } from '~/utils/prop-map.js';
-import { versionStringToVersionNumber } from '~/utils/version.js';
+import { toVersionNumber } from '~/utils/version.js';
 
 /**
 	Dynamically creates a full schema by going up the migration chain from a specified migration schema.
@@ -37,8 +37,8 @@ export function createModelSchemaFromMigrationSchema({
 	// eslint-disable-next-line @typescript-eslint/no-extraneous-class -- Needed
 	const modelSchema = class {} as AnySchemaClass;
 	Object.defineProperty(modelSchema, 'name', { value: schemaName });
-	Object.defineProperty(modelSchema.prototype, '_v', {
-		value: migrationSchema.prototype._v
+	Object.defineProperty(modelSchema, '_v', {
+		value: migrationSchema._v
 	});
 
 	const modelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
@@ -55,9 +55,7 @@ export function createModelSchemaFromMigrationSchema({
 		modelSchema.prototype
 	);
 
-	const migrationSchemaVersion = versionStringToVersionNumber(
-		migrationSchema.prototype._v
-	);
+	const migrationSchemaVersion = toVersionNumber(migrationSchema._v);
 
 	prop({ type: () => String, required: true })(modelSchema.prototype, '_id');
 	prop({ type: () => Number, default: migrationSchemaVersion, required: true })(
@@ -146,11 +144,8 @@ export function Schema(
 			migrationOptionsMap.set(schemaName, migrationOptionMap);
 		}
 
-		const previousVersionString =
-			previousHyperschemaModule.migrationSchema.prototype._v;
-		const previousVersionNumber = versionStringToVersionNumber(
-			previousVersionString
-		);
+		const previousVersionString = previousHyperschemaModule.migrationSchema._v;
+		const previousVersionNumber = toVersionNumber(previousVersionString);
 
 		migrationSchemaMap.set(
 			previousVersionNumber,

@@ -12,10 +12,8 @@ import * as $ from '../$schemas.js';
 
 export class CommentDownvote extends Schema(CommentDownvoteV0, {
 	omit: { user: true }
-})<CommentDownvote> {
-	get _v() {
-		return 'v1-rename-account-to-user';
-	}
+})<typeof CommentDownvote> {
+	static _v = 'v1-rename-account-to-user';
 
 	@prop(
 		foreignRef<CommentDownvote, $.Account>(
@@ -27,7 +25,7 @@ export class CommentDownvote extends Schema(CommentDownvoteV0, {
 	)
 	account!: ForeignRef<CommentDownvote, $.Account, 'commentDownvotes'>;
 
-	__migration__: typeof CommentDownvote_migration;
+	static migration: typeof CommentDownvote_migration;
 }
 
 export const CommentDownvote_migration = createMigration<CommentDownvote>()

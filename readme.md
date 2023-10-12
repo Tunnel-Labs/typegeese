@@ -27,8 +27,8 @@ The first version (v0) of a schema extends from `Schema('Name')`:
 // ./user/v0.ts
 import { Schema, prop } from "typegeese";
 
-export class User extends Schema('User')<User> {
-  get _v() { return 'v0' as const };
+export class User extends Schema('User')<typeof User> {
+  static _v = 0;
 
   @prop({ type: String, required: true })
   email!: string;
@@ -67,8 +67,8 @@ import { Schema, prop } from "typegeese";
 
 import * as UserV0 from './v0.js';
 
-export class User extends Schema(UserV0)<User> {
-  get _v() { return 'v1-profile-image' };
+export class User extends Schema(UserV0)<typeof User> {
+  static _v = 'v1-profile-image';
 
   @prop({ type: String, required: false })
   profileImageUrl!: string | null;
@@ -94,15 +94,15 @@ import {
 
 import * as UserV1 from './v1-add-profile-image.js';
 
-export class User extends Schema(UserV1)<User> {
-  get _v() { return 'v2-add-username' };
+export class User extends Schema(UserV1)<typeof User> {
+  static _v = 'v2-add-username';
 
   @prop({ type: String, required: true })
   username!: string;
 
   // This property is required by TypeScript to ensure that we don't forget to
   // add a migration (even if the migration is a no-op).
-  __migration__: typeof User_migration
+  static migration: typeof User_migration
 }
 
 export const User_migration = createMigration<User>()
@@ -157,8 +157,8 @@ The examples use the following UserV0 schema:
 // ./user/v0.ts
 import { Schema, prop } from 'typegeese';
 
-export class User extends Schema('User')<User> {
-  get _v() { return 'v0' as const };
+export class User extends Schema('User')<typeof User> {
+  static _v = 0;
 
   @prop({ type: String, required: true })
   email!: string;
@@ -182,13 +182,13 @@ import {
 
 import * as UserV0 from './v0.js';
 
-export class User extends Schema(UserV0)<User> {
-  get _v() { return 'v1-add-username' };
+export class User extends Schema(UserV0)<typeof User> {
+  static _v = 'v1-add-username';
 
   @prop({ type: String, required: true })
   username!: string;
 
-  __migration__: typeof User_migration;
+  static migration: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()
@@ -219,10 +219,10 @@ import * as UserV0 from './v0.js';
 export class User extends Schema(
   UserV0
   { omit: { name: true } }
-) {
-  get _v() { return 'v1-remove-name' };
+)<typeof User> {
+  static _v = 'v1-remove-name';
 
-  __migration__: typeof User_migration
+  static migration: typeof User_migration
 }
 
 export const User_migration = createMigration<User>()
@@ -248,13 +248,13 @@ import * as UserV0 from './v0.js';
 export class User extends Schema(
   UserV0,
   { omit: { name: true } }
-)<User> {
-  get _v() { return 'v1-rename-name-to-full-name' };
+)<typeof User> {
+  static _v = 'v1-rename-name-to-full-name';
 
   @prop({ type: String, required: false })
   fullName!: string | null;
 
-  __migration__: typeof User_migration;
+  static migration: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()
@@ -290,10 +290,10 @@ import {
   select
 } from 'typegeese';
 
-export class User extends Schema(UserV0)<User> {
-  get _v() { return 'v1-rename-to-account' };
+export class User extends Schema(UserV0)<typeof User> {
+  static _v = 'v1-rename-to-account';
 
-  __migration__: typeof User_migration;
+  static migration: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()
@@ -307,8 +307,8 @@ export const User_migration = createMigration<User>()
 
 import { User } from '../_user/$schema.js';
 
-export class Account extends Schema('Account', { from: User })<Account> {
-  get _v() { return 'v0' };
+export class Account extends Schema('Account', { from: User })<typeof Account> {
+  static _v = 0;
 }
 ```
 
@@ -317,9 +317,9 @@ export class Account extends Schema('Account', { from: User })<Account> {
 The `Schema(...)` function is used purely for type inference and returns the `Object` constructor at runtime:
 
 ```typescript
-class User extends Schema('User')<User> {}
-class Post extends Schema(PostV0)<Post> {
-  get _v() { return 'v1' };
+class User extends Schema('User')<typeof User> {}
+class Post extends Schema(PostV0)<typeof Post> {
+  static _v = 'v1';
 }
 
 // Equivalent at runtime to:

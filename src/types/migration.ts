@@ -52,10 +52,8 @@ export interface NotSupersetError<Message, _Keys> {
 
 // prettier-ignore
 export type MigrationFunctions<PreviousSchema, CurrentSchema, DataType> =
-	| '_v' extends keyof CurrentSchema ?
-		| CurrentSchema['_v'] extends 'v0' ? null
-		// : NonSupersetKeys<PreviousModel, CurrentModel> extends never ?
-			: {
+		// NonSupersetKeys<PreviousModel, CurrentModel> extends never ?
+			 {
 				[K in keyof Diff<
 					ExcludeVirtualForeignRefs<CurrentSchema>,
 					ExcludeVirtualForeignRefs<PreviousSchema>
@@ -63,8 +61,7 @@ export type MigrationFunctions<PreviousSchema, CurrentSchema, DataType> =
 					this: DataType
 				) => Promisable<CreateType<CurrentSchema[K]>>;
 			}
-			// : NotSupersetError<'The current model must be a superset of the previous model in order to be backwards-compatible; the following keys are incompatible:', NonSupersetKeys<PreviousModel, CurrentModel>>
-	: never
+// : NotSupersetError<'The current model must be a superset of the previous model in order to be backwards-compatible; the following keys are incompatible:', NonSupersetKeys<PreviousModel, CurrentModel>>
 
 export interface MigrationData {
 	previousHyperschema: AnyHyperschema;

@@ -21,6 +21,7 @@ export {
 	createHyperschema,
 	registerActiveHyperschemas
 } from './utils/hyperschema.js';
+export { normalizeHyperschemaModule } from './utils/hyperschema-module.js';
 export { createMigration } from './utils/migration.js';
 export { getModelForHyperschema } from './utils/model.js';
 export { foreignRef, virtualForeignRef } from './utils/ref.js';

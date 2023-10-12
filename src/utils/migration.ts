@@ -108,44 +108,32 @@ export async function applyHyperschemaMigrationsToDocument({
 }
 
 export function createMigration<CurrentSchema extends AnySchemaInstance>(
-	...args: IsEqual<CurrentSchema['_v'], 'v0'> extends true
-		? [null]
-		: [MigrationOptions?]
-): IsEqual<CurrentSchema['_v'], 'v0'> extends true
-	? MigrationData
-	: {
-			from: <
-				PreviousUnnormalizedHyperschemaModule extends
-					AnyUnnormalizedHyperschemaModule
-			>(
-				previousUnnormalizedHyperschemaModule: PreviousUnnormalizedHyperschemaModule
-			) => {
-				with: <DataType>(
-					getData:
-						| null
-						| ((
-								this: { meta: any; mongoose: Mongoose },
-								args: { _id: string }
-						  ) => Promisable<DataType>)
-				) => {
-					migrate(
-						migrationFunctions: MigrationFunctions<
-							GetUnnormalizedHyperschemaModuleMigrationSchema<PreviousUnnormalizedHyperschemaModule>,
-							CurrentSchema,
-							NonNullable<DataType>
-						>
-					): MigrationData;
-				};
-			};
-	  } {
-	if (args[0] === null) {
-		return {
-			getData() {},
-			migrationFunctions: {},
-			previousHyperschema: null!
-		} as any;
-	}
-
+	options?: MigrationOptions
+): {
+	from: <
+		PreviousUnnormalizedHyperschemaModule extends
+			AnyUnnormalizedHyperschemaModule
+	>(
+		previousUnnormalizedHyperschemaModule: PreviousUnnormalizedHyperschemaModule
+	) => {
+		with: <DataType>(
+			getData:
+				| null
+				| ((
+						this: { meta: any; mongoose: Mongoose },
+						args: { _id: string }
+				  ) => Promisable<DataType>)
+		) => {
+			migrate(
+				migrationFunctions: MigrationFunctions<
+					GetUnnormalizedHyperschemaModuleMigrationSchema<PreviousUnnormalizedHyperschemaModule>,
+					CurrentSchema,
+					NonNullable<DataType>
+				>
+			): MigrationData;
+		};
+	};
+} {
 	return {
 		from: (previousUnnormalizedHyperschemaModule: any) => ({
 			with: (getData: any) => ({
@@ -155,7 +143,7 @@ export function createMigration<CurrentSchema extends AnySchemaInstance>(
 					previousHyperschema: createHyperschema(
 						normalizeHyperschemaModule(previousUnnormalizedHyperschemaModule)
 					),
-					initialize: args[0]?.initialize
+					initialize: options?.initialize
 				})
 			})
 		})

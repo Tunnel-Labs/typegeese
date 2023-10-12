@@ -75,7 +75,7 @@ export function normalizeHyperschemaModule<
 		schemaKey as keyof typeof unnormalizedHyperschemaModule
 	] as any;
 
-	if (isMissingMigrationKey && migrationSchema.prototype._v !== 'v0') {
+	if (isMissingMigrationKey && migrationSchema._v !== 0) {
 		throw new Error(
 			`Missing migration key in hyperschema module: ${JSON.stringify(
 				unnormalizedHyperschemaModule

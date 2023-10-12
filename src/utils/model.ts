@@ -7,7 +7,7 @@ import type {
 } from '~/types/hyperschema-module.js';
 import type { AnyHyperschema, Hyperschema } from '~/types/hyperschema.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
-import { versionStringToVersionNumber } from '~/utils/version.js';
+import { toVersionNumber } from '~/utils/version.js';
 import { getMigrationSchemasMap } from '~/utils/migration-schema.js';
 import { createModelSchemaFromMigrationSchema } from '~/utils/schema.js';
 import type { AnySchemaInstance } from '~/types/schema.js';
@@ -43,7 +43,7 @@ export function getModelForActiveHyperschema({
 		schemaName
 	});
 
-	const version = versionStringToVersionNumber(modelSchema.prototype._v);
+	const version = toVersionNumber(modelSchema._v);
 
 	const model = getModelWithString(schemaName + '-' + version);
 	if (model === undefined) {
@@ -91,7 +91,7 @@ export function getModelForHyperschema<
 		);
 	}
 
-	const version = versionStringToVersionNumber(hyperschema.schema.prototype._v);
+	const version = toVersionNumber(hyperschema.schema._v);
 
 	const model = getModelForClass(hyperschema.schema, {
 		existingMongoose: mongoose,

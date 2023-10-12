@@ -14,14 +14,12 @@ export type GetSchemaFromQuery<Query extends QueryWithHelpers<any, any>> =
 
 export interface AnySchemaInstance {
 	_id: string;
-	_v: string;
 }
 
-export type AnySchemaClass = Class<AnySchemaInstance>;
+export type AnySchemaClass = Class<AnySchemaInstance> & { _v: number | string };
 
 export type BaseSchemaInstance = {
 	_id: string;
-	_v: string;
 	__name__?: string;
 };
 
@@ -36,11 +34,11 @@ export interface BaseSchemaExtends<
 	Options extends NewSchemaOptions
 > {
 	new <
-		T extends { _v: 'v0' }
+		T extends { _v: number; new (): any }
 	>(): (Options['from'] extends new () => infer Schema
 		? Omit<Schema, '_v' | '__type__' | '__name__'>
 		: {}) & {
-		__type__?: T;
+		__type__?: InstanceType<T>;
 		__name__?: SchemaName;
 		_id: string;
 	};
@@ -55,7 +53,7 @@ export interface MigrationSchemaExtends<
 		};
 	}
 > {
-	new <T extends { _v: string; __migration__: MigrationData }>(): Omit<
+	new <T extends { _v: string; migration: MigrationData; new (): any }>(): Omit<
 		GetUnnormalizedHyperschemaModuleMigrationSchema<PreviousUnnormalizedHyperschemaModule>,
 		| '_v'
 		| '__type__'
@@ -64,7 +62,7 @@ export interface MigrationSchemaExtends<
 				? RequiredKeysOf<Options['omit']>
 				: never)
 	> & {
-		__type__?: T;
+		__type__?: InstanceType<T>;
 		_id: string;
 	};
 }

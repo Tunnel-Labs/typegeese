@@ -7,15 +7,13 @@ import {
 } from '~/index.js';
 import type * as $ from '../$schemas.js';
 
-export class CommentDownvote extends Schema(
-	'CommentDownvote'
-)<CommentDownvote> {
-	get _v() {
-		return 'v0' as const;
-	}
+export class CommentDownvote extends Schema('CommentDownvote')<
+	typeof CommentDownvote
+> {
+	static _v = 0;
 
 	@prop(
-	// @ts-ignore: renamed
+		// @ts-ignore: renamed
 		foreignRef<CommentDownvote, $.User>(
 			'CommentDownvote',
 			'User',
@@ -36,5 +34,3 @@ export class CommentDownvote extends Schema(
 	)
 	comment!: ForeignRef<CommentDownvote, $.Comment, 'downvotes'>;
 }
-
-export const CommentDownvote_migration = createMigration<CommentDownvote>(null);

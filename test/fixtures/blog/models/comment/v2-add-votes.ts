@@ -12,10 +12,8 @@ import {
 	CommentDownvote
 } from '~test/fixtures/blog/models/$schemas.js';
 
-export class Comment extends Schema(CommentV1)<Comment> {
-	get _v() {
-		return 'v2-add-votes';
-	}
+export class Comment extends Schema(CommentV1)<typeof Comment> {
+	static _v = 'v2-add-votes';
 
 	@prop(
 		virtualForeignRef<Comment, Comment>(
@@ -39,7 +37,7 @@ export class Comment extends Schema(CommentV1)<Comment> {
 	)
 	downvotes!: VirtualForeignRef<Comment, CommentDownvote, 'comment'>[];
 
-	__migration__: typeof Comment_migration;
+	static migration: typeof Comment_migration;
 }
 
 export const Comment_migration = createMigration<Comment>()

@@ -7,15 +7,13 @@ import {
 } from '~/index.js';
 import * as PostV0 from './v0.js';
 
-export class Post extends Schema(PostV0)<Post> {
-	get _v() {
-		return 'v1-add-description';
-	}
+export class Post extends Schema(PostV0)<typeof Post> {
+	static _v = 'v1-add-description';
 
-	@prop({ type: () => String, required: true })
+	@prop({ type: String, required: true })
 	description!: string;
 
-	__migration__: typeof Post_migration;
+	static migration: typeof Post_migration;
 }
 
 export const Post_migration = createMigration<Post>()

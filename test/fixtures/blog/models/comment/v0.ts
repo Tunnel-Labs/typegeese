@@ -1,15 +1,10 @@
 import { ForeignRef, Schema, prop, foreignRef } from '~/index.js';
 import type * as $ from '../$schemas.js';
 
-export class Comment extends Schema('Comment')<Comment> {
-	get _v() {
-		return 'v0' as const;
-	}
+export class Comment extends Schema('Comment')<typeof Comment> {
+	static _v = 0;
 
-	@prop({
-		type: () => String,
-		required: true
-	})
+	@prop({ type: String, required: true })
 	text: string;
 
 	@prop(

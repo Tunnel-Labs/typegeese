@@ -10,10 +10,8 @@ import type * as $ from '../$schemas.js';
 
 export class Comment extends Schema(CommentV3, {
 	omit: { author: true }
-})<Comment> {
-	get _v() {
-		return 'v4-rename-user-to-account';
-	}
+})<typeof Comment> {
+	static _v = 'v4-rename-user-to-account';
 
 	@prop(
 		foreignRef<Comment, $.Account>('Comment', 'Account', 'authoredComments', {
@@ -22,7 +20,7 @@ export class Comment extends Schema(CommentV3, {
 	)
 	author!: ForeignRef<Comment, $.Account, 'authoredComments'>;
 
-	__migration__: typeof Comment_migration;
+	static migration: typeof Comment_migration;
 }
 
 export const Comment_migration = createMigration<Comment>()

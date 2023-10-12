@@ -1,7 +1,6 @@
 import {
 	Schema,
 	createMigration,
-	defineRelations,
 	getModelForHyperschema,
 	prop,
 	select
@@ -10,18 +9,16 @@ import * as CommentV2 from './v2-add-votes.js';
 
 export class Comment extends Schema(CommentV2, {
 	omit: { text: true }
-})<Comment> {
-	get _v() {
-		return 'v3-rename-to-raw-text';
-	}
+})<typeof Comment> {
+	static _v = 'v3-rename-to-raw-text';
 
 	@prop({
-		type: () => String,
+		type: String,
 		required: true
 	})
 	rawText!: string;
 
-	__migration__: typeof Comment_migration
+	static migration: typeof Comment_migration;
 }
 
 export const Comment_migration = createMigration<Comment>()

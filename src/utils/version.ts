@@ -1,6 +1,13 @@
 import type { AnySchemaClass } from '~/index.js';
 
-export function versionStringToVersionNumber(versionString: string): number {
+export function toVersionNumber(
+	versionStringOrNumber: string | number
+): number {
+	if (typeof versionStringOrNumber === 'number') {
+		return versionStringOrNumber;
+	}
+
+	const versionString = versionStringOrNumber;
 	const versionNumberString = versionString.split('-')[0]?.slice(1);
 
 	if (versionNumberString === undefined) {
@@ -19,13 +26,13 @@ export function versionStringToVersionNumber(versionString: string): number {
 }
 
 export function getVersionFromSchema(schema: AnySchemaClass): number {
-	const version = schema.prototype._v;
+	const version = schema._v;
 
 	if (version === undefined) {
 		throw new Error(`Could not determine version from schema: ${schema}`);
 	}
 
-	return versionStringToVersionNumber(version);
+	return toVersionNumber(version);
 }
 
 export function isVersionedDocument(document: unknown) {
