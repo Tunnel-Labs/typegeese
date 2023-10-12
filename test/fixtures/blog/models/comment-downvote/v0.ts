@@ -15,7 +15,7 @@ export class CommentDownvote extends Schema(
 	}
 
 	@prop(
-		// @ts-expect-error: renamed
+	// @ts-ignore: renamed
 		foreignRef<CommentDownvote, $.User>(
 			'CommentDownvote',
 			'User',
@@ -23,7 +23,7 @@ export class CommentDownvote extends Schema(
 			{ required: true }
 		)
 	)
-	// @ts-expect-error: renamed
+	// @ts-ignore: renamed
 	user!: ForeignRef<CommentDownvote, $.User, 'commentDownvotes'>;
 
 	@prop(

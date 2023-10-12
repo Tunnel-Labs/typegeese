@@ -13,12 +13,12 @@ export class Comment extends Schema('Comment')<Comment> {
 	text: string;
 
 	@prop(
-		// @ts-expect-error: renamed
+		// @ts-ignore: renamed
 		foreignRef<Comment, User>('Comment', 'User', 'authoredComments', {
 			required: true
 		})
 	)
-	// @ts-expect-error: renamed
+	// @ts-ignore: renamed
 	author!: ForeignRef<Comment, $.User, 'authoredComments'>;
 
 	@prop(

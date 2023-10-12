@@ -21,26 +21,26 @@ export class User extends Schema(UserV3)<User> {
 		virtualForeignRef<User, $.CommentDownvote>(
 			'User',
 			'CommentDownvote',
-			// @ts-expect-error: renamed
+			// @ts-ignore: renamed
 			'user',
 			'_id'
 		),
 		PropType.ARRAY
 	)
-	// @ts-expect-error: renamed
+	// @ts-ignore: renamed
 	commentDownvotes!: VirtualForeignRef<User, $.CommentDownvote, 'user'>[];
 
 	@prop(
 		virtualForeignRef<User, $.CommentDownvote>(
 			'User',
 			'CommentDownvote',
-			// @ts-expect-error: renamed
+			// @ts-ignore: renamed
 			'user',
 			'_id'
 		),
 		PropType.ARRAY
 	)
-	// @ts-expect-error: renamed
+	// @ts-ignore: renamed
 	commentUpvotes!: VirtualForeignRef<User, $.CommentUpvote, 'user'>[];
 
 	__migration__: typeof User_migration;
