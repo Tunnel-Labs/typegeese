@@ -30,10 +30,10 @@ import { Schema, prop } from "typegeese";
 export class User extends Schema('User')<User> {
   get _v() { return 'v0' as const };
 
-  @prop({ type: () => String, required: true })
+  @prop({ type: String, required: true })
   email!: string;
 
-  @prop({ type: () => String, required: false })
+  @prop({ type: String, required: false })
   name!: string | null;
 }
 ```
@@ -55,6 +55,8 @@ export * from './v0.js';
   ```
 
   Typegeese also uses this generic type argument to verify that the mandatory "_v" property is present on the class.
+
+  <hr />
 </details>
 
 When you want to add a new property, you extend the previous version of your schema by passing it to typegeese's `Schema` function:
@@ -68,7 +70,7 @@ import * as UserV0 from './v0.js';
 export class User extends Schema(UserV0)<User> {
   get _v() { return 'v1-profile-image' };
 
-  @prop({ type: () => String, required: false })
+  @prop({ type: String, required: false })
   profileImageUrl!: string | null;
 }
 ```
@@ -95,7 +97,7 @@ import * as UserV1 from './v1-add-profile-image.js';
 export class User extends Schema(UserV1)<User> {
   get _v() { return 'v2-add-username' };
 
-  @prop({ type: () => String, required: true })
+  @prop({ type: String, required: true })
   username!: string;
 
   // This property is required by TypeScript to ensure that we don't forget to
@@ -158,10 +160,10 @@ import { Schema, prop } from 'typegeese';
 export class User extends Schema('User')<User> {
   get _v() { return 'v0' as const };
 
-  @prop({ type: () => String, required: true })
+  @prop({ type: String, required: true })
   email!: string;
 
-  @prop({ type: () => String, required: false })
+  @prop({ type: String, required: false })
   name!: string | null;
 }
 ```
@@ -183,7 +185,7 @@ import * as UserV0 from './v0.js';
 export class User extends Schema(UserV0)<User> {
   get _v() { return 'v1-add-username' };
 
-  @prop({ type: () => String, required: true })
+  @prop({ type: String, required: true })
   username!: string;
 
   __migration__: typeof User_migration;
@@ -249,7 +251,7 @@ export class User extends Schema(
 )<User> {
   get _v() { return 'v1-rename-name-to-full-name' };
 
-  @prop({ type: () => String, required: false })
+  @prop({ type: String, required: false })
   fullName!: string | null;
 
   __migration__: typeof User_migration;
