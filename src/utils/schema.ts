@@ -157,8 +157,8 @@ export function createModelSchemaFromMigrationSchema({
 	schemaName: string;
 	migrationSchema: AnySchemaClass;
 }): AnySchemaClass {
-	if ((migrationSchema as any).__modelSchema) {
-		return (migrationSchema as any).__modelSchema;
+	if ('__modelSchema' in migrationSchema) {
+		return migrationSchema.__modelSchema as AnySchemaClass;
 	}
 
 	const modelSchema = class {} as AnySchemaClass;
@@ -189,7 +189,19 @@ export function createModelSchemaFromMigrationSchema({
 		'_v'
 	);
 
-	(migrationSchema as any).__modelSchema = modelSchema;
+	const migrationSchemasMap = getMigrationSchemasMap();
+	let migrationSchemaMap = migrationSchemasMap.get(schemaName);
+	if (migrationSchemaMap === undefined) {
+		migrationSchemaMap = new Map();
+		migrationSchemasMap.set(schemaName, migrationSchemaMap);
+	}
+
+	migrationSchemaMap.set(migrationSchemaVersion, migrationSchema);
+
+	Object.defineProperty(migrationSchema, '__modelSchema', {
+		value: modelSchema,
+		enumerable: false
+	});
 
 	return modelSchema;
 }

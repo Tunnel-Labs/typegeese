@@ -47,7 +47,9 @@ export function getModelForActiveHyperschema({
 
 	const model = getModelWithString(schemaName + '-' + version);
 	if (model === undefined) {
-		throw new Error(`Could not find active model for "${schemaName}"`);
+		throw new Error(
+			`Could not find model for active hyperschema "${schemaName}" (version: ${version})`
+		);
 	}
 
 	return model as any;
