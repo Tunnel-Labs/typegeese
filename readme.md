@@ -27,6 +27,11 @@ The first version (v0) of a schema extends from `Schema('Name')`:
 // ./user/v0.ts
 import { Schema, prop } from "typegeese";
 
+// This `User` generic type argument is needed
+// for typegeese to retrieve a reference to the type
+// of the schema class from a mongoose query, and also
+// checks that the `_v` type is defined on the class
+//                                      ▼
 export class User extends Schema('User')<User> {
   get _v() { return 'v0' as const };
 
