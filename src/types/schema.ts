@@ -35,13 +35,14 @@ export interface BaseSchemaExtends<
 	SchemaName extends string,
 	Options extends NewSchemaOptions
 > {
-	new <T>(): (Options['from'] extends new () => infer Schema
+	new <
+		T extends { _v: 'v0' }
+	>(): (Options['from'] extends new () => infer Schema
 		? Omit<Schema, '_v' | '__type__' | '__name__'>
 		: {}) & {
 		__type__?: T;
 		__name__?: SchemaName;
 		_id: string;
-		_v: 'v0';
 	};
 }
 

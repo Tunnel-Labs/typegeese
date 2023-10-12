@@ -10,24 +10,23 @@ import { getModelForHyperschema } from '~/utils/model.js';
 import type {
 	AnyNormalizedHyperschemaModule,
 	AnyUnnormalizedHyperschemaModule,
-	GetUnnormalizedHyperschemaModuleMigrationKey,
+	GetUnnormalizedHyperschemaModuleMigrationSchemaKey,
 	NormalizeHyperschemaModule
 } from '~/types/hyperschema-module.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
+import { createModelSchemaFromMigrationSchema } from '~/utils/schema.js';
 
 export function createHyperschema<H extends AnyNormalizedHyperschemaModule>(
 	hyperschemaModule: H
 ): Hyperschema<H> {
-	const {
-		migration,
-		migrationSchema: schema,
-		relations,
-		schemaName,
-		schemaOptions
-	} = hyperschemaModule;
+	const { migration, migrationSchema, relations, schemaName, schemaOptions } =
+		hyperschemaModule;
 
 	const normalizedHyperschema = {
-		schema,
+		schema: createModelSchemaFromMigrationSchema({
+			schemaName,
+			migrationSchema
+		}),
 		schemaName,
 		schemaOptions,
 		migration,
@@ -53,14 +52,14 @@ export async function createHyperschemas<
 	}
 ): Promise<
 	{
-		[HyperschemaKey in keyof UnnormalizedHyperschemaModules as GetUnnormalizedHyperschemaModuleMigrationKey<
+		[HyperschemaKey in keyof UnnormalizedHyperschemaModules as GetUnnormalizedHyperschemaModuleMigrationSchemaKey<
 			UnnormalizedHyperschemaModules[HyperschemaKey]
 		>]: Hyperschema<
 			NormalizeHyperschemaModule<UnnormalizedHyperschemaModules[HyperschemaKey]>
 		>;
 	} & {
 		// prettier-ignore
-		[HyperschemaKey in keyof UnnormalizedHyperschemaModules as `${GetUnnormalizedHyperschemaModuleMigrationKey<
+		[HyperschemaKey in keyof UnnormalizedHyperschemaModules as `${GetUnnormalizedHyperschemaModuleMigrationSchemaKey<
 			UnnormalizedHyperschemaModules[HyperschemaKey]
 		> & string}Model`]: ReturnType<
 			typeof getModelForHyperschema<

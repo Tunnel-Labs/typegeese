@@ -2,7 +2,6 @@ import { prop } from '@typegoose/typegoose';
 import { SchemaOptions } from 'mongoose';
 import { versionStringToVersionNumber } from '~/utils/version.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
-import createClone from 'rfdc';
 import {
 	AnySchemaClass,
 	BaseSchemaExtends,
@@ -14,8 +13,7 @@ import {
 	GetUnnormalizedHyperschemaModuleMigrationSchema
 } from '~/types/hyperschema-module.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
-
-const clone = createClone();
+import { getMigrationSchemasMap } from '~/utils/migration-schema.js';
 
 /**
 	Dynamically creates a full schema by going up the migration chain from a specified migration schema.
@@ -29,10 +27,7 @@ export function createModelSchemaFromMigrationSchema({
 }): AnySchemaClass {
 	const modelSchema = class {} as AnySchemaClass;
 
-	const migrationSchemasMap = Reflect.getMetadata(
-		DecoratorKeys.MigrationSchemas,
-		Schema
-	) as Map<string, Map<number, AnySchemaClass>>;
+	const migrationSchemasMap = getMigrationSchemasMap();
 
 	const migrationSchemaMap = migrationSchemasMap.get(schemaName);
 	if (migrationSchemaMap === undefined) {
@@ -53,7 +48,7 @@ export function createModelSchemaFromMigrationSchema({
 	Object.defineProperty(modelSchema, '_v', { value: migrationSchemaVersion });
 
 	// Loop through the migration chain
-	const propMap = new Map();
+	const mergedPropMap = new Map();
 
 	for (
 		let currentMigrationSchemaVersion = migrationSchemaVersion;
@@ -75,16 +70,22 @@ export function createModelSchemaFromMigrationSchema({
 		) as Map<string, { options?: { ref: string } }>;
 
 		for (const [
-			propKey,
-			propValue
+			mergedPropKey,
+			mergedPropValue
 		] of currentMigrationSchemaPropMap.entries()) {
-			propMap.set(propKey, propValue);
-		}
-
-		for (const propValue of propMap.values()) {
-			(propValue as any).target = modelSchema.prototype;
+			mergedPropMap.set(mergedPropKey, mergedPropValue);
 		}
 	}
+
+	for (const propValue of mergedPropMap.values()) {
+		(propValue as any).target = modelSchema.prototype;
+	}
+
+	Reflect.defineMetadata(
+		DecoratorKeys.PropCache,
+		mergedPropMap,
+		modelSchema.prototype
+	);
 
 	return modelSchema;
 }
@@ -118,22 +119,7 @@ export function Schema(
 		omit: Record<string, true>;
 	}
 ): any {
-	let migrationSchemasMap = Reflect.getMetadata(
-		DecoratorKeys.MigrationSchemas,
-		Schema
-	) as Map<
-		string, // schema name
-		Map<number, AnySchemaClass | null> // map from version number to schema
-	>;
-
-	if (migrationSchemasMap === undefined) {
-		migrationSchemasMap = new Map();
-		Reflect.defineMetadata(
-			DecoratorKeys.MigrationSchemas,
-			Schema,
-			migrationSchemasMap
-		);
-	}
+	const migrationSchemasMap = getMigrationSchemasMap();
 
 	if (typeof previousHyperschemaOrNewSchemaName === 'string') {
 		const schemaName = previousHyperschemaOrNewSchemaName;

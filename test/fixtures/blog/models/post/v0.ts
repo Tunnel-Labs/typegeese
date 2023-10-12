@@ -10,6 +10,10 @@ import {
 import type * as $ from '../$schemas.js';
 
 export class Post extends Schema('Post')<Post> {
+	get _v() {
+		return 'v0' as const;
+	}
+
 	@prop({
 		type: () => String,
 		required: true

@@ -10,6 +10,10 @@ import type * as $ from '../$schemas.js';
 export class CommentDownvote extends Schema(
 	'CommentDownvote'
 )<CommentDownvote> {
+	get _v() {
+		return 'v0' as const;
+	}
+
 	@prop(
 		foreignRef<CommentDownvote, $.User>(
 			'CommentDownvote',

@@ -11,6 +11,10 @@ import type * as $ from '../$schemas.js';
 
 @index({ email: 1 })
 export class User extends Schema('User')<User> {
+	get _v() {
+		return 'v0' as const;
+	}
+
 	@prop({
 		type: () => String,
 		required: true

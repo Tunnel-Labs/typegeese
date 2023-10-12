@@ -30,7 +30,7 @@ export function getModelForHyperschema<
 		unnormalizedHyperschemaModule
 	);
 	const version = versionStringToVersionNumber(
-		normalizedHyperschemaModule.migrationSchema.prototype._v
+		(normalizedHyperschemaModule.migrationSchema as any).prototype._v
 	);
 
 	const hyperschema = createHyperschema(normalizedHyperschemaModule as any);

@@ -1,13 +1,13 @@
-import { loadHyperschemas } from '~/index.js';
+import { createHyperschemas } from '~/index.js';
+import type { Mongoose } from 'mongoose';
 import * as AccountHyperschema from './account/$schema.js';
 import * as CommentHyperschema from './comment/$schema.js';
 import * as PostHyperschema from './post/$schema.js';
 import mem from 'mem';
-import { Mongoose } from 'mongoose';
 
 export const getBlogModels = mem(
 	async ({ mongoose }: { mongoose: Mongoose }) => {
-		const { AccountModel, CommentModel, PostModel } = await loadHyperschemas(
+		const { AccountModel, CommentModel, PostModel } = await createHyperschemas(
 			{
 				Account: AccountHyperschema,
 				Comment: CommentHyperschema,

@@ -26,12 +26,9 @@ export function normalizeHyperschemaModule<
 		(key) => key === 'migration' || key.endsWith('_migration')
 	);
 
+	let isMissingMigrationKey = false;
 	if (migrationKey === undefined) {
-		throw new Error(
-			`Missing migration key in hyperschema module: ${JSON.stringify(
-				hyperschemaModule
-			)}`
-		);
+		isMissingMigrationKey = true;
 	}
 
 	const migration =
@@ -69,6 +66,14 @@ export function normalizeHyperschemaModule<
 	const migrationSchema = hyperschemaModule[
 		schemaKey as keyof typeof hyperschemaModule
 	] as any;
+
+	if (isMissingMigrationKey && migrationSchema.prototype._v !== 'v0') {
+		throw new Error(
+			`Missing migration key in hyperschema module: ${JSON.stringify(
+				hyperschemaModule
+			)}`
+		);
+	}
 
 	return {
 		schemaName: schemaKey,
