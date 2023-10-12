@@ -28,21 +28,6 @@ The first version (v0) of a schema extends from `Schema('Name')`:
 import { Schema, prop } from "typegeese";
 
 export class User extends Schema('User')<User> {
-  /*                                    ^^^^^^
-    This required generic type argument after `Schema(...)`
-    is used by typegeese's internal types that allows them
-    to lookup the schema type from a mongoose model query.
-
-    @example ```typescript
-      const user: User = await select(UserModel.findOne(...), { ... });
-      //          ^ typegeese infers the correct `User`
-      //            schema type from this call
-    \```
-
-    It's also used by TypeScript to verify that the
-    mandatory "_v" property is present on the class.
-  */
-
   get _v() { return 'v0' as const };
 
   @prop({ type: () => String, required: true })
@@ -57,6 +42,16 @@ export class User extends Schema('User')<User> {
 // ./user/$schema.ts
 export * from './v0.js';
 ```
+
+> The generic type argument after `Schema(...)` is used by typegeese's internal types to lookup the schema type from a mongoose model query. For example:
+>
+> ```typescript
+> const user: User = await select(UserModel.findOne(...), { ... });
+> //          ^ typegeese infers the correct `User`
+> //            schema type from this call
+> ```
+>
+> Typegeese also uses this generic type argument to verify that the mandatory "_v" property is present on the class.
 
 When you want to add a new property, you extend the previous version of your schema by passing it to typegeese's `Schema` function:
 
