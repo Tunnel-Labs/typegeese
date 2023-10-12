@@ -86,6 +86,7 @@ export async function applyHyperschemaMigrationsToDocument({
 	}
 
 	const data =
+		hyperschema.migration === undefined ||
 		hyperschema.migration.getData === null
 			? null
 			: await hyperschema.migration.getData.call(

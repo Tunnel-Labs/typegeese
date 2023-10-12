@@ -128,16 +128,21 @@ export async function registerActiveHyperschemas<
 						propMapKeys.map((key) => [key, 1])
 					);
 
-					console.log(fullProjection);
-
 					const oldDocuments = await fromModel
 						.find(this.getQuery(), fullProjection)
 						.exec();
 
-					console.log(oldDocuments);
-
 					const model = getModelForHyperschema(hyperschema, { mongoose });
-					await model.create(oldDocuments);
+					try {
+						await model.collection.insertMany(oldDocuments as any, {
+							// This is needed to avoid erroring on documents with duplicate IDs
+							ordered: false
+						});
+					} catch (error: any) {
+						if (error.code !== 11000) {
+							throw error;
+						}
+					}
 				}
 
 				next();
@@ -181,7 +186,13 @@ export async function registerActiveHyperschemas<
 
 					if (oldDocument !== null) {
 						const model = getModelForHyperschema(hyperschema, { mongoose });
-						await model.create(oldDocument);
+						try {
+							await model.collection.insertOne(oldDocument as any);
+						} catch (error: any) {
+							if (error.code !== 11000) {
+								throw error;
+							}
+						}
 					}
 				}
 
