@@ -28,6 +28,8 @@ The first version (v0) of a schema extends from `Schema('Name')`:
 import { Schema, prop } from "typegeese";
 
 export class User extends Schema('User')<User> {
+  get _v() { return 'v0' as const };
+
   @prop({ type: () => String, required: true })
   email!: string;
 
@@ -137,9 +139,11 @@ The examples use the following UserV0 schema:
 
 ```typescript
 // ./user/v0.ts
-import { Schema, prop } from "typegeese";
+import { Schema, prop } from 'typegeese';
 
 export class User extends Schema('User')<User> {
+  get _v() { return 'v0' as const };
+
   @prop({ type: () => String, required: true })
   email!: string;
 
@@ -285,9 +289,11 @@ export const User_migration = createMigration<User>()
 ```typescript
 // ./account/v0.ts
 
-import { User } from '../_user/$schema.js'
+import { User } from '../_user/$schema.js';
 
-export class Account extends Schema('Account', { from: User })<Account> {}
+export class Account extends Schema('Account', { from: User })<Account> {
+  get _v() { return 'v0' };
+}
 ```
 
 ## Implementation
