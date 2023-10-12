@@ -1,15 +1,18 @@
-import {
+import type {
 	MigrationData,
 	MigrationFunctions,
 	MigrationOptions
 } from '~/types/migration.js';
 import { getVersionFromSchema, isVersionedDocument } from '~/utils/version.js';
-import { IsEqual, Promisable } from 'type-fest';
+import type { IsEqual, Promisable } from 'type-fest';
 import { getModelWithString } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
-import { Mongoose } from 'mongoose';
-import { AnyHyperschema, AnySchemaInstance } from '~/index.js';
-import {
+import type { Mongoose } from 'mongoose';
+import type { AnyHyperschema } from '~/types/hyperschema.js';
+import type { AnySchemaInstance } from '~/types/schema.js';
+import { createHyperschema } from '~/utils/hyperschema.js';
+
+import type {
 	AnyUnnormalizedHyperschemaModule,
 	GetUnnormalizedHyperschemaModuleMigrationSchema
 } from '~/types/hyperschema-module.js';
@@ -111,7 +114,8 @@ export function createMigration<CurrentSchema extends AnySchemaInstance>(
 	? MigrationData
 	: {
 			from: <
-				PreviousUnnormalizedHyperschemaModule extends AnyUnnormalizedHyperschemaModule
+				PreviousUnnormalizedHyperschemaModule extends
+					AnyUnnormalizedHyperschemaModule
 			>(
 				previousUnnormalizedHyperschemaModule: PreviousUnnormalizedHyperschemaModule
 			) => {
@@ -147,8 +151,8 @@ export function createMigration<CurrentSchema extends AnySchemaInstance>(
 				migrate: (migrationFunctions: any) => ({
 					getData,
 					migrationFunctions,
-					previousHyperschema: normalizeHyperschemaModule(
-						previousUnnormalizedHyperschemaModule
+					previousHyperschema: createHyperschema(
+						normalizeHyperschemaModule(previousUnnormalizedHyperschemaModule)
 					),
 					initialize: args[0]?.initialize
 				})

@@ -1,5 +1,4 @@
 import type { AnySchemaClass } from '~/index.js';
-import { DecoratorKeys } from '~/utils/decorator-keys.js';
 
 export function versionStringToVersionNumber(versionString: string): number {
 	const versionNumberString = versionString.split('-')[0]?.slice(1);
@@ -20,16 +19,13 @@ export function versionStringToVersionNumber(versionString: string): number {
 }
 
 export function getVersionFromSchema(schema: AnySchemaClass): number {
-	const version = Reflect.getMetadata(
-		DecoratorKeys.PropCache,
-		(schema as any).prototype
-	)?.get('_v')?.options?.default;
+	const version = schema.prototype._v;
 
 	if (version === undefined) {
 		throw new Error(`Could not determine version from schema: ${schema}`);
 	}
 
-	return version;
+	return versionStringToVersionNumber(version);
 }
 
 export function isVersionedDocument(document: unknown) {
