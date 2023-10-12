@@ -5,24 +5,26 @@ import {
 
 export function normalizeHyperschemaModule<
 	H extends AnyUnnormalizedHyperschemaModule
->(hyperschemaModule: H): NormalizeHyperschemaModule<H> {
+>(unnormalizedHyperschemaModule: H): NormalizeHyperschemaModule<H> {
 	if (
-		hyperschemaModule === null ||
-		hyperschemaModule === undefined ||
-		(typeof hyperschemaModule !== 'object' &&
-			typeof hyperschemaModule !== 'function')
+		unnormalizedHyperschemaModule === null ||
+		unnormalizedHyperschemaModule === undefined ||
+		(typeof unnormalizedHyperschemaModule !== 'object' &&
+			typeof unnormalizedHyperschemaModule !== 'function')
 	) {
 		throw new Error(
-			`Invalid hyperschema module: ${JSON.stringify(hyperschemaModule)}`
+			`Invalid hyperschema module: ${JSON.stringify(
+				unnormalizedHyperschemaModule
+			)}`
 		);
 	}
 
 	// If the `schemaName` property is present, the hyperschema is already normalized
-	if ('schemaName' in hyperschemaModule) {
-		return hyperschemaModule as any;
+	if ('schemaName' in unnormalizedHyperschemaModule) {
+		return unnormalizedHyperschemaModule as any;
 	}
 
-	const migrationKey = Object.keys(hyperschemaModule).find(
+	const migrationKey = Object.keys(unnormalizedHyperschemaModule).find(
 		(key) => key === 'migration' || key.endsWith('_migration')
 	);
 
@@ -32,45 +34,51 @@ export function normalizeHyperschemaModule<
 	}
 
 	const migration =
-		hyperschemaModule[migrationKey as keyof typeof hyperschemaModule];
+		unnormalizedHyperschemaModule[
+			migrationKey as keyof typeof unnormalizedHyperschemaModule
+		];
 
-	const relationsKey = Object.keys(hyperschemaModule).find(
+	const relationsKey = Object.keys(unnormalizedHyperschemaModule).find(
 		(key) => key === 'relations' || key.endsWith('_relations')
 	);
 
 	const relations =
 		relationsKey === undefined
 			? {}
-			: hyperschemaModule[relationsKey as keyof typeof hyperschemaModule];
+			: unnormalizedHyperschemaModule[
+					relationsKey as keyof typeof unnormalizedHyperschemaModule
+			  ];
 
 	const schemaOptionsKey =
-		Object.keys(hyperschemaModule).find(
+		Object.keys(unnormalizedHyperschemaModule).find(
 			(key) => key === 'schemaOptions' || key.endsWith('_schemaOptions')
 		) ?? 'schemaOptions';
 
 	const schemaOptions =
-		hyperschemaModule[schemaOptionsKey as keyof typeof hyperschemaModule] ?? {};
+		unnormalizedHyperschemaModule[
+			schemaOptionsKey as keyof typeof unnormalizedHyperschemaModule
+		] ?? {};
 
-	const schemaKey = Object.keys(hyperschemaModule).find(
+	const schemaKey = Object.keys(unnormalizedHyperschemaModule).find(
 		(key) =>
 			key !== migrationKey && key !== relationsKey && key !== schemaOptionsKey
 	);
 	if (schemaKey === undefined) {
 		throw new Error(
 			`Missing schema key in hyperschema module: "${JSON.stringify(
-				hyperschemaModule
+				unnormalizedHyperschemaModule
 			)}}"`
 		);
 	}
 
-	const migrationSchema = hyperschemaModule[
-		schemaKey as keyof typeof hyperschemaModule
+	const migrationSchema = unnormalizedHyperschemaModule[
+		schemaKey as keyof typeof unnormalizedHyperschemaModule
 	] as any;
 
 	if (isMissingMigrationKey && migrationSchema.prototype._v !== 'v0') {
 		throw new Error(
 			`Missing migration key in hyperschema module: ${JSON.stringify(
-				hyperschemaModule
+				unnormalizedHyperschemaModule
 			)}`
 		);
 	}

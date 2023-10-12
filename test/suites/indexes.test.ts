@@ -4,8 +4,8 @@ import { createMongoose } from '~test/utils/mongoose.js';
 
 test('lower indexes', async () => {
 	const mongoose = await createMongoose();
-	const { UserModel } = await getBlogModels({ mongoose });
-	await UserModel.syncIndexes();
-	const indexes = await UserModel.listIndexes();
+	const { AccountModel } = await getBlogModels({ mongoose });
+	await AccountModel.syncIndexes();
+	const indexes = await AccountModel.listIndexes();
 	expect(indexes.length).toBe(1);
 });

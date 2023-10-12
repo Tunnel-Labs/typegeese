@@ -5,14 +5,16 @@ import type {
 	AnyUnnormalizedHyperschemaModule,
 	NormalizeHyperschemaModule
 } from '~/types/hyperschema-module.js';
-import type { Hyperschema } from '~/types/hyperschema.js';
+import type { AnyHyperschema, Hyperschema } from '~/types/hyperschema.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
 import { versionStringToVersionNumber } from '~/utils/version.js';
 
 export function getModelForHyperschema<
-	UnnormalizedHyperschemaModule extends AnyUnnormalizedHyperschemaModule
+	UnnormalizedHyperschemaModuleOrHyperschema extends
+		| AnyUnnormalizedHyperschemaModule
+		| AnyHyperschema
 >(
-	unnormalizedHyperschemaModule: UnnormalizedHyperschemaModule,
+	unnormalizedHyperschemaModuleOrHyperschema: UnnormalizedHyperschemaModuleOrHyperschema,
 	{
 		mongoose
 	}: {
@@ -22,18 +24,28 @@ export function getModelForHyperschema<
 	typeof getModelForClass<{
 		new (): Hyperschema<
 			// @ts-expect-error: works
-			NormalizeHyperschemaModule<UnnormalizedHyperschemaModule>
+			NormalizeHyperschemaModule<UnnormalizedHyperschemaModuleOrHyperschema>
 		>['schema'];
 	}>
 > {
-	const normalizedHyperschemaModule = normalizeHyperschemaModule(
-		unnormalizedHyperschemaModule
-	);
-	const version = versionStringToVersionNumber(
-		(normalizedHyperschemaModule.migrationSchema as any).prototype._v
-	);
+	let hyperschema: AnyHyperschema;
+	if ('schema' in (unnormalizedHyperschemaModuleOrHyperschema as any)) {
+		hyperschema = unnormalizedHyperschemaModuleOrHyperschema as any;
+	} else if (
+		'migrationSchema' in (unnormalizedHyperschemaModuleOrHyperschema as any)
+	) {
+		hyperschema = createHyperschema(
+			unnormalizedHyperschemaModuleOrHyperschema as any
+		);
+	} else {
+		hyperschema = createHyperschema(
+			normalizeHyperschemaModule(
+				unnormalizedHyperschemaModuleOrHyperschema
+			) as any
+		);
+	}
 
-	const hyperschema = createHyperschema(normalizedHyperschemaModule as any);
+	const version = versionStringToVersionNumber(hyperschema.schema.prototype._v);
 
 	const model = getModelForClass(hyperschema.schema, {
 		existingMongoose: mongoose,
@@ -45,5 +57,5 @@ export function getModelForHyperschema<
 		}
 	});
 
-	return model;
+	return model as any;
 }

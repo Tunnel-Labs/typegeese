@@ -15,8 +15,8 @@ export function getMigrationSchemasMap(): Map<
 		migrationsSchemasMap = new Map();
 		Reflect.defineMetadata(
 			DecoratorKeys.MigrationSchemas,
-			Schema,
-			migrationsSchemasMap
+			migrationsSchemasMap,
+			Schema
 		);
 	}
 

@@ -1,8 +1,8 @@
 import { beforeAll, expect, test } from 'vitest';
-import { CreateInput } from '~/index.js';
+import { CreateInput, getModelForHyperschema } from '~/index.js';
 import { createId } from '@paralleldrive/cuid2';
 import { createMongoose } from '~test/utils/mongoose.js';
-import { User, Post, Comment } from '~test/fixtures/blog/models/$schemas.js';
+import { Post, Comment, Account } from '~test/fixtures/blog/models/$schemas.js';
 import { getBlogModels } from '~test/fixtures/blog/models/$models.js';
 
 beforeAll(async () => {
@@ -12,19 +12,19 @@ beforeAll(async () => {
 
 test('supports cascade deletes', async () => {
 	const mongoose = await createMongoose();
-	const { PostModel, UserModel, CommentModel } = await getBlogModels({
+	const { PostModel, CommentModel, AccountModel } = await getBlogModels({
 		mongoose
 	});
 
 	const userId = createId();
-	await UserModel.create({
+	await AccountModel.create({
 		_id: userId,
 		name: 'John Doe',
 		email: 'johndoe@example.com',
 		avatarUrl: 'https://example.com/avatar.png',
 		bio: null,
 		username: 'johndoe'
-	} satisfies CreateInput<User>);
+	} satisfies CreateInput<Account>);
 
 	const posts = await PostModel.create([
 		{
@@ -55,47 +55,47 @@ test('supports cascade deletes', async () => {
 			_id: createId(),
 			author: userId,
 			post: posts[0]!.id,
-			text: 'This is the first comment on the first post.',
+			rawText: 'This is the first comment on the first post.',
 			parentComment: null
 		},
 		{
 			_id: createId(),
 			author: userId,
 			post: posts[0]!.id,
-			text: 'This is the first comment on the second post.',
+			rawText: 'This is the first comment on the second post.',
 			parentComment: null
 		},
 		{
 			_id: createId(),
 			author: userId,
 			post: posts[0]!.id,
-			text: 'This is the first comment on the third post.',
+			rawText: 'This is the first comment on the third post.',
 			parentComment: null
 		},
 		{
 			_id: createId(),
 			author: userId,
 			post: posts[1]!.id,
-			text: 'This is the second comment on the first post.',
+			rawText: 'This is the second comment on the first post.',
 			parentComment: null
 		},
 		{
 			_id: createId(),
 			author: userId,
 			post: posts[1]!.id,
-			text: 'This is the second comment on the second post.',
+			rawText: 'This is the second comment on the second post.',
 			parentComment: null
 		},
 		{
 			_id: createId(),
 			author: userId,
 			post: posts[2]!.id,
-			text: 'This is the third comment on the third post.',
+			rawText: 'This is the third comment on the third post.',
 			parentComment: null
 		}
 	] satisfies CreateInput<Comment>[]);
 
-	await UserModel.deleteOne({ _id: userId });
+	await AccountModel.deleteOne({ _id: userId });
 
 	expect(await PostModel.count({})).toBe(0);
 	expect(await CommentModel.count({})).toBe(0);

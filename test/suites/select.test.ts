@@ -12,11 +12,11 @@ beforeAll(async () => {
 
 test('supports nested self-referential select', async () => {
 	const mongoose = await createMongoose();
-	const { PostModel, UserModel } = await getBlogModels({ mongoose });
+	const { PostModel, AccountModel } = await getBlogModels({ mongoose });
 
-	const userId = createId();
-	await UserModel.create({
-		_id: userId,
+	const accountId = createId();
+	await AccountModel.create({
+		_id: accountId,
 		name: 'John Doe',
 		email: 'johndoe@example.com',
 		avatarUrl: 'https://example.com/avatar.png',
@@ -28,7 +28,7 @@ test('supports nested self-referential select', async () => {
 	await PostModel.create({
 		_id: postId,
 		title: 'Post 1',
-		author: userId,
+		author: accountId,
 		content: 'This is the first post.',
 		description: 'This is the first post.'
 	} satisfies CreateInput<Blog.Post>);
@@ -54,7 +54,7 @@ test('supports nested self-referential select', async () => {
 
 	expect(post.title).toBe(post.author.posts[0]?.title);
 
-	const user = (await select(UserModel.find({}), {
+	const account = (await select(AccountModel.find({}), {
 		posts: {
 			select: {
 				author: {
@@ -65,5 +65,5 @@ test('supports nested self-referential select', async () => {
 			}
 		}
 	}))!;
-	expect(user[0]?.posts[0]?.author._id).toBe(userId);
+	expect(account[0]?.posts[0]?.author._id).toBe(accountId);
 });

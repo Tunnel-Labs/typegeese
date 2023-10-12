@@ -146,7 +146,9 @@ export async function createHyperschemas<
 
 	// Run any migration initialization functions
 	for (const { migration } of Object.values(hyperschemas)) {
-		await migration.initialize?.({ mongoose, meta });
+		if (migration !== undefined) {
+			await migration.initialize?.({ mongoose, meta });
+		}
 	}
 
 	return {

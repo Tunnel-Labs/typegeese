@@ -1,5 +1,5 @@
 import { prop } from '@typegoose/typegoose';
-import { SchemaOptions } from 'mongoose';
+import { SchemaOptions, model } from 'mongoose';
 import { versionStringToVersionNumber } from '~/utils/version.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import {
@@ -14,6 +14,9 @@ import {
 } from '~/types/hyperschema-module.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
 import { getMigrationSchemasMap } from '~/utils/migration-schema.js';
+import createClone from 'rfdc';
+
+const clone = createClone();
 
 /**
 	Dynamically creates a full schema by going up the migration chain from a specified migration schema.
@@ -25,6 +28,10 @@ export function createModelSchemaFromMigrationSchema({
 	schemaName: string;
 	migrationSchema: AnySchemaClass;
 }): AnySchemaClass {
+	if ((migrationSchema as any).__modelSchema) {
+		return (migrationSchema as any).__modelSchema;
+	}
+
 	const modelSchema = class {} as AnySchemaClass;
 
 	const migrationSchemasMap = getMigrationSchemasMap();
@@ -38,20 +45,33 @@ export function createModelSchemaFromMigrationSchema({
 		migrationSchema.prototype._v
 	);
 
-	prop({ type: () => String, required: true })(modelSchema, '_id');
+	prop({ type: () => String, required: true })(modelSchema.prototype, '_id');
 	prop({ type: () => Number, default: migrationSchemaVersion, required: true })(
-		modelSchema,
+		modelSchema.prototype,
 		'_v'
 	);
 
 	Object.defineProperty(modelSchema, 'name', { value: schemaName });
-	Object.defineProperty(modelSchema, '_v', { value: migrationSchemaVersion });
+	Object.defineProperty(modelSchema.prototype, '_v', {
+		value: migrationSchema.prototype._v
+	});
 
 	// Loop through the migration chain
 	const mergedPropMap = new Map();
 
+	const currentMigrationSchemaPropMap =
+		Reflect.getMetadata(DecoratorKeys.PropCache, migrationSchema.prototype) ??
+		new Map();
+
+	for (const [
+		mergedPropKey,
+		mergedPropValue
+	] of currentMigrationSchemaPropMap.entries()) {
+		mergedPropMap.set(mergedPropKey, clone(mergedPropValue));
+	}
+
 	for (
-		let currentMigrationSchemaVersion = migrationSchemaVersion;
+		let currentMigrationSchemaVersion = migrationSchemaVersion - 1;
 		currentMigrationSchemaVersion >= 0;
 		currentMigrationSchemaVersion -= 1
 	) {
@@ -73,7 +93,7 @@ export function createModelSchemaFromMigrationSchema({
 			mergedPropKey,
 			mergedPropValue
 		] of currentMigrationSchemaPropMap.entries()) {
-			mergedPropMap.set(mergedPropKey, mergedPropValue);
+			mergedPropMap.set(mergedPropKey, clone(mergedPropValue));
 		}
 	}
 
@@ -86,6 +106,8 @@ export function createModelSchemaFromMigrationSchema({
 		mergedPropMap,
 		modelSchema.prototype
 	);
+
+	(migrationSchema as any).__modelSchema = modelSchema;
 
 	return modelSchema;
 }
@@ -141,11 +163,12 @@ export function Schema(
 
 		const previousVersionString =
 			previousHyperschemaModule.migrationSchema.prototype._v;
-		const currentVersionNumber =
-			versionStringToVersionNumber(previousVersionString) + 1;
+		const previousVersionNumber = versionStringToVersionNumber(
+			previousVersionString
+		);
 
 		migrationSchemaMap.set(
-			currentVersionNumber,
+			previousVersionNumber,
 			previousHyperschemaModule.migrationSchema
 		);
 	}
