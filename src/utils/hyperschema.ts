@@ -121,6 +121,8 @@ export async function registerActiveHyperschemas<
 					const model = getModelForHyperschema(hyperschema, { mongoose });
 					await model.create(oldDocuments);
 				}
+
+				next();
 			})().catch((error) => {
 				console.error('Unexpected error in pre find hook:', error);
 				next(error);
@@ -150,6 +152,8 @@ export async function registerActiveHyperschemas<
 					const model = getModelForHyperschema(hyperschema, { mongoose });
 					await model.create(oldDocument);
 				}
+
+				next();
 			})().catch((error) => {
 				console.error('Unexpected error in pre findOne hook:', error);
 				next(error);
