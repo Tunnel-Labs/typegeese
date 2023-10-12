@@ -29,19 +29,21 @@ export interface NewSchemaOptions {
 	from?: new () => BaseSchemaInstance;
 }
 
+// prettier-ignore
 export interface BaseSchemaExtends<
 	SchemaName extends string,
 	Options extends NewSchemaOptions
 > {
-	new <
-		T extends { _v: number; new (): any }
-	>(): (Options['from'] extends new () => infer Schema
-		? Omit<Schema, '_v' | '__type__' | '__name__'>
-		: {}) & {
-		__type__?: InstanceType<T>;
-		__name__?: SchemaName;
-		_id: string;
-	};
+	new <T extends { _v: number; new (): any }>():
+		(
+			Options['from'] extends new () => infer Schema ?
+				Omit<Schema, '_v' | '__type__' | '__name__'> :
+			{}
+		) & {
+			__type__?: InstanceType<T>;
+			__name__?: SchemaName;
+			_id: string;
+		};
 }
 
 export interface MigrationSchemaExtends<
@@ -53,14 +55,18 @@ export interface MigrationSchemaExtends<
 		};
 	}
 > {
-	new <T extends { _v: string; migration: MigrationData; new (): any }>(): Omit<
-		GetUnnormalizedHyperschemaModuleMigrationSchema<PreviousUnnormalizedHyperschemaModule>,
-		| '_v'
-		| '__type__'
-		| '__migration__'
-		| (Options extends Record<string, unknown>
-				? RequiredKeysOf<Options['omit']>
-				: never)
+	// prettier-ignore
+	new <T extends { _v: string; migration: MigrationData; new (): any }>():
+		Omit<
+			GetUnnormalizedHyperschemaModuleMigrationSchema<PreviousUnnormalizedHyperschemaModule>,
+			| '_v'
+			| '__type__'
+			| '__migration__'
+			| (
+					Options extends Record<string, unknown> ?
+						RequiredKeysOf<Options['omit']> :
+					never
+				)
 	> & {
 		__type__?: InstanceType<T>;
 		_id: string;

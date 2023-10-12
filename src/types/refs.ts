@@ -14,16 +14,16 @@ export interface ModelRef<Model> {
 export interface ForeignRef<
 	HostModel,
 	ForeignModel,
+	// prettier-ignore
 	_ForeignField extends keyof {
-		[Field in keyof ForeignModel as NonNullable<
-			ArrayInnerValue<ForeignModel[Field]>
-		> extends ForeignRef<ForeignModel, HostModel, any>
-			? Field
-			: NonNullable<
-					ArrayInnerValue<ForeignModel[Field]>
-			  > extends VirtualForeignRef<ForeignModel, HostModel, any>
-			? Field
-			: never]: ForeignModel[Field];
+		[
+			Field in keyof ForeignModel as
+				NonNullable<ArrayInnerValue<ForeignModel[Field]>> extends ForeignRef<ForeignModel, HostModel, any> ?
+					Field :
+				NonNullable<ArrayInnerValue<ForeignModel[Field]>> extends VirtualForeignRef<ForeignModel, HostModel, any> ?
+					Field :
+				never
+		]: ForeignModel[Field];
 	}
 > extends Opaque<Ref<ForeignModel>, 'ForeignRef'> {}
 
@@ -33,11 +33,13 @@ export interface ForeignRef<
 export interface VirtualForeignRef<
 	HostModel,
 	ForeignModel,
+	// prettier-ignore
 	_ForeignField extends keyof {
-		[Field in keyof ForeignModel as NonNullable<
-			ForeignModel[Field]
-		> extends ForeignRef<ForeignModel, HostModel, any>
-			? Field
-			: never]: ForeignModel[Field];
+		[
+			Field in keyof ForeignModel as
+				NonNullable<ForeignModel[Field]> extends ForeignRef<ForeignModel, HostModel, any> ?
+					Field :
+				never
+		]: ForeignModel[Field];
 	}
 > extends Opaque<Ref<ForeignModel>, 'VirtualForeignRef'> {}
