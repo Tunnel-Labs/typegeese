@@ -17,7 +17,10 @@ export type * from './types/query.js';
 
 export { defineRelations } from './utils/delete.js';
 export { defineSchemaOptions, Schema } from './utils/schema.js';
-export { createHyperschema, createHyperschemas } from './utils/hyperschema.js';
+export {
+	createHyperschema,
+	registerActiveHyperschemas
+} from './utils/hyperschema.js';
 export { createMigration } from './utils/migration.js';
 export { getModelForHyperschema } from './utils/model.js';
 export { foreignRef, virtualForeignRef } from './utils/ref.js';

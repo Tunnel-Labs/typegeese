@@ -6,7 +6,10 @@ import { createMigrateFunction } from '~/utils/migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
 import type { PopulateObject } from '~/types/populate.js';
 import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
-import { getModelForHyperschema } from '~/utils/model.js';
+import {
+	getModelForActiveHyperschema,
+	getModelForHyperschema
+} from '~/utils/model.js';
 import type {
 	AnyNormalizedHyperschemaModule,
 	AnyUnnormalizedHyperschemaModule,
@@ -15,6 +18,7 @@ import type {
 } from '~/types/hyperschema-module.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
 import { createModelSchemaFromMigrationSchema } from '~/utils/schema.js';
+import { getMigrationOptionsMap } from '~/utils/migration-schema.js';
 
 export function createHyperschema<H extends AnyNormalizedHyperschemaModule>(
 	hyperschemaModule: H
@@ -36,7 +40,10 @@ export function createHyperschema<H extends AnyNormalizedHyperschemaModule>(
 	return normalizedHyperschema;
 }
 
-export async function createHyperschemas<
+/**
+	Should only be called with the hyperschemas that represent the latest version of each collection.
+*/
+export async function registerActiveHyperschemas<
 	UnnormalizedHyperschemaModules extends Record<
 		string,
 		AnyUnnormalizedHyperschemaModule
@@ -83,54 +90,116 @@ export async function createHyperschemas<
 
 	const migrate = createMigrateFunction({ hyperschemas, meta });
 
-	// Register a migration hook for all the hyperschemas
+	// Register a migration hook for all the active hyperschemas
 	for (const hyperschema of Object.values(hyperschemas)) {
-		const selectVersion = function (this: any) {
-			this.select('_v');
-
-			// We also have to make sure the `_v` key is selected in nested `populate` calls
-			for (const populateObject of Object.values(
-				this._mongooseOptions.populate ?? {}
-			)) {
-				recursivelyAddSelectVersionToPopulateObject(
-					populateObject as PopulateObject
-				);
-			}
-		};
+		const migrationOptionsMap = getMigrationOptionsMap();
+		const migrationOptionMap = migrationOptionsMap.get(hyperschema.schemaName);
+		const baseOptions = migrationOptionMap?.get(0);
 
 		// Make sure that we always select the `_v` field (since we need this field in our migration hook)
-		pre('find', selectVersion)(hyperschema.schema as any);
-		pre('findOne', selectVersion)(hyperschema.schema as any);
+		pre('find', function (this: any, next) {
+			(async () => {
+				this.select('_v');
+
+				// We also have to make sure the `_v` key is selected in nested `populate` calls
+				for (const populateObject of Object.values(
+					this._mongooseOptions.populate ?? {}
+				)) {
+					recursivelyAddSelectVersionToPopulateObject(
+						populateObject as PopulateObject
+					);
+				}
+
+				// If the collection was renamed using `from`, run the query in the old collection and copy all the result documents into the new collection (before re-running the query on the new collection)
+				if (baseOptions?.from !== undefined) {
+					const fromModel = getModelForActiveHyperschema({
+						schemaName: baseOptions.from.name
+					});
+
+					const oldDocuments = await fromModel.find(this.getQuery()).exec();
+
+					const model = getModelForHyperschema(hyperschema, { mongoose });
+					await model.create(oldDocuments);
+				}
+			})().catch((error) => {
+				console.error('Unexpected error in pre find hook:', error);
+				next(error);
+			});
+		})(hyperschema.schema as any);
+		pre('findOne', function (this: any, next) {
+			(async () => {
+				this.select('_v');
+
+				// We also have to make sure the `_v` key is selected in nested `populate` calls
+				for (const populateObject of Object.values(
+					this._mongooseOptions.populate ?? {}
+				)) {
+					recursivelyAddSelectVersionToPopulateObject(
+						populateObject as PopulateObject
+					);
+				}
+
+				// If the collection was renamed using `from`, run the query in the old collection and copy all the result documents into the new collection (before re-running the query on the new collection)
+				if (baseOptions?.from !== undefined) {
+					const fromModel = getModelForActiveHyperschema({
+						schemaName: baseOptions.from.name
+					});
+
+					const oldDocument = await fromModel.findOne(this.getQuery()).exec();
+
+					const model = getModelForHyperschema(hyperschema, { mongoose });
+					await model.create(oldDocument);
+				}
+			})().catch((error) => {
+				console.error('Unexpected error in pre findOne hook:', error);
+				next(error);
+			});
+		})(hyperschema.schema as any);
 
 		post('findOne', function (result, next) {
-			migrate({
-				mongoose,
-				hyperschema,
-				documents: Array.isArray(result) ? result : [result]
-			})
-				.then(() => next())
-				.catch((error) => {
+			(async () => {
+				if (result === null && baseOptions?.from !== undefined) {
+				}
+
+				try {
+					await migrate({
+						mongoose,
+						hyperschema,
+						documents: [result]
+					});
+					next();
+				} catch (error: any) {
 					console.error(
-						`Typegeese migration failed for ${hyperschema.schemaName} v${result._v} document:`,
+						`Typegeese migration failed for ${hyperschema.schemaName} document:`,
 						error
 					);
 					next(error);
-				});
+				}
+			})().catch((error) => {
+				console.error('Unexpected error in post findOne hook:', error);
+				next(error);
+			});
 		})(hyperschema.schema as any);
-		post('find', function (result, next) {
-			migrate({
-				mongoose,
-				hyperschema,
-				documents: Array.isArray(result) ? result : [result]
-			})
-				.then(() => next())
-				.catch((error) => {
+		post('find', function (results, next) {
+			(async () => {
+				try {
+					await migrate({
+						mongoose,
+						hyperschema,
+						documents: results
+					});
+					next();
+				} catch (error: any) {
 					console.error(
-						`Typegeese migration failed for ${hyperschema.schemaName} v${result._v} document:`,
+						`Typegeese migration failed for ${hyperschema.schemaName} document:`,
 						error
 					);
 					next(error);
-				});
+				}
+			})().catch((error) => {
+				console.error('Unexpected error in post find hook:', error);
+				next(error);
+			});
 		})(hyperschema.schema as any);
 	}
 
