@@ -10,10 +10,8 @@ import {
 import type * as $ from '../$schemas.js';
 
 @index({ email: 1 })
-export class User extends Schema('User')<User> {
-	get _v() {
-		return 'v0' as const;
-	}
+export class User extends Schema('User')<typeof User> {
+	static _v = 0;
 
 	@prop({
 		type: () => String,

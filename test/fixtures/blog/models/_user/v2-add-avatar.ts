@@ -8,15 +8,13 @@ import {
 
 import * as UserV1 from './v1-add-username.js';
 
-export class User extends Schema(UserV1)<User> {
-	get _v() {
-		return 'v2-add-avatar';
-	}
+export class User extends Schema(UserV1)<typeof User> {
+	static _v = 'v2-add-avatar';
 
-	@prop({ type: () => String, required: true })
+	@prop({ type: String, required: true })
 	avatarUrl!: string;
 
-	__migration__: typeof User_migration;
+	static migration: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()

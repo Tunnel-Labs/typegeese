@@ -10,15 +10,13 @@ import {
 import * as UserV0 from './v0.js';
 
 @index({ username: 1 }, { unique: true })
-export class User extends Schema(UserV0)<User> {
-	get _v() {
-		return 'v1-add-username';
-	}
+export class User extends Schema(UserV0)<typeof User> {
+	static _v = 'v1-add-username';
 
 	@prop({ type: () => String, required: true })
 	username!: string;
 
-	__migration__: typeof User_migration;
+	static migration: typeof User_migration;
 }
 
 export const User_migration = createMigration<User>()

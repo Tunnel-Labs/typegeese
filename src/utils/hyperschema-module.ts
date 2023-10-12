@@ -3,6 +3,16 @@ import {
 	NormalizeHyperschemaModule
 } from '~/types/hyperschema-module.js';
 
+export function stringifyHyperschemaModule(
+	unnormalizedHyperschemaModule: AnyUnnormalizedHyperschemaModule
+) {
+	const hyperschemaModule = normalizeHyperschemaModule(
+		unnormalizedHyperschemaModule
+	);
+
+	return `${hyperschemaModule.migrationSchema.toString()}`;
+}
+
 export function normalizeHyperschemaModule<
 	H extends AnyUnnormalizedHyperschemaModule
 >(unnormalizedHyperschemaModule: H): NormalizeHyperschemaModule<H> {
@@ -13,7 +23,7 @@ export function normalizeHyperschemaModule<
 			typeof unnormalizedHyperschemaModule !== 'function')
 	) {
 		throw new Error(
-			`Invalid hyperschema module: ${JSON.stringify(
+			`Invalid hyperschema module: ${stringifyHyperschemaModule(
 				unnormalizedHyperschemaModule
 			)}`
 		);
@@ -65,7 +75,7 @@ export function normalizeHyperschemaModule<
 	);
 	if (schemaKey === undefined) {
 		throw new Error(
-			`Missing schema key in hyperschema module: "${JSON.stringify(
+			`Missing schema key in hyperschema module:\n${stringifyHyperschemaModule(
 				unnormalizedHyperschemaModule
 			)}}"`
 		);
@@ -77,7 +87,7 @@ export function normalizeHyperschemaModule<
 
 	if (isMissingMigrationKey && migrationSchema._v !== 0) {
 		throw new Error(
-			`Missing migration key in hyperschema module: ${JSON.stringify(
+			`Missing migration key in hyperschema module:\n${stringifyHyperschemaModule(
 				unnormalizedHyperschemaModule
 			)}`
 		);
