@@ -12,11 +12,15 @@ const clone = createClone();
 export function getModelSchemaPropMapFromMigrationSchema({
 	migrationSchema,
 	schemaName,
-	modelSchema
+	updateTarget
 }: {
 	migrationSchema: AnySchemaClass;
 	schemaName: string;
-	modelSchema: AnySchemaClass;
+	updateTarget:
+		| false
+		| {
+				modelSchema: AnySchemaClass;
+		  };
 }): Map<string, unknown> {
 	const modelSchemaPropMap = new Map();
 
@@ -54,7 +58,7 @@ export function getModelSchemaPropMapFromMigrationSchema({
 			const fromModelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
 				migrationSchema: currentMigrationSchemaOptions.from,
 				schemaName: currentMigrationSchemaOptions.from.name,
-				modelSchema
+				updateTarget
 			});
 
 			for (const [propKey, propValue] of fromModelSchemaPropMap.entries()) {
@@ -115,7 +119,7 @@ export function getModelSchemaPropMapFromMigrationSchema({
 			const fromModelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
 				migrationSchema: currentMigrationSchemaOptions.from,
 				schemaName,
-				modelSchema
+				updateTarget
 			});
 
 			for (const [propKey, propValue] of fromModelSchemaPropMap.entries()) {
@@ -128,9 +132,42 @@ export function getModelSchemaPropMapFromMigrationSchema({
 		}
 	}
 
-	for (const propValue of modelSchemaPropMap.values()) {
-		(propValue as any).target = modelSchema.prototype;
+	if (updateTarget) {
+		for (const propValue of modelSchemaPropMap.values()) {
+			(propValue as any).target = updateTarget.modelSchema.prototype;
+		}
 	}
 
 	return modelSchemaPropMap;
+}
+
+export function getPropMapKeysForActiveHyperschema({
+	schemaName
+}: {
+	schemaName: string;
+}) {
+	const schemas = getMigrationSchemasMap();
+	const migrationSchemaMap = schemas.get(schemaName);
+
+	if (migrationSchemaMap === undefined) {
+		throw new Error(`Could not find migration schema map for "${schemaName}"`);
+	}
+
+	const latestMigrationSchema = migrationSchemaMap.get(
+		migrationSchemaMap.size - 1
+	);
+
+	if (latestMigrationSchema === undefined) {
+		throw new Error(
+			`Could not find latest migration schema for "${schemaName}"`
+		);
+	}
+
+	const propMap = getModelSchemaPropMapFromMigrationSchema({
+		migrationSchema: latestMigrationSchema,
+		schemaName,
+		updateTarget: false
+	});
+
+	return [...propMap.keys()];
 }

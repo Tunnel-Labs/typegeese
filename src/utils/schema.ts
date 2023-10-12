@@ -44,7 +44,9 @@ export function createModelSchemaFromMigrationSchema({
 	const modelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
 		migrationSchema,
 		schemaName,
-		modelSchema
+		updateTarget: {
+			modelSchema
+		}
 	});
 
 	Reflect.defineMetadata(

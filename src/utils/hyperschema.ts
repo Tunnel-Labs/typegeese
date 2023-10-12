@@ -19,6 +19,8 @@ import type {
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
 import { createModelSchemaFromMigrationSchema } from '~/utils/schema.js';
 import { getMigrationOptionsMap } from '~/utils/migration-schema.js';
+import { DecoratorKeys } from '~/utils/decorator-keys.js';
+import { getPropMapKeysForActiveHyperschema } from '~/utils/prop-map.js';
 
 export function createHyperschema<H extends AnyNormalizedHyperschemaModule>(
 	hyperschemaModule: H
@@ -112,11 +114,27 @@ export async function registerActiveHyperschemas<
 
 				// If the collection was renamed using `from`, run the query in the old collection and copy all the result documents into the new collection (before re-running the query on the new collection)
 				if (baseOptions?.from !== undefined) {
+					const schemaName = baseOptions.from.name;
+
 					const fromModel = getModelForActiveHyperschema({
-						schemaName: baseOptions.from.name
+						schemaName
 					});
 
-					const oldDocuments = await fromModel.find(this.getQuery()).exec();
+					const propMapKeys = getPropMapKeysForActiveHyperschema({
+						schemaName
+					});
+
+					const fullProjection = Object.fromEntries(
+						propMapKeys.map((key) => [key, 1])
+					);
+
+					console.log(fullProjection);
+
+					const oldDocuments = await fromModel
+						.find(this.getQuery(), fullProjection)
+						.exec();
+
+					console.log(oldDocuments);
 
 					const model = getModelForHyperschema(hyperschema, { mongoose });
 					await model.create(oldDocuments);
@@ -143,14 +161,28 @@ export async function registerActiveHyperschemas<
 
 				// If the collection was renamed using `from`, run the query in the old collection and copy all the result documents into the new collection (before re-running the query on the new collection)
 				if (baseOptions?.from !== undefined) {
+					const schemaName = baseOptions.from.name;
+
 					const fromModel = getModelForActiveHyperschema({
-						schemaName: baseOptions.from.name
+						schemaName
 					});
 
-					const oldDocument = await fromModel.findOne(this.getQuery()).exec();
+					const propMapKeys = getPropMapKeysForActiveHyperschema({
+						schemaName
+					});
 
-					const model = getModelForHyperschema(hyperschema, { mongoose });
-					await model.create(oldDocument);
+					const fullProjection = Object.fromEntries(
+						propMapKeys.map((key) => [key, 1])
+					);
+
+					const oldDocument = await fromModel
+						.findOne(this.getQuery(), fullProjection)
+						.exec();
+
+					if (oldDocument !== null) {
+						const model = getModelForHyperschema(hyperschema, { mongoose });
+						await model.create(oldDocument);
+					}
 				}
 
 				next();
