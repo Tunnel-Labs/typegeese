@@ -1,14 +1,13 @@
 import { prop } from '@typegoose/typegoose';
-import { SchemaOptions, model } from 'mongoose';
 import { versionStringToVersionNumber } from '~/utils/version.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
-import {
+import type {
 	AnySchemaClass,
 	BaseSchemaExtends,
 	MigrationSchemaExtends,
 	NewSchemaOptions
 } from '~/types/schema.js';
-import {
+import type {
 	AnyUnnormalizedHyperschemaModule,
 	GetUnnormalizedHyperschemaModuleMigrationSchema
 } from '~/types/hyperschema-module.js';
@@ -18,6 +17,7 @@ import {
 	getMigrationSchemasMap
 } from '~/utils/migration-schema.js';
 import createClone from 'rfdc';
+import type { SchemaOptions } from 'mongoose';
 
 const clone = createClone();
 
