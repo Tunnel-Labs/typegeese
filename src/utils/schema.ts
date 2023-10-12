@@ -13,7 +13,10 @@ import {
 	GetUnnormalizedHyperschemaModuleMigrationSchema
 } from '~/types/hyperschema-module.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
-import { getMigrationSchemasMap } from '~/utils/migration-schema.js';
+import {
+	getMigrationOptionsMap,
+	getMigrationSchemasMap
+} from '~/utils/migration-schema.js';
 import createClone from 'rfdc';
 
 const clone = createClone();
@@ -35,20 +38,20 @@ export function createModelSchemaFromMigrationSchema({
 	const modelSchema = class {} as AnySchemaClass;
 
 	const migrationSchemasMap = getMigrationSchemasMap();
+	const migrationOptionsMap = getMigrationOptionsMap();
 
 	const migrationSchemaMap = migrationSchemasMap.get(schemaName);
 	if (migrationSchemaMap === undefined) {
 		throw new Error(`Could not find migration schema map for "${schemaName}"`);
 	}
 
+	const migrationOptionMap = migrationOptionsMap.get(schemaName);
+	if (migrationOptionMap === undefined) {
+		throw new Error(`Could not find migration option map for "${schemaName}"`);
+	}
+
 	const migrationSchemaVersion = versionStringToVersionNumber(
 		migrationSchema.prototype._v
-	);
-
-	prop({ type: () => String, required: true })(modelSchema.prototype, '_id');
-	prop({ type: () => Number, default: migrationSchemaVersion, required: true })(
-		modelSchema.prototype,
-		'_v'
 	);
 
 	Object.defineProperty(modelSchema, 'name', { value: schemaName });
@@ -70,6 +73,8 @@ export function createModelSchemaFromMigrationSchema({
 		mergedPropMap.set(mergedPropKey, clone(mergedPropValue));
 	}
 
+	const keysToOmit = new Set();
+
 	for (
 		let currentMigrationSchemaVersion = migrationSchemaVersion - 1;
 		currentMigrationSchemaVersion >= 0;
@@ -89,11 +94,23 @@ export function createModelSchemaFromMigrationSchema({
 			currentMigrationSchema.prototype
 		) as Map<string, { options?: { ref: string } }>;
 
+		const currentMigrationOptions = migrationOptionMap.get(
+			currentMigrationSchemaVersion
+		);
+
 		for (const [
 			mergedPropKey,
 			mergedPropValue
 		] of currentMigrationSchemaPropMap.entries()) {
+			if (keysToOmit.has(mergedPropKey)) {
+				continue;
+			}
+
 			mergedPropMap.set(mergedPropKey, clone(mergedPropValue));
+		}
+
+		for (const key of Object.keys(currentMigrationOptions?.omit ?? {})) {
+			keysToOmit.add(key);
 		}
 	}
 
@@ -105,6 +122,12 @@ export function createModelSchemaFromMigrationSchema({
 		DecoratorKeys.PropCache,
 		mergedPropMap,
 		modelSchema.prototype
+	);
+
+	prop({ type: () => String, required: true })(modelSchema.prototype, '_id');
+	prop({ type: () => Number, default: migrationSchemaVersion, required: true })(
+		modelSchema.prototype,
+		'_v'
 	);
 
 	(migrationSchema as any).__modelSchema = modelSchema;
@@ -142,14 +165,23 @@ export function Schema(
 	}
 ): any {
 	const migrationSchemasMap = getMigrationSchemasMap();
+	const migrationOptionsMap = getMigrationOptionsMap();
 
 	if (typeof previousHyperschemaOrNewSchemaName === 'string') {
 		const schemaName = previousHyperschemaOrNewSchemaName;
-		let schemaMap = migrationSchemasMap.get(schemaName);
-		if (schemaMap === undefined) {
-			schemaMap = new Map();
-			migrationSchemasMap.set(schemaName, schemaMap);
+		let migrationSchemaMap = migrationSchemasMap.get(schemaName);
+		if (migrationSchemaMap === undefined) {
+			migrationSchemaMap = new Map();
+			migrationSchemasMap.set(schemaName, migrationSchemaMap);
 		}
+
+		let migrationOptionMap = migrationOptionsMap.get(schemaName);
+		if (migrationOptionMap === undefined) {
+			migrationOptionMap = new Map();
+			migrationOptionsMap.set(schemaName, migrationOptionMap);
+		}
+
+		migrationOptionMap.set(0, options);
 	} else {
 		const previousHyperschemaModule = normalizeHyperschemaModule(
 			previousHyperschemaOrNewSchemaName
@@ -159,6 +191,12 @@ export function Schema(
 		if (migrationSchemaMap === undefined) {
 			migrationSchemaMap = new Map();
 			migrationSchemasMap.set(schemaName, migrationSchemaMap);
+		}
+
+		let migrationOptionMap = migrationOptionsMap.get(schemaName);
+		if (migrationOptionMap === undefined) {
+			migrationOptionMap = new Map();
+			migrationOptionsMap.set(schemaName, migrationOptionMap);
 		}
 
 		const previousVersionString =
@@ -171,6 +209,9 @@ export function Schema(
 			previousVersionNumber,
 			previousHyperschemaModule.migrationSchema
 		);
+
+		const currentVersionNumber = previousVersionNumber + 1;
+		migrationOptionMap.set(currentVersionNumber, options);
 	}
 
 	// We return the `Object` constructor (which is basically equivalent to a no-op `extends` clause)

@@ -51,5 +51,9 @@ export enum DecoratorKeys {
 	 */
 	CachedSchema = 'typegoose:cachedSchema',
 
-	MigrationSchemas = 'typegoose:migrationSchemas'
+	MigrationSchemas = 'typegoose:migrationSchemas',
+
+	MigrationOptions = 'typegoose:migrationOptions',
+
+	MigrationSchemaOptions = 'typegoose:migrationSchemaOptions'
 }

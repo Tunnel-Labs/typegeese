@@ -175,6 +175,9 @@ export async function select<
 		}
 
 		const fieldModel = getModelWithString(ref);
+		if (fieldModel === undefined) {
+			throw new Error(`Could not find model "${ref}"`);
+		}
 
 		const virtualForeignRefForeignField =
 			// @ts-expect-error: exists at runtime

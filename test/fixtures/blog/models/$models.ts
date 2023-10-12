@@ -3,6 +3,7 @@ import type { Mongoose } from 'mongoose';
 import * as AccountHyperschema from './account/$schema.js';
 import * as CommentHyperschema from './comment/$schema.js';
 import * as PostHyperschema from './post/$schema.js';
+import * as UserHyperschema from './_user/$schema.js';
 import mem from 'mem';
 
 export const getBlogModels = mem(
@@ -11,7 +12,8 @@ export const getBlogModels = mem(
 			{
 				Account: AccountHyperschema,
 				Comment: CommentHyperschema,
-				Post: PostHyperschema
+				Post: PostHyperschema,
+				User: UserHyperschema
 			},
 			{ mongoose }
 		);
