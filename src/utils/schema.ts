@@ -1,23 +1,24 @@
 import { prop } from '@typegoose/typegoose';
-import { versionStringToVersionNumber } from '~/utils/version.js';
-import { DecoratorKeys } from '~/utils/decorator-keys.js';
+import type { SchemaOptions } from 'mongoose';
+
+import type {
+	AnyUnnormalizedHyperschemaModule,
+	GetUnnormalizedHyperschemaModuleMigrationSchema
+} from '~/types/hyperschema-module.js';
 import type {
 	AnySchemaClass,
 	BaseSchemaExtends,
 	MigrationSchemaExtends,
 	NewSchemaOptions
 } from '~/types/schema.js';
-import type {
-	AnyUnnormalizedHyperschemaModule,
-	GetUnnormalizedHyperschemaModuleMigrationSchema
-} from '~/types/hyperschema-module.js';
+import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
 import {
 	getMigrationOptionsMap,
 	getMigrationSchemasMap
 } from '~/utils/migration-schema.js';
-import type { SchemaOptions } from 'mongoose';
 import { getModelSchemaPropMapFromMigrationSchema } from '~/utils/prop-map.js';
+import { versionStringToVersionNumber } from '~/utils/version.js';
 
 /**
 	Dynamically creates a full schema by going up the migration chain from a specified migration schema.
@@ -33,6 +34,7 @@ export function createModelSchemaFromMigrationSchema({
 		return migrationSchema.__modelSchema as AnySchemaClass;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-extraneous-class -- Needed
 	const modelSchema = class {} as AnySchemaClass;
 	Object.defineProperty(modelSchema, 'name', { value: schemaName });
 	Object.defineProperty(modelSchema.prototype, '_v', {
