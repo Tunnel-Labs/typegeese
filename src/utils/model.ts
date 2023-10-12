@@ -1,4 +1,4 @@
-import { getModelForClass } from '@typegoose/typegoose';
+import { getModelForClass, getModelWithString } from '@typegoose/typegoose';
 import type { Mongoose } from 'mongoose';
 import { createHyperschema } from '~/utils/hyperschema.js';
 import type {
@@ -8,6 +8,50 @@ import type {
 import type { AnyHyperschema, Hyperschema } from '~/types/hyperschema.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
 import { versionStringToVersionNumber } from '~/utils/version.js';
+import { getMigrationSchemasMap } from '~/utils/migration-schema.js';
+import { createModelSchemaFromMigrationSchema } from '~/utils/schema.js';
+import type { AnySchemaInstance } from '~/types/schema.js';
+
+export function getModelForActiveHyperschema({
+	schemaName
+}: {
+	schemaName: string;
+}): ReturnType<
+	typeof getModelForClass<{
+		new (): AnySchemaInstance;
+	}>
+> {
+	const schemas = getMigrationSchemasMap();
+	const migrationSchemaMap = schemas.get(schemaName);
+
+	if (migrationSchemaMap === undefined) {
+		throw new Error(`Could not find migration schema map for "${schemaName}"`);
+	}
+
+	const latestMigrationSchema = migrationSchemaMap.get(
+		migrationSchemaMap.size - 1
+	);
+
+	if (latestMigrationSchema === undefined) {
+		throw new Error(
+			`Could not find latest migration schema for "${schemaName}"`
+		);
+	}
+
+	const modelSchema = createModelSchemaFromMigrationSchema({
+		migrationSchema: latestMigrationSchema,
+		schemaName
+	});
+
+	const version = versionStringToVersionNumber(modelSchema.prototype._v);
+
+	const model = getModelWithString(schemaName + '-' + version);
+	if (model === undefined) {
+		throw new Error(`Could not find active model for "${schemaName}"`);
+	}
+
+	return model as any;
+}
 
 export function getModelForHyperschema<
 	UnnormalizedHyperschemaModuleOrHyperschema extends

@@ -1,12 +1,12 @@
-import { getModelWithString } from '@typegoose/typegoose';
 import { includeKeys } from 'filter-obj';
 import mapObject, { mapObjectSkip } from 'map-obj';
-import { QueryWithHelpers } from 'mongoose';
-import { IsManyQuery } from '~/types/query.js';
-import { GetSchemaFromQuery } from '~/types/schema.js';
+import type { QueryWithHelpers } from 'mongoose';
+import type { IsManyQuery } from '~/types/query.js';
+import type { GetSchemaFromQuery } from '~/types/schema.js';
 import { setProperty } from 'dot-prop';
 
 import type { SelectInput, SelectOutput } from '~/types/select.js';
+import { getModelForActiveHyperschema } from '~/utils/model.js';
 
 /**
 	@example ```javascript
@@ -105,7 +105,7 @@ export async function select<
 				);
 			}
 
-			const fieldModel = getModelWithString(ref);
+			const fieldModel = getModelForActiveHyperschema({ schemaName: ref });
 
 			// We can't populate a foreign field to the parent in the same query, so we have to do it in a separate query
 			if (
@@ -174,7 +174,9 @@ export async function select<
 			);
 		}
 
-		const fieldModel = getModelWithString(ref);
+		const fieldModel = getModelForActiveHyperschema({
+			schemaName: ref
+		});
 		if (fieldModel === undefined) {
 			throw new Error(`Could not find model "${ref}"`);
 		}
@@ -206,8 +208,6 @@ export async function select<
 			);
 		}
 	}
-
-	console.log(query.model)
 
 	query.populate(populateArray);
 	const document = await query.lean().exec();

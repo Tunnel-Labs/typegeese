@@ -5,7 +5,6 @@ import type {
 } from '~/types/migration.js';
 import { getVersionFromSchema, isVersionedDocument } from '~/utils/version.js';
 import type { IsEqual, Promisable } from 'type-fest';
-import { getModelWithString } from '@typegoose/typegoose';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import type { Mongoose } from 'mongoose';
 import type { AnyHyperschema } from '~/types/hyperschema.js';
@@ -17,6 +16,7 @@ import type {
 	GetUnnormalizedHyperschemaModuleMigrationSchema
 } from '~/types/hyperschema-module.js';
 import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
+import { getModelForActiveHyperschema } from '~/utils/model.js';
 
 function getForeignHyperschemaFromForeignPropertyKey({
 	hyperschemas,
@@ -293,9 +293,10 @@ export function createMigrateFunction({
 							// }
 						}
 
-						const hyperschemaModel = getModelWithString(
-							hyperschema.schemaName
-						)!;
+						const hyperschemaModel = getModelForActiveHyperschema({
+							schemaName: hyperschema.schemaName
+						});
+
 						// Update the documents in MongoDB
 						await hyperschemaModel.findOneAndUpdate(
 							{

@@ -1,17 +1,20 @@
-import { PreMiddlewareFunction, Query } from 'mongoose';
-import { pre, getModelWithString } from '@typegoose/typegoose';
+import type { Mongoose, PreMiddlewareFunction, Query } from 'mongoose';
+import { pre } from '@typegoose/typegoose';
 import type { Relations } from '~/types/relations.js';
 import { DecoratorKeys } from '~/utils/decorator-keys.js';
 import type { Hyperschema } from '~/types/hyperschema.js';
+import { getModelForActiveHyperschema } from '~/utils/model.js';
 
 export function defineRelations<Schema>(actions: Relations<Schema>) {
 	return actions;
 }
 
 export function registerOnForeignModelDeletedHooks({
-	hyperschemas
+	hyperschemas,
+	mongoose
 }: {
 	hyperschemas: Record<string, Hyperschema<any>>;
+	mongoose: Mongoose;
 }) {
 	const parentModelOnDeleteActions: {
 		childModelName: string;
@@ -89,7 +92,10 @@ export function registerOnForeignModelDeletedHooks({
 		const preDeleteOne: PreMiddlewareFunction<Query<any, any>> = function (
 			next
 		) {
-			const parentModel = getModelWithString(parentModelName)!;
+			const parentModel = getModelForActiveHyperschema({
+				schemaName: parentModelName
+			});
+
 			const isDeleteRestricted = onModelDeletedActions.some(
 				({ action }) => action === 'Restrict'
 			);
@@ -118,7 +124,14 @@ export function registerOnForeignModelDeletedHooks({
 						Promise.all(
 							onModelDeletedActions.map(
 								async ({ action, childModelName, childModelField }) => {
-									const childModel = getModelWithString(childModelName)!;
+									if (model === null) {
+										return;
+									}
+
+									const childModel = getModelForActiveHyperschema({
+										schemaName: childModelName
+									});
+
 									if (action === 'Cascade') {
 										await childModel.deleteMany({
 											[childModelField]: model._id

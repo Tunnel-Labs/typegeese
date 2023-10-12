@@ -79,7 +79,7 @@ export async function createHyperschemas<
 		}
 	);
 
-	registerOnForeignModelDeletedHooks({ hyperschemas });
+	registerOnForeignModelDeletedHooks({ hyperschemas, mongoose });
 
 	const migrate = createMigrateFunction({ hyperschemas, meta });
 
