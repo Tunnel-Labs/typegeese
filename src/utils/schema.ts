@@ -35,7 +35,6 @@ function getModelSchemaPropMapFromMigrationSchema({
 	const migrationSchemasMap = getMigrationSchemasMap();
 	const migrationOptionsMap = getMigrationOptionsMap();
 
-
 	const migrationSchemaMap = migrationSchemasMap.get(schemaName);
 	if (migrationSchemaMap === undefined) {
 		throw new Error(`Could not find migration schema map for "${schemaName}"`);
@@ -58,11 +57,11 @@ function getModelSchemaPropMapFromMigrationSchema({
 		modelSchemaPropMap.set(propKey, clone(propValue));
 	}
 
-	if (migrationSchemaVersion === 0) {
-		const currentMigrationSchemaOptions = migrationOptionMap.get(
-			migrationSchemaVersion
-		);
+	const currentMigrationSchemaOptions = migrationOptionMap.get(
+		migrationSchemaVersion
+	);
 
+	if (migrationSchemaVersion === 0) {
 		if (currentMigrationSchemaOptions?.from !== undefined) {
 			const fromModelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
 				migrationSchema: currentMigrationSchemaOptions.from,
@@ -77,6 +76,10 @@ function getModelSchemaPropMapFromMigrationSchema({
 	}
 
 	const keysToOmit = new Set();
+
+	for (const key of Object.keys(currentMigrationSchemaOptions?.omit ?? {})) {
+		keysToOmit.add(key);
+	}
 
 	// Loop through the migration chain
 	for (
@@ -98,7 +101,7 @@ function getModelSchemaPropMapFromMigrationSchema({
 			currentMigrationSchema.prototype
 		) as Map<string, { options?: { ref: string } }>;
 
-		const currentMigrationOptions = migrationOptionMap.get(
+		const currentMigrationSchemaOptions = migrationOptionMap.get(
 			currentMigrationSchemaVersion
 		);
 
@@ -113,16 +116,16 @@ function getModelSchemaPropMapFromMigrationSchema({
 			modelSchemaPropMap.set(propKey, clone(propValue));
 		}
 
-		for (const key of Object.keys(currentMigrationOptions?.omit ?? {})) {
+		for (const key of Object.keys(currentMigrationSchemaOptions?.omit ?? {})) {
 			keysToOmit.add(key);
 		}
 
 		if (
 			currentMigrationSchemaVersion === 0 &&
-			currentMigrationOptions?.from !== undefined
+			currentMigrationSchemaOptions?.from !== undefined
 		) {
 			const fromModelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
-				migrationSchema: currentMigrationOptions.from,
+				migrationSchema: currentMigrationSchemaOptions.from,
 				schemaName,
 				modelSchema
 			});
