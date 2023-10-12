@@ -10,11 +10,9 @@ export function defineRelations<Schema>(actions: Relations<Schema>) {
 }
 
 export function registerOnForeignModelDeletedHooks({
-	hyperschemas,
-	mongoose
+	hyperschemas
 }: {
 	hyperschemas: Record<string, Hyperschema<any>>;
-	mongoose: Mongoose;
 }) {
 	const parentModelOnDeleteActions: {
 		childModelName: string;
