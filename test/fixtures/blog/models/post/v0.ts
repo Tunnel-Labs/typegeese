@@ -26,7 +26,9 @@ export class Post extends Schema('Post')<Post> {
 	})
 	content: string;
 
+	// @ts-expect-error: renamed
 	@prop(foreignRef<Post, $.User>('Post', 'User', 'posts', { required: true }))
+	// @ts-expect-error: renamed
 	author!: ForeignRef<Post, $.User, 'posts'>;
 
 	@prop(

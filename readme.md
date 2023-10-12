@@ -45,7 +45,6 @@ export * from './v0.js';
 
 <details>
   <summary>Why does <code>Schema(...)</code> need a generic type argument?</summary>
-  <br />
   The generic type argument after `Schema(...)` is used by typegeese's internal types to lookup the schema type from a mongoose model query. For example:
 
   ```typescript

@@ -8,7 +8,7 @@ import {
 import * as PostV1 from './v1-add-description.js';
 import type * as $ from '../$schemas.js';
 
-export class Post extends Schema(PostV1)<Post> {
+export class Post extends Schema(PostV1, { omit: { author: true } })<Post> {
 	get _v() {
 		return 'v2-rename-account-to-user';
 	}

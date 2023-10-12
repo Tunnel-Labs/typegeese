@@ -21,24 +21,20 @@ import createClone from 'rfdc';
 
 const clone = createClone();
 
-/**
-	Dynamically creates a full schema by going up the migration chain from a specified migration schema.
-*/
-export function createModelSchemaFromMigrationSchema({
+function getModelSchemaPropMapFromMigrationSchema({
+	migrationSchema,
 	schemaName,
-	migrationSchema
+	modelSchema
 }: {
-	schemaName: string;
 	migrationSchema: AnySchemaClass;
-}): AnySchemaClass {
-	if ((migrationSchema as any).__modelSchema) {
-		return (migrationSchema as any).__modelSchema;
-	}
-
-	const modelSchema = class {} as AnySchemaClass;
+	schemaName: string;
+	modelSchema: AnySchemaClass;
+}): Map<string, unknown> {
+	const modelSchemaPropMap = new Map();
 
 	const migrationSchemasMap = getMigrationSchemasMap();
 	const migrationOptionsMap = getMigrationOptionsMap();
+
 
 	const migrationSchemaMap = migrationSchemasMap.get(schemaName);
 	if (migrationSchemaMap === undefined) {
@@ -54,27 +50,35 @@ export function createModelSchemaFromMigrationSchema({
 		migrationSchema.prototype._v
 	);
 
-	Object.defineProperty(modelSchema, 'name', { value: schemaName });
-	Object.defineProperty(modelSchema.prototype, '_v', {
-		value: migrationSchema.prototype._v
-	});
-
-	// Loop through the migration chain
-	const mergedPropMap = new Map();
-
 	const currentMigrationSchemaPropMap =
 		Reflect.getMetadata(DecoratorKeys.PropCache, migrationSchema.prototype) ??
 		new Map();
 
-	for (const [
-		mergedPropKey,
-		mergedPropValue
-	] of currentMigrationSchemaPropMap.entries()) {
-		mergedPropMap.set(mergedPropKey, clone(mergedPropValue));
+	for (const [propKey, propValue] of currentMigrationSchemaPropMap.entries()) {
+		modelSchemaPropMap.set(propKey, clone(propValue));
+	}
+
+	if (migrationSchemaVersion === 0) {
+		const currentMigrationSchemaOptions = migrationOptionMap.get(
+			migrationSchemaVersion
+		);
+
+		if (currentMigrationSchemaOptions?.from !== undefined) {
+			const fromModelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
+				migrationSchema: currentMigrationSchemaOptions.from,
+				schemaName: currentMigrationSchemaOptions.from.name,
+				modelSchema
+			});
+
+			for (const [propKey, propValue] of fromModelSchemaPropMap.entries()) {
+				modelSchemaPropMap.set(propKey, clone(propValue));
+			}
+		}
 	}
 
 	const keysToOmit = new Set();
 
+	// Loop through the migration chain
 	for (
 		let currentMigrationSchemaVersion = migrationSchemaVersion - 1;
 		currentMigrationSchemaVersion >= 0;
@@ -99,29 +103,81 @@ export function createModelSchemaFromMigrationSchema({
 		);
 
 		for (const [
-			mergedPropKey,
-			mergedPropValue
+			propKey,
+			propValue
 		] of currentMigrationSchemaPropMap.entries()) {
-			if (keysToOmit.has(mergedPropKey)) {
+			if (keysToOmit.has(propKey)) {
 				continue;
 			}
 
-			mergedPropMap.set(mergedPropKey, clone(mergedPropValue));
+			modelSchemaPropMap.set(propKey, clone(propValue));
 		}
 
 		for (const key of Object.keys(currentMigrationOptions?.omit ?? {})) {
 			keysToOmit.add(key);
 		}
+
+		if (
+			currentMigrationSchemaVersion === 0 &&
+			currentMigrationOptions?.from !== undefined
+		) {
+			const fromModelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
+				migrationSchema: currentMigrationOptions.from,
+				schemaName,
+				modelSchema
+			});
+
+			for (const [propKey, propValue] of fromModelSchemaPropMap.entries()) {
+				if (keysToOmit.has(propKey)) {
+					continue;
+				}
+
+				modelSchemaPropMap.set(propKey, clone(propValue));
+			}
+		}
 	}
 
-	for (const propValue of mergedPropMap.values()) {
+	for (const propValue of modelSchemaPropMap.values()) {
 		(propValue as any).target = modelSchema.prototype;
 	}
 
+	return modelSchemaPropMap;
+}
+
+/**
+	Dynamically creates a full schema by going up the migration chain from a specified migration schema.
+*/
+export function createModelSchemaFromMigrationSchema({
+	schemaName,
+	migrationSchema
+}: {
+	schemaName: string;
+	migrationSchema: AnySchemaClass;
+}): AnySchemaClass {
+	if ((migrationSchema as any).__modelSchema) {
+		return (migrationSchema as any).__modelSchema;
+	}
+
+	const modelSchema = class {} as AnySchemaClass;
+	Object.defineProperty(modelSchema, 'name', { value: schemaName });
+	Object.defineProperty(modelSchema.prototype, '_v', {
+		value: migrationSchema.prototype._v
+	});
+
+	const modelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
+		migrationSchema,
+		schemaName,
+		modelSchema
+	});
+
 	Reflect.defineMetadata(
 		DecoratorKeys.PropCache,
-		mergedPropMap,
+		modelSchemaPropMap,
 		modelSchema.prototype
+	);
+
+	const migrationSchemaVersion = versionStringToVersionNumber(
+		migrationSchema.prototype._v
 	);
 
 	prop({ type: () => String, required: true })(modelSchema.prototype, '_id');

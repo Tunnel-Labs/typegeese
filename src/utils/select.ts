@@ -207,6 +207,8 @@ export async function select<
 		}
 	}
 
+	console.log(query.model)
+
 	query.populate(populateArray);
 	const document = await query.lean().exec();
 
@@ -224,6 +226,10 @@ export async function select<
 			remainingPathSegments: string[],
 			fullPath: (string | number)[]
 		) => {
+			if (document === null) {
+				return;
+			}
+
 			if (remainingPathSegments.length === 0) {
 				if (typeof document !== 'string') {
 					throw new Error('Expected nested document to be a string');

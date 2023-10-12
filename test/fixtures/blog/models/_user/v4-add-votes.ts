@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import {
 	PropType,
 	Schema,
@@ -23,22 +21,26 @@ export class User extends Schema(UserV3)<User> {
 		virtualForeignRef<User, $.CommentDownvote>(
 			'User',
 			'CommentDownvote',
+			// @ts-expect-error: renamed
 			'user',
 			'_id'
 		),
 		PropType.ARRAY
 	)
+	// @ts-expect-error: renamed
 	commentDownvotes!: VirtualForeignRef<User, $.CommentDownvote, 'user'>[];
 
 	@prop(
 		virtualForeignRef<User, $.CommentDownvote>(
 			'User',
 			'CommentDownvote',
+			// @ts-expect-error: renamed
 			'user',
 			'_id'
 		),
 		PropType.ARRAY
 	)
+	// @ts-expect-error: renamed
 	commentUpvotes!: VirtualForeignRef<User, $.CommentUpvote, 'user'>[];
 
 	__migration__: typeof User_migration;

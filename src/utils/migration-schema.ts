@@ -25,7 +25,10 @@ export function getMigrationSchemasMap(): Map<
 
 export function getMigrationOptionsMap(): Map<
 	string,
-	Map<number, { omit?: Record<string, true> } | undefined>
+	Map<
+		number,
+		{ omit?: Record<string, true>; from?: AnySchemaClass } | undefined
+	>
 > {
 	let migrationsOptionsMap = Reflect.getMetadata(
 		DecoratorKeys.MigrationOptions,

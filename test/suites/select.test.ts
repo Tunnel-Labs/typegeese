@@ -12,7 +12,7 @@ beforeAll(async () => {
 
 test('supports nested self-referential select', async () => {
 	const mongoose = await createMongoose();
-	const { PostModel, AccountModel } = await getBlogModels({ mongoose });
+	const { PostModel, AccountModel } = await getBlogModels({ mongoose })
 
 	const accountId = createId();
 	await AccountModel.create({
@@ -37,6 +37,7 @@ test('supports nested self-referential select', async () => {
 		title: true,
 		author: {
 			select: {
+				_id: true,
 				posts: {
 					select: {
 						_id: true,
