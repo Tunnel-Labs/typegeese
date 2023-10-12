@@ -311,8 +311,8 @@ class User extends Object {}
 class Post extends Object {}
 ```
 
-> In practice, the `extends Object` is equivalent to omitting the `extends` clause.
+> In practice, `extends Object` is equivalent to omitting the `extends` clause.
 
 By returning the `Object` constructor in the extends clause, we avoid using inheritance for migrations. This reduces the chance of conflicts with typegoose's intended uses of inheritance (e.g. for discriminator types).
 
-Instead of defining the shape of the schema at declaration time, we dynamically construct them when the functions `getModelForHyperschema` or `loadHyperschemas` are called.
+Instead, typegeese dynamically constructs schemas at runtime when the functions `getModelForHyperschema` or `loadHyperschemas` are called.
