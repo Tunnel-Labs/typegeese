@@ -86,10 +86,11 @@ export function getModelSchemaPropMapFromMigrationSchema({
 			);
 		}
 
-		const currentMigrationSchemaPropMap = Reflect.getMetadata(
-			DecoratorKeys.PropCache,
-			currentMigrationSchema.prototype
-		) as Map<string, { options?: { ref: string } }>;
+		const currentMigrationSchemaPropMap =
+			Reflect.getMetadata(
+				DecoratorKeys.PropCache,
+				currentMigrationSchema.prototype
+			) ?? new Map();
 
 		const currentMigrationSchemaOptions = migrationOptionMap.get(
 			currentMigrationSchemaVersion

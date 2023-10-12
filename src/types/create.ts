@@ -17,7 +17,7 @@ export type CreateType<FieldType> =
 export type CreateInput<Model> = {
 	[
 		K in keyof Model as
-			K extends '_v' | '__type__' | '__migration__' ?
+			K extends '_v' | '__type__' ?
 				never :
 			IsVirtualForeignRefArray<Model[K]> extends true ?
 				never :

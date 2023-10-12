@@ -28,7 +28,7 @@ export function registerOnForeignModelDeletedHooks({
 		const propMap = Reflect.getMetadata(
 			DecoratorKeys.PropCache,
 			schema.prototype
-		);
+		) ?? new Map();
 
 		for (const [childModelField, action] of Object.entries(relations)) {
 			// For each foreign ref field, get the name of the parent model

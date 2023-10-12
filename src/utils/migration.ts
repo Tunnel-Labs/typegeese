@@ -27,10 +27,12 @@ function getForeignHyperschemaFromForeignPropertyKey({
 	hyperschema: AnyHyperschema;
 	foreignPropertyKey: string;
 }): AnyHyperschema {
-	const propMap = Reflect.getMetadata(
-		DecoratorKeys.PropCache,
-		hyperschema.schema.prototype
-	);
+	const propMap =
+		Reflect.getMetadata(
+			DecoratorKeys.PropCache,
+			hyperschema.schema.prototype
+		) ?? new Map();
+
 	const foreignSchemaName = propMap.get(foreignPropertyKey)?.options?.ref;
 
 	if (foreignSchemaName === undefined) {

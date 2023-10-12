@@ -61,7 +61,6 @@ export interface MigrationSchemaExtends<
 			GetUnnormalizedHyperschemaModuleMigrationSchema<PreviousUnnormalizedHyperschemaModule>,
 			| '_v'
 			| '__type__'
-			| '__migration__'
 			| (
 					Options extends Record<string, unknown> ?
 						RequiredKeysOf<Options['omit']> :
