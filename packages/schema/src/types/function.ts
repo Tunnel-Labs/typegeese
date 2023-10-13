@@ -1,16 +1,21 @@
+import type { DiscriminatorObject, DocumentType, IModelOptions } from './$.js';
+
 /**
 	Get all keys from "T" that are a function
 	does NOT filter out getters / setters
 */
 export type GetFunctionKeys<T extends object> = {
-  [K in keyof T]: T[K] extends (...args: any) => any ? K : never;
+	[K in keyof T]: T[K] extends (...args: any) => any ? K : never;
 }[keyof T];
 
 /**
 	Remove all properties from "T" that are a function
 	does NOT filter out getters / setters
 */
-export type FilterOutFunctionKeys<T extends object> = Omit<T, GetFunctionKeys<T>>;
+export type FilterOutFunctionKeys<T extends object> = Omit<
+	T,
+	GetFunctionKeys<T>
+>;
 
 /** Generic "Function" type, because typescript does not like using "Function" directly in strict mode */
 export type Func = (...args: any[]) => any;
@@ -30,10 +35,14 @@ export type DeferredFunc<T = any> = (...args: unknown[]) => T;
 	Dynamic Functions, since mongoose 4.13
 	@param doc The Document current document
 */
-export type DynamicStringFunc<T extends AnyParamConstructor<any>> = (doc: DocumentType<T>) => string;
+export type DynamicStringFunc<T extends AnyParamConstructor<any>> = (
+	doc: DocumentType<T>
+) => string;
 
 /** Type to keep the "discriminators" options consistent in types */
-export type NestedDiscriminatorsFunction = DeferredFunc<(AnyParamConstructor<any> | DiscriminatorObject)[]>;
+export type NestedDiscriminatorsFunction = DeferredFunc<
+	(AnyParamConstructor<any> | DiscriminatorObject)[]
+>;
 
 /**
 	Any-param Constructor

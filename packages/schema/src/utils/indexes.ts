@@ -1,8 +1,9 @@
-import mongoose from 'mongoose';
-import { DecoratorKeys } from './internal/constants';
+import type * as mongoose from 'mongoose';
+
 import { getName } from './internal/utils';
 import { logger } from './logSettings';
-import type { IIndexArray, IndexOptions } from './types';
+import { DecoratorKeys } from '../enums/decorator-keys.js';
+import type { IIndexArray, IndexOptions } from '../types/$.js';
 
 /**
 	Defines a index for this Class which will then be added to the Schema.
@@ -14,13 +15,22 @@ import type { IIndexArray, IndexOptions } from './types';
 	class ClassName {}
 	```
 */
-export function index(fields: mongoose.IndexDefinition, options?: IndexOptions): ClassDecorator {
-  return (target: any) => {
-    logger.info('Adding "%o" Indexes to %s', { fields, options }, getName(target));
-    const indices: IIndexArray[] = Array.from(Reflect.getOwnMetadata(DecoratorKeys.Index, target) ?? []);
-    indices.push({ fields, options });
-    Reflect.defineMetadata(DecoratorKeys.Index, indices, target);
-  };
+export function index(
+	fields: mongoose.IndexDefinition,
+	options?: IndexOptions
+): ClassDecorator {
+	return (target: any) => {
+		logger.info(
+			'Adding "%o" Indexes to %s',
+			{ fields, options },
+			getName(target)
+		);
+		const indices: IIndexArray[] = Array.from(
+			Reflect.getOwnMetadata(DecoratorKeys.Index, target) ?? []
+		);
+		indices.push({ fields, options });
+		Reflect.defineMetadata(DecoratorKeys.Index, indices, target);
+	};
 }
 
 // Export it PascalCased

@@ -1,44 +1,22 @@
-import type {
-  Aggregate,
-  AggregateExtract,
-  CallbackError,
-  Document,
-  MongooseQueryOrDocumentMiddleware,
-  ErrorHandlingMiddlewareFunction,
-  HydratedDocument,
-  Model,
-  MongooseDocumentMiddleware,
-  MongooseQueryMiddleware,
-  PostMiddlewareFunction,
-  PreMiddlewareFunction,
-  PreSaveMiddlewareFunction,
-  Query,
-  SchemaPostOptions,
-  SchemaPreOptions,
-} from 'mongoose';
-import { DecoratorKeys } from './internal/constants';
-import { ExpectedTypeError } from './internal/errors';
+import { DecoratorKeys } from '../enums/decorator-keys.js';
+import { ExpectedTypeError } from '../errors/type.js';
+import type { HookOptionsEither, IHooksArray, Hooks } from '../types/$.js';
 import { assertion, getName } from './internal/utils';
 import { logger } from './logSettings';
-import type { AnyParamConstructor, DocumentType, HookOptionsEither, IHooksArray, ReturnModelType } from './types';
-
-/** Type copied from mongoose, because it is not exported but used in hooks */
-type QueryResultType<T> = T extends Query<infer ResultType, any> ? ResultType : never;
 
 // Type below is to replace a "@post<typeof Class>" to just be "@post<Class>" regardless of what is used
 // see https://github.com/microsoft/TypeScript/issues/51647
 // current workaround is to use "extends object" instead of something like "AnyParamConstructor" to just allow classes
 // type TypeofClass<T extends { prototype: AnyParamConstructor<any> }> = T extends { prototype: infer S } ? S : never;
 
-
 // TSDoc for the hooks can't be added without adding it to *every* overload
 const hooks: Hooks = {
-  pre(...args) {
-    return (target: any) => addToHooks(target, 'pre', args);
-  },
-  post(...args) {
-    return (target: any) => addToHooks(target, 'post', args);
-  },
+	pre(...args) {
+		return (target: any) => addToHooks(target, 'pre', args);
+	},
+	post(...args) {
+		return (target: any) => addToHooks(target, 'post', args);
+	}
 };
 
 /**
@@ -48,31 +26,47 @@ const hooks: Hooks = {
 	@param args All Arguments, that should be passed-through
 */
 function addToHooks(target: any, hookType: 'pre' | 'post', args: any[]): void {
-  // Convert Method to array if only a string is provided
-  const methods: IHooksArray['methods'] = Array.isArray(args[0]) ? args[0] : [args[0]];
-  const func: (...args: any[]) => void = args[1];
-  const hookOptions: HookOptionsEither | undefined = args[2];
+	// Convert Method to array if only a string is provided
+	const methods: IHooksArray['methods'] = Array.isArray(args[0])
+		? args[0]
+		: [args[0]];
+	const func: (...args: any[]) => void = args[1];
+	const hookOptions: HookOptionsEither | undefined = args[2];
 
-  assertion(typeof func === 'function', () => new ExpectedTypeError('fn', 'function', func));
+	assertion(
+		typeof func === 'function',
+		() => new ExpectedTypeError('fn', 'function', func)
+	);
 
-  if (args.length > 3) {
-    logger.warn(`"addToHooks" parameter "args" has a length of over 3 (length: ${args.length})`);
-  }
+	if (args.length > 3) {
+		logger.warn(
+			`"addToHooks" parameter "args" has a length of over 3 (length: ${args.length})`
+		);
+	}
 
-  logger.info('Adding hooks for "[%s]" to "%s" as type "%s"', methods.join(','), getName(target), hookType);
+	logger.info(
+		'Adding hooks for "[%s]" to "%s" as type "%s"',
+		methods.join(','),
+		getName(target),
+		hookType
+	);
 
-  switch (hookType) {
-    case 'post':
-      const postHooks: IHooksArray[] = Array.from(Reflect.getMetadata(DecoratorKeys.HooksPost, target) ?? []);
-      postHooks.push({ func, methods, options: hookOptions });
-      Reflect.defineMetadata(DecoratorKeys.HooksPost, postHooks, target);
-      break;
-    case 'pre':
-      const preHooks: IHooksArray[] = Array.from(Reflect.getMetadata(DecoratorKeys.HooksPre, target) ?? []);
-      preHooks.push({ func, methods, options: hookOptions });
-      Reflect.defineMetadata(DecoratorKeys.HooksPre, preHooks, target);
-      break;
-  }
+	switch (hookType) {
+		case 'post':
+			const postHooks: IHooksArray[] = Array.from(
+				Reflect.getMetadata(DecoratorKeys.HooksPost, target) ?? []
+			);
+			postHooks.push({ func, methods, options: hookOptions });
+			Reflect.defineMetadata(DecoratorKeys.HooksPost, postHooks, target);
+			break;
+		case 'pre':
+			const preHooks: IHooksArray[] = Array.from(
+				Reflect.getMetadata(DecoratorKeys.HooksPre, target) ?? []
+			);
+			preHooks.push({ func, methods, options: hookOptions });
+			Reflect.defineMetadata(DecoratorKeys.HooksPre, preHooks, target);
+			break;
+	}
 }
 
 export const pre = hooks.pre;

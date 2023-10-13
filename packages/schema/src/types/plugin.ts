@@ -1,3 +1,4 @@
+import type { Func } from "./$.js";
 
 /**
 	Type for the Values stored in the Reflection for Plugins

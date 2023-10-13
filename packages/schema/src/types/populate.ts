@@ -1,3 +1,4 @@
+import type { VirtualOptions } from './$.js';
 /**
 	Type for the Values stored in the Reflection for Virtual Populates
 	@example
@@ -5,4 +6,7 @@
 	const virtuals: VirtualPopulateMap = new Map(Reflect.getMetadata(DecoratorKeys.VirtualPopulate, target.constructor) ?? []);
 	```
 */
-export type VirtualPopulateMap = Map<string, VirtualOptions & Record<string, unknown>>;
+export type VirtualPopulateMap = Map<
+	string,
+	VirtualOptions & Record<string, unknown>
+>;

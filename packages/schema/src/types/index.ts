@@ -1,3 +1,6 @@
+import type * as mongoose from 'mongoose';
+import type { KeyStringAny } from './$.js';
+
 /**
 	Alias of "mongoose.IndexOptions" for convenience
 */
@@ -11,6 +14,6 @@ export type IndexOptions = mongoose.IndexOptions;
 	```
 */
 export interface IIndexArray {
-  fields: KeyStringAny;
-  options?: IndexOptions;
+	fields: KeyStringAny;
+	options?: IndexOptions;
 }

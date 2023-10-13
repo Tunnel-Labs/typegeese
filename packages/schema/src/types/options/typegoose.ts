@@ -4,6 +4,6 @@ export interface ITypegooseOptions {
 		completely disables the "constructors" and "models" maps
 		"false" and "undefined" have the same result of enabling caching
 		@default false
-   */
+	*/
   disableGlobalCaching?: boolean;
 }

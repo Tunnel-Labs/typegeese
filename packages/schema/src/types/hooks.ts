@@ -1,5 +1,11 @@
 import type * as mongoose from 'mongoose';
-import type { Func } from './$.js';
+import type {
+	AnyParamConstructor,
+	Func,
+	QueryResultType,
+	ReturnModelType,
+	DocumentType
+} from './$.js';
 
 /** A Helper type to combine both mongoose Hook Option types */
 export type HookOptionsEither =
@@ -35,104 +41,195 @@ export interface IHooksArray {
 	VERSION COPY OF 7.0.0
 */
 export interface Hooks {
-  // post hooks with errorhandling option
-  post<S extends object | mongoose.Query<any, any>, T = S extends mongoose.Query<any, any> ? S : mongoose.Query<DocumentType<S>, DocumentType<S>>>(
-    method: MongooseQueryMiddleware | MongooseQueryMiddleware[] | RegExp,
-    fn: ErrorHandlingMiddlewareFunction<T>,
-    options: SchemaPostOptions & { errorHandler: true }
-  ): ClassDecorator;
-  post<S extends object | HydratedDocument<any, any>, T = S extends Document ? S : HydratedDocument<DocumentType<S>, any>>(
-    method: MongooseDocumentMiddleware | MongooseDocumentMiddleware[] | RegExp,
-    fn: ErrorHandlingMiddlewareFunction<T>,
-    options: SchemaPostOptions & { errorHandler: true }
-  ): ClassDecorator;
-  post<T extends Aggregate<any>>(
-    method: 'aggregate' | RegExp,
-    fn: ErrorHandlingMiddlewareFunction<T, Array<any>>,
-    options: SchemaPostOptions & { errorHandler: true }
-  ): ClassDecorator;
-  post<S extends AnyParamConstructor<any> | Model<any>, T = S extends Model<any> ? S : ReturnModelType<S>>(
-    method: 'insertMany' | RegExp,
-    fn: ErrorHandlingMiddlewareFunction<T>,
-    options: SchemaPostOptions & { errorHandler: true }
-  ): ClassDecorator;
+	// post hooks with errorhandling option
+	post<
+		S extends object | mongoose.Query<any, any>,
+		T = S extends mongoose.Query<any, any>
+			? S
+			: mongoose.Query<DocumentType<S>, DocumentType<S>>
+	>(
+		method:
+			| mongoose.MongooseQueryMiddleware
+			| mongoose.MongooseQueryMiddleware[]
+			| RegExp,
+		fn: mongoose.ErrorHandlingMiddlewareFunction<T>,
+		options: mongoose.SchemaPostOptions & { errorHandler: true }
+	): ClassDecorator;
+	post<
+		S extends object | mongoose.HydratedDocument<any, any>,
+		T = S extends Document ? S : mongoose.HydratedDocument<DocumentType<S>, any>
+	>(
+		method:
+			| mongoose.MongooseDocumentMiddleware
+			| mongoose.MongooseDocumentMiddleware[]
+			| RegExp,
+		fn: mongoose.ErrorHandlingMiddlewareFunction<T>,
+		options: mongoose.SchemaPostOptions & { errorHandler: true }
+	): ClassDecorator;
+	post<T extends mongoose.Aggregate<any>>(
+		method: 'aggregate' | RegExp,
+		fn: mongoose.ErrorHandlingMiddlewareFunction<T, Array<any>>,
+		options: mongoose.SchemaPostOptions & { errorHandler: true }
+	): ClassDecorator;
+	post<
+		S extends AnyParamConstructor<any> | mongoose.Model<any>,
+		T = S extends mongoose.Model<any> ? S : ReturnModelType<S>
+	>(
+		method: 'insertMany' | RegExp,
+		fn: mongoose.ErrorHandlingMiddlewareFunction<T>,
+		options: mongoose.SchemaPostOptions & { errorHandler: true }
+	): ClassDecorator;
 
-  // normal post hooks
-  post<S extends object | Query<any, any>, T = S extends Query<any, any> ? S : Query<DocumentType<S>, DocumentType<S>>>(
-    method: MongooseQueryMiddleware | MongooseQueryMiddleware[] | RegExp,
-    fn: PostMiddlewareFunction<T, QueryResultType<T>>,
-    options?: SchemaPostOptions
-  ): ClassDecorator;
-  post<S extends object | HydratedDocument<any, any>, T = S extends Document ? S : HydratedDocument<DocumentType<S>, any>>(
-    method: MongooseDocumentMiddleware | MongooseDocumentMiddleware[] | RegExp,
-    fn: PostMiddlewareFunction<T, T>,
-    options?: SchemaPostOptions
-  ): ClassDecorator;
-  post<T extends Aggregate<any>>(
-    method: 'aggregate' | RegExp,
-    fn: PostMiddlewareFunction<T, Array<AggregateExtract<T>>>,
-    options?: SchemaPostOptions
-  ): ClassDecorator;
-  post<S extends AnyParamConstructor<any> | Model<any>, T = S extends Model<any> ? S : ReturnModelType<S>>(
-    method: 'insertMany' | RegExp,
-    fn: PostMiddlewareFunction<T, T>,
-    options?: SchemaPostOptions
-  ): ClassDecorator;
+	// normal post hooks
+	post<
+		S extends object | mongoose.Query<any, any>,
+		T = S extends mongoose.Query<any, any>
+			? S
+			: mongoose.Query<DocumentType<S>, DocumentType<S>>
+	>(
+		method:
+			| mongoose.MongooseQueryMiddleware
+			| mongoose.MongooseQueryMiddleware[]
+			| RegExp,
+		fn: mongoose.PostMiddlewareFunction<T, QueryResultType<T>>,
+		options?: mongoose.SchemaPostOptions
+	): ClassDecorator;
+	post<
+		S extends object | mongoose.HydratedDocument<any, any>,
+		T = S extends Document ? S : mongoose.HydratedDocument<DocumentType<S>, any>
+	>(
+		method:
+			| mongoose.MongooseDocumentMiddleware
+			| mongoose.MongooseDocumentMiddleware[]
+			| RegExp,
+		fn: mongoose.PostMiddlewareFunction<T, T>,
+		options?: mongoose.SchemaPostOptions
+	): ClassDecorator;
+	post<T extends mongoose.Aggregate<any>>(
+		method: 'aggregate' | RegExp,
+		fn: mongoose.PostMiddlewareFunction<T, Array<mongoose.AggregateExtract<T>>>,
+		options?: mongoose.SchemaPostOptions
+	): ClassDecorator;
+	post<
+		S extends AnyParamConstructor<any> | mongoose.Model<any>,
+		T = S extends mongoose.Model<any> ? S : ReturnModelType<S>
+	>(
+		method: 'insertMany' | RegExp,
+		fn: mongoose.PostMiddlewareFunction<T, T>,
+		options?: mongoose.SchemaPostOptions
+	): ClassDecorator;
 
-  // error handling post hooks
-  post<S extends object | Query<any, any>, T = S extends Query<any, any> ? S : Query<DocumentType<S>, DocumentType<S>>>(
-    method: MongooseQueryMiddleware | MongooseQueryMiddleware[] | RegExp,
-    fn: ErrorHandlingMiddlewareFunction<T>,
-    options?: SchemaPostOptions
-  ): ClassDecorator;
-  post<S extends object | HydratedDocument<any, any>, T = S extends Document ? S : HydratedDocument<DocumentType<S>, any>>(
-    method: MongooseDocumentMiddleware | MongooseDocumentMiddleware[] | RegExp,
-    fn: ErrorHandlingMiddlewareFunction<T>,
-    options?: SchemaPostOptions
-  ): ClassDecorator;
-  post<T extends Aggregate<any>>(
-    method: 'aggregate' | RegExp,
-    fn: ErrorHandlingMiddlewareFunction<T, Array<any>>,
-    options?: SchemaPostOptions
-  ): ClassDecorator;
-  post<S extends AnyParamConstructor<any> | Model<any>, T = S extends Model<any> ? S : ReturnModelType<S>>(
-    method: 'insertMany' | RegExp,
-    fn: ErrorHandlingMiddlewareFunction<T>,
-    options?: SchemaPostOptions
-  ): ClassDecorator;
+	// error handling post hooks
+	post<
+		S extends object | mongoose.Query<any, any>,
+		T = S extends mongoose.Query<any, any>
+			? S
+			: mongoose.Query<DocumentType<S>, DocumentType<S>>
+	>(
+		method:
+			| mongoose.MongooseQueryMiddleware
+			| mongoose.MongooseQueryMiddleware[]
+			| RegExp,
+		fn: mongoose.ErrorHandlingMiddlewareFunction<T>,
+		options?: mongoose.SchemaPostOptions
+	): ClassDecorator;
+	post<
+		S extends object | mongoose.HydratedDocument<any, any>,
+		T = S extends Document ? S : mongoose.HydratedDocument<DocumentType<S>, any>
+	>(
+		method:
+			| mongoose.MongooseDocumentMiddleware
+			| mongoose.MongooseDocumentMiddleware[]
+			| RegExp,
+		fn: mongoose.ErrorHandlingMiddlewareFunction<T>,
+		options?: mongoose.SchemaPostOptions
+	): ClassDecorator;
+	post<T extends mongoose.Aggregate<any>>(
+		method: 'aggregate' | RegExp,
+		fn: mongoose.ErrorHandlingMiddlewareFunction<T, Array<any>>,
+		options?: mongoose.SchemaPostOptions
+	): ClassDecorator;
+	post<
+		S extends AnyParamConstructor<any> | mongoose.Model<any>,
+		T = S extends mongoose.Model<any> ? S : ReturnModelType<S>
+	>(
+		method: 'insertMany' | RegExp,
+		fn: mongoose.ErrorHandlingMiddlewareFunction<T>,
+		options?: mongoose.SchemaPostOptions
+	): ClassDecorator;
 
-  // special pre hooks for each "document: true, query: false" and "document: false, query: true"
-  pre<S extends object | HydratedDocument<any, any>, T = S extends Document ? S : HydratedDocument<DocumentType<S>, any>>(
-    method: MongooseQueryOrDocumentMiddleware | MongooseQueryOrDocumentMiddleware[],
-    fn: PreMiddlewareFunction<T>,
-    options: SchemaPreOptions & { document: true; query: false }
-  ): ClassDecorator;
-  pre<S extends object | Query<any, any>, T = S extends Query<any, any> ? S : Query<DocumentType<S>, DocumentType<S>>>(
-    method: MongooseQueryOrDocumentMiddleware | MongooseQueryOrDocumentMiddleware[],
-    fn: PreMiddlewareFunction<T>,
-    options: SchemaPreOptions & { document: false; query: true }
-  ): ClassDecorator;
+	// special pre hooks for each "document: true, query: false" and "document: false, query: true"
+	pre<
+		S extends object | mongoose.HydratedDocument<any, any>,
+		T = S extends Document ? S : mongoose.HydratedDocument<DocumentType<S>, any>
+	>(
+		method:
+			| mongoose.MongooseQueryOrDocumentMiddleware
+			| mongoose.MongooseQueryOrDocumentMiddleware[],
+		fn: mongoose.PreMiddlewareFunction<T>,
+		options: mongoose.SchemaPreOptions & { document: true; query: false }
+	): ClassDecorator;
+	pre<
+		S extends object | mongoose.Query<any, any>,
+		T = S extends mongoose.Query<any, any>
+			? S
+			: mongoose.Query<DocumentType<S>, DocumentType<S>>
+	>(
+		method:
+			| mongoose.MongooseQueryOrDocumentMiddleware
+			| mongoose.MongooseQueryOrDocumentMiddleware[],
+		fn: mongoose.PreMiddlewareFunction<T>,
+		options: mongoose.SchemaPreOptions & { document: false; query: true }
+	): ClassDecorator;
 
-  // normal pre hooks
-  pre<S extends object | HydratedDocument<any, any>, T = S extends Document ? S : HydratedDocument<DocumentType<S>, any>>(
-    method: 'save',
-    fn: PreSaveMiddlewareFunction<T>,
-    options?: SchemaPreOptions
-  ): ClassDecorator;
-  pre<S extends object | Query<any, any>, T = S extends Query<any, any> ? S : Query<DocumentType<S>, DocumentType<S>>>(
-    method: MongooseQueryMiddleware | MongooseQueryMiddleware[] | RegExp,
-    fn: PreMiddlewareFunction<T>,
-    options?: SchemaPreOptions
-  ): ClassDecorator;
-  pre<S extends object | HydratedDocument<any, any>, T = S extends Document ? S : HydratedDocument<DocumentType<S>, any>>(
-    method: MongooseDocumentMiddleware | MongooseDocumentMiddleware[] | RegExp,
-    fn: PreMiddlewareFunction<T>,
-    options?: SchemaPreOptions
-  ): ClassDecorator;
-  pre<T extends Aggregate<any>>(method: 'aggregate' | RegExp, fn: PreMiddlewareFunction<T>, options?: SchemaPreOptions): ClassDecorator;
-  pre<S extends AnyParamConstructor<any> | Model<any>, T = S extends Model<any> ? S : ReturnModelType<S>>(
-    method: 'insertMany' | RegExp,
-    fn: (this: T, next: (err?: CallbackError) => void, docs: any | Array<any>) => void | Promise<void>,
-    options?: SchemaPreOptions
-  ): ClassDecorator;
+	// normal pre hooks
+	pre<
+		S extends object | mongoose.HydratedDocument<any, any>,
+		T = S extends Document ? S : mongoose.HydratedDocument<DocumentType<S>, any>
+	>(
+		method: 'save',
+		fn: mongoose.PreSaveMiddlewareFunction<T>,
+		options?: mongoose.SchemaPreOptions
+	): ClassDecorator;
+	pre<
+		S extends object | mongoose.Query<any, any>,
+		T = S extends mongoose.Query<any, any>
+			? S
+			: mongoose.Query<DocumentType<S>, DocumentType<S>>
+	>(
+		method:
+			| mongoose.MongooseQueryMiddleware
+			| mongoose.MongooseQueryMiddleware[]
+			| RegExp,
+		fn: mongoose.PreMiddlewareFunction<T>,
+		options?: mongoose.SchemaPreOptions
+	): ClassDecorator;
+	pre<
+		S extends object | mongoose.HydratedDocument<any, any>,
+		T = S extends Document ? S : mongoose.HydratedDocument<DocumentType<S>, any>
+	>(
+		method:
+			| mongoose.MongooseDocumentMiddleware
+			| mongoose.MongooseDocumentMiddleware[]
+			| RegExp,
+		fn: mongoose.PreMiddlewareFunction<T>,
+		options?: mongoose.SchemaPreOptions
+	): ClassDecorator;
+	pre<T extends mongoose.Aggregate<any>>(
+		method: 'aggregate' | RegExp,
+		fn: mongoose.PreMiddlewareFunction<T>,
+		options?: mongoose.SchemaPreOptions
+	): ClassDecorator;
+	pre<
+		S extends AnyParamConstructor<any> | mongoose.Model<any>,
+		T = S extends mongoose.Model<any> ? S : ReturnModelType<S>
+	>(
+		method: 'insertMany' | RegExp,
+		fn: (
+			this: T,
+			next: (err?: mongoose.CallbackError) => void,
+			docs: any | Array<any>
+		) => void | Promise<void>,
+		options?: mongoose.SchemaPreOptions
+	): ClassDecorator;
 }

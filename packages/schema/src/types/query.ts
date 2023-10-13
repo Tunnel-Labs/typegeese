@@ -1,21 +1,26 @@
+import type * as mongoose from 'mongoose';
+import type { AnyParamConstructor, DocumentType, Func } from './$.js';
+
 /**
 	Gets the signature (parameters with their types, and the return type) of a function type.
- *
+
 	@description Should be used when defining an interface for a class that uses query methods.
- *
+
 	@example
 	```ts
 	function sendMessage(recipient: string, sender: string, priority: number, retryIfFails: boolean) {
 	 // some logic...
 	 return true;
 	}
- *
+
 	// Both of the following types will be identical.
 	type SendMessageType = AsQueryMethod<typeof sendMessage>;
 	type SendMessageManualType = (recipient: string, sender: string, priority: number, retryIfFails: boolean) => boolean;
 	```
 */
-export type AsQueryMethod<T extends (...args: any) => any> = (...args: Parameters<T>) => ReturnType<T>;
+export type AsQueryMethod<T extends (...args: any) => any> = (
+	...args: Parameters<T>
+) => ReturnType<T>;
 
 /**
 	Helper type to easily set the `this` type in a QueryHelper function
@@ -26,10 +31,10 @@ export type AsQueryMethod<T extends (...args: any) => any> = (...args: Parameter
 	}
 */
 export type QueryHelperThis<
-  // TODO: consider replacing T directly with S
-  T extends AnyParamConstructor<any>,
-  QueryHelpers,
-  S = DocumentType<InstanceType<T>, QueryHelpers>,
+	// TODO: consider replacing T directly with S
+	T extends AnyParamConstructor<any>,
+	QueryHelpers,
+	S = DocumentType<InstanceType<T>, QueryHelpers>
 > = mongoose.QueryWithHelpers<S | null, S, QueryHelpers>;
 
 /**
@@ -40,3 +45,10 @@ export type QueryHelperThis<
 	```
 */
 export type QueryMethodMap = Map<string, Func>;
+
+/** Type copied from mongoose, because it is not exported but used in hooks */
+// prettier-ignore
+export type QueryResultType<T> =
+	T extends mongoose.Query<infer ResultType, any> ?
+		ResultType :
+	never;
