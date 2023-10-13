@@ -1,3 +1,5 @@
+import { toStringNoFail } from '../utils/to-string.js';
+
 export class InvalidOptionsConstructorError extends TypeError {
 	constructor(name: string, key: string, type: unknown) {
 		super(

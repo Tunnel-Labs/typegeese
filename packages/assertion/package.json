@@ -1,8 +1,7 @@
 {
-	"name": "@-/schema",
+	"name": "@-/assertion",
 	"type": "module",
 	"dependencies": {
-		"loglevel": "^1.8.1",
 		"@-/types": "workspace:*"
 	}
 }

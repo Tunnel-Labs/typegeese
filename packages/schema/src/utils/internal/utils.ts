@@ -170,18 +170,6 @@ export function isWithEnumValidate(options: PropOptionsForNumber | PropOptionsFo
   return intersection(Object.keys(options), ['enum']);
 }
 
-const virtualOptions = ['localField', 'foreignField'];
-
-/**
-	Check if the "options" contain any Virtual-Populate related options (excluding "ref" by it self)
-	@param options The raw Options
-*/
-export function isWithVirtualPOP(options: Partial<VirtualOptions>): boolean {
-  return Object.keys(options).some((v) => virtualOptions.includes(v));
-}
-
-export const allVirtualoptions = virtualOptions.slice(0); // copy "virtualOptions" array
-allVirtualoptions.push('ref');
 
 /**
 	Check if all Required options for Virtual-Populate are included in "options"
@@ -452,18 +440,6 @@ export function getType(typeOrFunc: Func | any, returnLastFoundArray: boolean = 
   return returnObject;
 }
 
-/**
-	Is the provided input an class with an constructor?
-	@param obj The Value to test
-*/
-export function isConstructor(obj: any): obj is AnyParamConstructor<any> {
-  return (
-    typeof obj === 'function' && !isNullOrUndefined(obj.prototype?.constructor?.name)
-    // TODO: maybe change to the following implementation, because it would be more correct, but would involve some refactoring
-    // if the js environment is spec-compliant, then the following should always work
-    // /^class\s/.test(Function.prototype.toString.call(obj))
-  );
-}
 
 // /**
 // 	Execute util.deprecate or when "process" does not exist use "console.log"
@@ -511,33 +487,6 @@ export function warnNotMatchingExisting(fromName: string, clName: string, proper
   );
 }
 
-/**
-	Try to convert input "value" to a String, without it failing
-	@param value The Value to convert to String
-	@returns A String, either "value.toString" or a placeholder
-*/
-export function toStringNoFail(value: unknown): string {
-  try {
-    return String(value);
-  } catch (_) {
-    return '(Error: Converting value to String failed)';
-  }
-}
-
-/**
-	Map options from {@link IModelOptions} to {@link INamingOptions}
-	@param options The options to map
-	@returns Always a object, contains mapped options from {@link IModelOptions}
-*/
-export function mapModelOptionsToNaming(options: IModelOptions | undefined): INamingOptions {
-  const mappedNaming: INamingOptions = { ...options?.options }; // this copies more than necessary, but works because most of the options are from there
-
-  if (!isNullOrUndefined(options?.schemaOptions?.collection)) {
-    mappedNaming.schemaCollection = options?.schemaOptions?.collection;
-  }
-
-  return mappedNaming;
-}
 
 /**
 	Helper function to check if caching is enabled globally

@@ -1,5 +1,6 @@
-import { AssertionFallbackError } from '../errors/$.js';
+import { AssertionFallbackError, NoValidClassError } from '../errors/$.js';
 import type { DeferredFunc, Func } from '@-/types';
+import { isConstructor } from './typeguards.js';
 
 /**
 	Assert a condition, if "false" throw error

@@ -3,7 +3,7 @@ import { globalOptions } from './data.js';
 import { ExpectedTypeError } from './internal/errors.js';
 import { assertion, isNullOrUndefined } from './internal/utils.js';
 import { logger } from './log-settings.js';
-import type { IGlobalOptions } from '@typegeese/types'
+import type { IGlobalOptions } from '@-/types'
 
 /**
 	Set Typegoose's global Options

@@ -1,6 +1,6 @@
 import { DecoratorKeys } from '../enums/decorator-keys.js';
-import { ExpectedTypeError } from '../errors/type.js';
-import type { HookOptionsEither, IHooksArray, Hooks } from '@typegeese/types'
+import { ExpectedTypeError } from '../../../errors/src/errors/type.js';
+import type { HookOptionsEither, IHooksArray, Hooks } from '@-/types'
 import { assertion, getName } from './internal/utils';
 import { logger } from './logSettings';
 

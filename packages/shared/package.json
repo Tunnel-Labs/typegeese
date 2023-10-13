@@ -1,8 +1,8 @@
 {
-	"name": "@-/schema",
+	"name": "@-/shared",
 	"type": "module",
+	"exports": "./src/index.ts",
 	"dependencies": {
-		"loglevel": "^1.8.1",
 		"@-/types": "workspace:*"
 	}
 }

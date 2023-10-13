@@ -1,4 +1,12 @@
 {
-	"name": "@typegeese/server",
-	"type": "module"
+	"name": "@-/server",
+	"type": "module",
+	"dependencies": {
+		"@-/shared": "workspace:*",
+		"@-/types": "workspace:*",
+		"semver": "^7.5.4"
+	},
+	"devDependencies": {
+		"@types/semver": "^7.5.3"
+	}
 }

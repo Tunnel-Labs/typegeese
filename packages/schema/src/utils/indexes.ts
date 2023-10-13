@@ -3,7 +3,7 @@ import type * as mongoose from 'mongoose';
 import { getName } from './internal/utils';
 import { logger } from './logSettings';
 import { DecoratorKeys } from '../enums/decorator-keys.js';
-import type { IIndexArray, IndexOptions } from '@typegeese/types'
+import type { IIndexArray, IndexOptions } from '@-/types'
 
 /**
 	Defines a index for this Class which will then be added to the Schema.

@@ -1,9 +1,8 @@
 {
-	"name": "@-/types",
+	"name": "@-/virtual-options",
 	"type": "module",
 	"exports": "./src/index.ts",
 	"dependencies": {
-		"@-/enums": "workspace:*",
-		"mongoose": "^7.6.2"
+		"@-/types": "workspace:*"
 	}
 }

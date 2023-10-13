@@ -1,3 +1,5 @@
+import { toStringNoFail } from '../utils/to-string.js';
+
 export class NotValidModelError extends TypeError {
 	constructor(model: unknown, where: string) {
 		super(

@@ -1,0 +1,4 @@
+{
+	"name": "@-/errors",
+	"exports": "./src/index.ts"
+}

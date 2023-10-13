@@ -1,4 +1,5 @@
-import type { BasePropOptions, InnerOuterOptions } from '../$.js';
+import type { InnerOuterOptions } from './inner-outer.js';
+import type { BasePropOptions } from './base-prop.js';
 
 /** Options for Array's */
 export interface ArrayPropOptions extends BasePropOptions, InnerOuterOptions {

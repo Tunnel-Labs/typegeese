@@ -1,3 +1,5 @@
+import { toStringNoFail } from '../utils/to-string.js';
+
 export class NoValidClassError extends TypeError {
 	constructor(value: unknown) {
 		super(

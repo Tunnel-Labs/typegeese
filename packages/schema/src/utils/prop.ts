@@ -9,7 +9,7 @@ import type {
 	PropOptionsForNumber,
 	PropOptionsForString,
 	VirtualOptions
-} from '@typegeese/types'
+} from '@-/types'
 import { assertion } from './assertion.js';
 import { isNullOrUndefined } from './typeguards.js';
 

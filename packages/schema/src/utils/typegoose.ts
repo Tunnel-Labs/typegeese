@@ -14,20 +14,7 @@ import {
   warnNotMatchingExisting,
 } from './internal/utils';
 
-// using "typeof process", because somehow js gives a ReferenceError when using "process === undefined" in browser
-/* istanbul ignore next */
-if (typeof process !== 'undefined' && !isNullOrUndefined(process?.version) && !isNullOrUndefined(mongoose?.version)) {
-  // for usage on client side
-  /* istanbul ignore next */
-  if (semver.lt(mongoose?.version, '7.6.1')) {
-    throw new Error(`Please use mongoose 7.6.1 or higher (Current mongoose: ${mongoose.version}) [E001]`);
-  }
 
-  /* istanbul ignore next */
-  if (semver.lt(process.version.slice(1), '14.17.0')) {
-    throw new Error('You are using a NodeJS Version below 14.17.0, Please Upgrade! [E002]');
-  }
-}
 
 import { parseENV, setGlobalOptions } from './globalOptions';
 import { DecoratorKeys } from './internal/constants';
@@ -47,27 +34,6 @@ import type {
   IBuildSchemaOptions,
 } from './types';
 import { CacheDisabledError, ExpectedTypeError, FunctionCalledMoreThanSupportedError, NotValidModelError } from './internal/errors';
-
-/* exports */
-// export the internally used "mongoose", to not need to always import it
-export { mongoose, setGlobalOptions };
-export { setLogLevel, LogLevels } from './logSettings';
-export * from './prop';
-export * from './hooks';
-export * from './plugin';
-export * from './indexes';
-export * from './modelOptions';
-export * from './queryMethod';
-export * from './typeguards';
-export * as defaultClasses from './defaultClasses';
-export * as errors from './internal/errors';
-export * as types from './types';
-// the following types are re-exported (instead of just in "types") because they are often used types
-export { DocumentType, Ref, ReturnModelType, SubDocumentType, ArraySubDocumentType };
-export { getClass, getName } from './internal/utils';
-export { Severity, PropType } from './internal/constants';
-
-parseENV(); // call this before anything to ensure they are applied
 
 
 /**
