@@ -24,7 +24,7 @@ export type AsQueryMethod<T extends (...args: any) => any> = (
 
 /**
 	Helper type to easily set the `this` type in a QueryHelper function
- *
+
 	@example
 	function findById(this: QueryHelperThis<typeof YourClass, YourClassQueryHelpers>, id: string) {
 	  return this.findOne({ _id: id });

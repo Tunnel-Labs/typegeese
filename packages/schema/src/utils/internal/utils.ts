@@ -90,27 +90,6 @@ export function isObject(Type: any, once: boolean = false): boolean {
   return false;
 }
 
-/**
-	Returns true, if it is an Number
-	@param Type The Type to test
-	@returns true, if it is an Number
-*/
-export function isNumber(Type: any): Type is number {
-  const name = Type?.name ?? '';
-
-  return name === 'Number' || name === mongoose.Schema.Types.Number.name;
-}
-
-/**
-	Returns true, if it is an String
-	@param Type The Type to test
-	@returns true, if it is an String
-*/
-export function isString(Type: any): Type is string {
-  const name = Type?.name ?? '';
-
-  return name === 'String' || name === mongoose.Schema.Types.String.name;
-}
 
 /**
 	Get or init the Cached Schema
@@ -210,44 +189,6 @@ allVirtualoptions.push('ref');
 */
 export function includesAllVirtualPOP(options: Partial<VirtualOptions>): options is VirtualOptions {
   return allVirtualoptions.every((v) => Object.keys(options).includes(v));
-}
-
-/**
-	Merge "value" with existing Metadata and save it to the class
-	Difference with "mergeMetadata" is that this one DOES save it to the class
-	Overwrites any existing Metadata that is new in "value"
-	@param key Metadata key to read from and assign the new value to
-	@param value Options to merge with
-	@param cl The Class to read and assign the new metadata to
-	@internal
-*/
-export function assignMetadata(key: DecoratorKeys, value: unknown, cl: AnyParamConstructor<any>): any {
-  if (isNullOrUndefined(value)) {
-    return value;
-  }
-
-  const newValue = mergeMetadata(key, value, cl);
-  Reflect.defineMetadata(key, newValue, cl);
-
-  return newValue;
-}
-
-/**
-	Merge "value" with existing Metadata
-	Difference with "assignMetadata" is that this one DOES NOT save it to the class
-	Overwrites any existing Metadata that is new in "value"
-	@param key Metadata key to read existing metadata from
-	@param value Option to merge with
-	@param cl The Class to read the metadata from
-	@returns Returns the merged output, where "value" overwrites existing Metadata values
-	@internal
-*/
-export function mergeMetadata<T = any>(key: DecoratorKeys, value: unknown, cl: AnyParamConstructor<any>): T {
-  assertion(typeof key === 'string' && key.length > 0, () => new StringLengthExpectedError(1, key, getName(cl), 'key'));
-  assertionIsClass(cl);
-
-  // Please don't remove the other values from the function, even when unused - it is made to be clear what is what
-  return mergeWith({}, Reflect.getMetadata(key, cl), value, (_objValue, srcValue, ckey) => customMerger(ckey, srcValue));
 }
 
 /**
@@ -402,97 +343,6 @@ export function mapArrayOptions(
 }
 
 /**
-	Map Options to "inner" & "outer"
-	@param rawOptions The raw options
-	@param Type The Type of the array
-	@param target The Target class
-	@param pkey Key of the Property
-	@param loggerType Type to use for logging
-*/
-export function mapOptions(
-  rawOptions: any,
-  Type: AnyParamConstructor<any> | (mongoose.Schema & IPrototype),
-  target: any,
-  pkey: string,
-  loggerType?: AnyParamConstructor<any>
-): MappedInnerOuterOptions {
-  logger.debug('mapOptions called');
-  loggerType = loggerType ?? (Type as AnyParamConstructor<any>);
-
-  /** The Object that gets returned */
-  const ret: MappedInnerOuterOptions = {
-    inner: {},
-    outer: {},
-  };
-
-  // if Type is not a Schema, try to convert js type to mongoose type (Object => Mixed)
-  if (!(Type instanceof mongoose.Schema)) {
-    // set the loggerType to the js type
-    loggerType = Type;
-    const loggerTypeName = getName(loggerType);
-
-    if (loggerTypeName in mongoose.Schema.Types) {
-      logger.info('Converting "%s" to mongoose Type', loggerTypeName);
-      Type = mongoose.Schema.Types[loggerTypeName];
-
-      if (Type === mongoose.Schema.Types.Mixed) {
-        warnMixed(target, pkey);
-      }
-    }
-  }
-
-  if (isNullOrUndefined(loggerType)) {
-    logger.info('mapOptions loggerType is undefined!');
-  }
-
-  /** The OptionsConstructor to use */
-  let OptionsCTOR: undefined | mongoose.SchemaTypeOptions<any> = Type?.prototype?.OptionsConstructor;
-
-  if (Type instanceof mongoose.Schema) {
-    OptionsCTOR = mongoose.Schema.Types.Subdocument.prototype.OptionsConstructor;
-  }
-
-  assertion(!isNullOrUndefined(OptionsCTOR), () => new InvalidOptionsConstructorError(getName(target), pkey, loggerType));
-
-  const options = Object.assign({}, rawOptions); // for sanity
-
-  if (OptionsCTOR.prototype instanceof mongoose.SchemaTypeOptions) {
-    for (const [key, value] of Object.entries(options)) {
-      if (Object.getOwnPropertyNames(OptionsCTOR.prototype).includes(key)) {
-        ret.inner[key] = value;
-      } else {
-        ret.outer[key] = value;
-      }
-    }
-  } else {
-    if (loggerType) {
-      logger.info('The Type "%s" has a property "OptionsConstructor" but it does not extend "SchemaTypeOptions"', getName(loggerType));
-    }
-
-    ret.outer = options;
-  }
-
-  if (typeof options?.innerOptions === 'object') {
-    delete ret.outer.innerOptions;
-    for (const [key, value] of Object.entries(options.innerOptions)) {
-      ret.inner[key] = value;
-    }
-  }
-  if (typeof options?.outerOptions === 'object') {
-    delete ret.outer.outerOptions;
-    for (const [key, value] of Object.entries(options.outerOptions)) {
-      ret.outer[key] = value;
-    }
-  }
-
-  if (loggerType) {
-    logger.debug('Final mapped Options for Type "%s"', getName(loggerType), ret);
-  }
-
-  return ret;
-}
-
-/**
 	Check if the current Type is meant to be a Array
 	@param rawOptions The raw options
 */
@@ -536,55 +386,6 @@ export function warnMixed(target: any, key: string): void | never {
 }
 
 /**
-	Check if "val" is "null" to "undefined"
-	This Function exists because since node 4.0.0 the internal util.is* functions got deprecated
-	@param val Any value to test if null or undefined
-*/
-export function isNullOrUndefined(val: unknown): val is null | undefined {
-  return val === null || val === undefined;
-}
-
-/**
-	Assign Global ModelOptions if not already existing
-	@param target Target Class
-	@returns "true" when it assigned options
-*/
-export function assignGlobalModelOptions(target: any): boolean {
-  if (isNullOrUndefined(Reflect.getMetadata(DecoratorKeys.ModelOptions, target))) {
-    logger.info('Assigning global Schema Options to "%s"', getName(target));
-    assignMetadata(DecoratorKeys.ModelOptions, omit(globalOptions, 'globalOptions'), target);
-
-    return true;
-  }
-
-  return false;
-}
-
-/**
-	Consistently get the "ModelOptions", merged with (the following is the order in which options are applied):
-	1. globalOptions if unset
-	2. decorator ModelOptions
-	3. input "rawOptions"
- *
-	Note: applies global options to the decorator options if unset, but does not set the final options
-	@param rawOptions Options to merge(-overwrite) all previous options
-	@param cl The Class to get / set the ModelOptions on
-	@returns A ModelOptions object
-*/
-export function getMergedModelOptions(rawOptions: IModelOptions | undefined, cl: AnyParamConstructor<any>): IModelOptions {
-  const opt = typeof rawOptions === 'object' ? rawOptions : {};
-
-  if (assignGlobalModelOptions(cl)) {
-    opt[AlreadyMerged] = false;
-  }
-
-  const mergedOptions: IModelOptions = opt?.[AlreadyMerged] ? opt : mergeMetadata(DecoratorKeys.ModelOptions, rawOptions, cl);
-  mergedOptions[AlreadyMerged] = true;
-
-  return mergedOptions;
-}
-
-/**
 	Loop over "dimensions" and create an array from that
 	@param rawOptions baseProp's rawOptions
 	@param extra What is actually in the deepest array
@@ -611,27 +412,6 @@ export function createArrayFromDimensions(rawOptions: any, extra: any, name: str
   return retArray as any[];
 }
 
-/**
-	Assert a condition, if "false" throw error
-	Note: it is not named "assert" to differentiate between node and jest types
- *
-	Note: "error" can be a function to not execute the constructor when not needed
-	@param cond The Condition to check
-	@param error A Custom Error to throw or a function that returns a Error
-*/
-export function assertion(cond: any, error?: Error | DeferredFunc<Error>): asserts cond {
-  if (!cond) {
-    throw typeof error === 'function' ? error() : error ?? new AssertionFallbackError();
-  }
-}
-
-/**
-	Assert if "val" is an function (constructor for classes)
-	@param val Value to test
-*/
-export function assertionIsClass(val: any): asserts val is Func {
-  assertion(isConstructor(val), () => new NoValidClassError(val));
-}
 
 /**
 	Get Type, if input is an arrow-function, execute it and return the result

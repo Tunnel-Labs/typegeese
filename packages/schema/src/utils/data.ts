@@ -1,5 +1,5 @@
 import type { Model } from 'mongoose';
-import type { IGlobalOptions } from '../types';
+import type { IGlobalOptions } from '@typegeese/types';
 import { Severity } from './constants';
 
 /** Models Map */

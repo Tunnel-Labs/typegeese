@@ -1,14 +1,15 @@
 import * as mongoose from 'mongoose';
-import { isNullOrUndefined } from './internal/utils';
-import { logger } from './logSettings';
-import type { DocumentType, Ref, RefType } from './types';
+import { logger } from './log-settings.js';
+import type { DocumentType, Ref, RefType } from '@typegeese/types'
 
 /**
 	Check if the given document is populated
 	@param doc The Ref with uncertain type
 */
-export function isDocument<T, S extends RefType>(doc: Ref<T, S> | null | undefined): doc is DocumentType<T> {
-  return doc instanceof mongoose.Model;
+export function isDocument<T, S extends RefType>(
+	doc: Ref<T, S> | null | undefined
+): doc is DocumentType<T> {
+	return doc instanceof mongoose.Model;
 }
 
 /**
@@ -17,48 +18,60 @@ export function isDocument<T, S extends RefType>(doc: Ref<T, S> | null | undefin
 	@param docs The Array of Refs with uncertain type
 */
 export function isDocumentArray<T, S extends RefType>(
-  docs: mongoose.Types.Array<Ref<T, S>> | null | undefined
+	docs: mongoose.Types.Array<Ref<T, S>> | null | undefined
 ): docs is mongoose.Types.Array<DocumentType<NonNullable<T>>>;
 /**
 	Check if the given array is fully populated
 	Only returns "true" if all members in the array are populated
 	@param docs The Array of Refs with uncertain type
 */
-export function isDocumentArray<T, S extends RefType>(docs: Ref<T, S>[] | null | undefined): docs is DocumentType<NonNullable<T>>[];
-export function isDocumentArray(docs: Ref<any, any>[] | null | undefined): unknown {
-  // its "any" & "unknown" because this is not listed as an overload
-  return Array.isArray(docs) && docs.every((v) => isDocument(v));
+export function isDocumentArray<T, S extends RefType>(
+	docs: Ref<T, S>[] | null | undefined
+): docs is DocumentType<NonNullable<T>>[];
+export function isDocumentArray(
+	docs: Ref<any, any>[] | null | undefined
+): unknown {
+	// its "any" & "unknown" because this is not listed as an overload
+	return Array.isArray(docs) && docs.every((v) => isDocument(v));
 }
 
-type AllowedRefTypes = typeof String | typeof Number | typeof Buffer | typeof mongoose.Types.ObjectId | typeof mongoose.Types.Buffer;
+type AllowedRefTypes =
+	| typeof String
+	| typeof Number
+	| typeof Buffer
+	| typeof mongoose.Types.ObjectId
+	| typeof mongoose.Types.Buffer;
 
 /**
 	Check if the document is of type "refType"
 	@param doc The Ref with uncretain type
 	@param refType The Expected Reference Type (this is required because this type is only known at compile time, not at runtime)
 */
-export function isRefType<T, S extends RefType>(doc: Ref<T, S> | null | undefined, refType: AllowedRefTypes): doc is NonNullable<S> {
-  logger.info('isRefType:', refType);
+export function isRefType<T, S extends RefType>(
+	doc: Ref<T, S> | null | undefined,
+	refType: AllowedRefTypes
+): doc is NonNullable<S> {
+	logger.info('isRefType:', refType);
 
-  if (isNullOrUndefined(doc) || isDocument(doc)) {
-    return false;
-  }
+	if (isNullOrUndefined(doc) || isDocument(doc)) {
+		return false;
+	}
 
-  // this "ObjectId" test is in the front, because its the most common - to lower resource use
-  if (refType === mongoose.Types.ObjectId) {
-    return doc instanceof mongoose.Types.ObjectId;
-  }
-  if (refType === String) {
-    return typeof doc === 'string';
-  }
-  if (refType === Number) {
-    return typeof doc === 'number';
-  }
-  if (refType === Buffer || refType === mongoose.Types.Buffer) {
-    return doc instanceof Buffer;
-  }
+	// this "ObjectId" test is in the front, because its the most common - to lower resource use
+	if (refType === mongoose.Types.ObjectId) {
+		return doc instanceof mongoose.Types.ObjectId;
+	}
+	if (refType === String) {
+		return typeof doc === 'string';
+	}
+	if (refType === Number) {
+		return typeof doc === 'number';
+	}
+	if (refType === Buffer || refType === mongoose.Types.Buffer) {
+		return doc instanceof Buffer;
+	}
 
-  return false;
+	return false;
 }
 
 /**
@@ -68,8 +81,8 @@ export function isRefType<T, S extends RefType>(doc: Ref<T, S> | null | undefine
 	@param refType The Expected Reference Type (this is required because this type is only known at compile time, not at runtime)
 */
 export function isRefTypeArray<T, S extends RefType>(
-  docs: mongoose.Types.Array<Ref<T, S>> | null | undefined,
-  refType: AllowedRefTypes
+	docs: mongoose.Types.Array<Ref<T, S>> | null | undefined,
+	refType: AllowedRefTypes
 ): docs is mongoose.Types.Array<NonNullable<S>>;
 /**
 	Check if the array is fully of type "refType"
@@ -78,12 +91,15 @@ export function isRefTypeArray<T, S extends RefType>(
 	@param refType The Expected Reference Type (this is required because this type is only known at compile time, not at runtime)
 */
 export function isRefTypeArray<T, S extends RefType>(
-  docs: Ref<T, S>[] | null | undefined,
-  refType: AllowedRefTypes
+	docs: Ref<T, S>[] | null | undefined,
+	refType: AllowedRefTypes
 ): docs is NonNullable<S>[];
-export function isRefTypeArray(docs: Ref<any, any>[] | null | undefined, refType: AllowedRefTypes): unknown {
-  // its "any" & "unknown" because this is not listed as an overload
-  return Array.isArray(docs) && docs.every((v) => isRefType(v, refType));
+export function isRefTypeArray(
+	docs: Ref<any, any>[] | null | undefined,
+	refType: AllowedRefTypes
+): unknown {
+	// its "any" & "unknown" because this is not listed as an overload
+	return Array.isArray(docs) && docs.every((v) => isRefType(v, refType));
 }
 
 /**
@@ -91,5 +107,36 @@ export function isRefTypeArray(docs: Ref<any, any>[] | null | undefined, refType
 	@param model The Value to check
 */
 export function isModel(model: any): model is mongoose.Model<any> {
-  return model?.prototype instanceof mongoose.Model;
+	return model?.prototype instanceof mongoose.Model;
+}
+
+/**
+	Returns true, if it is an Number
+	@param Type The Type to test
+	@returns true, if it is an Number
+*/
+export function isNumber(Type: any): Type is number {
+	const name = Type?.name ?? '';
+
+	return name === 'Number' || name === mongoose.Schema.Types.Number.name;
+}
+
+/**
+	Returns true, if it is an String
+	@param Type The Type to test
+	@returns true, if it is an String
+*/
+export function isString(Type: any): Type is string {
+	const name = Type?.name ?? '';
+
+	return name === 'String' || name === mongoose.Schema.Types.String.name;
+}
+
+/**
+	Check if "val" is "null" to "undefined"
+	This Function exists because since node 4.0.0 the internal util.is* functions got deprecated
+	@param val Any value to test if null or undefined
+*/
+export function isNullOrUndefined(val: unknown): val is null | undefined {
+	return val === null || val === undefined;
 }

@@ -1,5 +1,5 @@
-import type { AnyParamConstructor, KeyStringAny } from '../types/$.js';
-import { PropType } from '../enums/$.js';
+import type { AnyParamConstructor, KeyStringAny } from './$.js';
+import { PropType } from '../../../schema/src/enums/$.js';
 
 /** Type for the Values stored in the Reflection for Properties */
 export interface DecoratedPropertyMetadata {

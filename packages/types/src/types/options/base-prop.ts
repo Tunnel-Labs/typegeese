@@ -8,7 +8,7 @@ import type {
 	KeyStringAny,
 	NestedDiscriminatorsFunction
 } from '../$.js';
-import { Severity } from '../../enums/$.js';
+import { Severity } from '../../../../schema/src/enums/$.js';
 
 /**
 	This Interface for most properties uses "mongoose.SchemaTypeOptions<any>['']", but for some special (or typegoose custom) options, it is not used

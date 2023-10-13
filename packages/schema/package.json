@@ -1,4 +1,8 @@
 {
 	"name": "@typegeese/schema",
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"loglevel": "^1.8.1",
+		"@typegeese/types": "workspace:*"
+	}
 }

@@ -1,0 +1,8 @@
+{
+	"name": "@typegeese/types",
+	"type": "module",
+	"exports": "./src/index.ts",
+	"dependencies": {
+		"mongoose": "^7.6.2"
+	}
+}

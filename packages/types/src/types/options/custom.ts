@@ -1,4 +1,4 @@
-import { Severity } from '../../enums/severity.js';
+import { Severity } from '../../../../schema/src/enums/severity.js';
 import type { CustomNameFunction, NestedDiscriminatorsFunction } from '../$.js';
 
 /** Typegoose options, mostly for "modelOptions({ options: ICustomOptions })" */
