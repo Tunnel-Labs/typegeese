@@ -1,8 +1,8 @@
 {
-	"name": "@typegeese/types",
+	"name": "@typegeese/shape",
 	"type": "module",
 	"exports": "./src/$.ts",
 	"dependencies": {
-		"mongoose": "^7.6.2"
+		"@typegeese/types": "workspace:*"
 	}
 }

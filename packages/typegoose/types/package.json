@@ -1,0 +1,9 @@
+{
+	"name": "@-/types",
+	"type": "module",
+	"exports": "./src/index.ts",
+	"dependencies": {
+		"@-/enums": "workspace:*",
+		"mongoose": "^7.6.2"
+	}
+}

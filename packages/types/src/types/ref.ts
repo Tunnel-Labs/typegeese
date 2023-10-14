@@ -1,17 +1,40 @@
+import type { DocumentType } from '@typegoose/typegoose';
 import type * as mongoose from 'mongoose';
-import type { DocumentType } from './$.js';
 
-export type RefType = mongoose.RefType;
+import type { ForeignRef, VirtualForeignRef } from './refs.js';
 
-/**
-	Reference another Model
-*/
 // prettier-ignore
-export type Ref<
+export interface Ref<
 	PopulatedType,
-	RawId extends mongoose.RefType = PopulatedType extends {
-		_id?: mongoose.RefType;
-	} ?
-		NonNullable<PopulatedType['_id']> :
-	mongoose.Types.ObjectId
-> = mongoose.PopulatedDoc<DocumentType<PopulatedType>, RawId>;
+	RawId extends mongoose.RefType =
+		PopulatedType extends { _id?: mongoose.RefType } ?
+			NonNullable<PopulatedType['_id']> :
+		mongoose.Types.ObjectId
+	// @ts-expect-error: necessary
+> extends mongoose.PopulatedDoc<DocumentType<PopulatedType>, RawId> {
+	__ref?: true;
+}
+
+// prettier-ignore
+export type IsForeignRef<T> =
+	ForeignRef<any, any, any> extends NonNullable<T> ?
+		true :
+	false;
+
+// prettier-ignore
+export type IsForeignRefArray<T> =
+	ForeignRef<any, any, any>[] extends NonNullable<T> ?
+		true :
+	false;
+
+// prettier-ignore
+export type IsVirtualForeignRef<T> =
+	VirtualForeignRef<any, any, any> extends NonNullable<T> ?
+		true :
+	false;
+
+// prettier-ignore
+export type IsVirtualForeignRefArray<T> =
+	VirtualForeignRef<any, any, any>[] extends NonNullable<T> ?
+		true :
+	false;

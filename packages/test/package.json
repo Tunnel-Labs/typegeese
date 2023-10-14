@@ -1,0 +1,10 @@
+{
+	"name": "@-/test",
+	"type": "module",
+	"dependencies": {
+		"mem": "9.0.2",
+		"typegeese": "workspace:*",
+		"@typegeese/shape": "workspace:*",
+		"@typegeese/types": "workspace:*"
+	}
+}

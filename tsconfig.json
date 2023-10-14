@@ -1,10 +1,12 @@
 {
 	"extends": "lionconfig/tsconfig.json",
 	"compilerOptions": {
-		"outDir": "dist"
+		"outDir": "dist",
+		"baseUrl": ".",
+		"rootDir": ".",
+		"experimentalDecorators": true
 	},
-	"references": [
-		{ "path": "./tsconfig.build.json" },
-		{ "path": "./tsconfig.test.json" }
+	"include": [
+		"./packages"
 	]
 }

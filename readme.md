@@ -27,7 +27,7 @@ The first version (v0) of a schema extends from `Schema('Name')`:
 // ./user/v0.ts
 import { Schema, prop } from "typegeese";
 
-export class User extends Schema('User')<typeof User> {
+export default class User extends Schema('User')<typeof User> {
   static _v = 0;
 
   @prop({ type: String, required: true })
@@ -40,7 +40,7 @@ export class User extends Schema('User')<typeof User> {
 
 ```typescript
 // ./user/$schema.ts
-export * from './v0.js';
+export { default as User } from './v0.js';
 ```
 
 <details>
@@ -67,13 +67,16 @@ When you want to add a new property, you extend the previous version of your sch
 // ./user/v1-add-profile-image.ts
 import { Schema, prop } from "typegeese";
 
-import * as UserV0 from './v0.js';
+import UserV0 from './v0.js';
 
-export class User extends Schema(UserV0)<typeof User> {
+export default class User extends Schema(UserV0)<typeof User> {
   static _v = 'v1-profile-image';
 
   @prop({ type: String, required: false })
   profileImageUrl!: string | null;
+
+  static _migration = (migrate: Migrate<UserV0, User>) =>
+    migrate({ profileImageUrl: null });
 }
 ```
 
@@ -88,52 +91,48 @@ When the schema change requires a migration, you can export a `Model_migration` 
 // ./user/v2-add-username.ts
 import {
   createMigration,
-  getModelForHyperschema,
+  getModelForSchema,
   select,
   Schema,
-  prop
+  prop,
+  type Migration
 } from 'typegeese';
 
-import * as UserV1 from './v1-add-profile-image.js';
+import UserV1 from './v1-add-profile-image.js';
 
-export class User extends Schema(UserV1)<typeof User> {
+export default class User extends Schema(UserV1)<typeof User> {
   static _v = 'v2-add-username';
 
   @prop({ type: String, required: true })
   username!: string;
 
-  // This property is required by TypeScript to ensure that we don't forget to
-  // add a migration (even if the migration is a no-op).
-  static migration: typeof User_migration
-}
-
-export const User_migration = createMigration<User>()
-  .from(UserV1)
-  .with(async function ({ _id }) {
-    const UserV1Model = getModelForHyperschema(UserV1, { mongoose: this.mongoose });
+  static _migration = async (migrate: Migrate<UserV1, User>) => {
+    const { _id, mongoose } = migrate;
+    const UserV1Model = getModelForSchema(UserV1, { mongoose });
     const user = await select(
       UserV1Model.findById(_id),
       { email: true }
     );
-    return user;
-  })
-  .migrate({
-    username() {
-      return this.email.split("@")[0];
-    }
-  });
+
+    if (user === null) return null;
+
+    return migrate({
+      username: email.split('@')[0]
+    })
+  }
+}
 ```
 
 ```typescript
 // ./user/$schema.ts
-export * from './v2-add-username.js';
+export { default as User } from './v2-add-username.js';
 ```
 
 For readability, typegeese exports a `t` helper that uses TypeScript inference to help you define a type containing all of your schema's properties in one place:
 
 ```typescript
 // ./user/$schema.ts
-export * from './v2-add-username.js';
+export { default as User } from './v2-add-username.js';
 
 import type { t } from 'typegeese';
 import type * as $ from '../$schemas.js';
@@ -159,7 +158,7 @@ The examples use the following UserV0 schema:
 // ./user/v0.ts
 import { Schema, prop } from 'typegeese';
 
-export class User extends Schema('User')<typeof User> {
+export default class User extends Schema('User')<typeof User> {
   static _v = 0;
 
   @prop({ type: String, required: true })
@@ -178,11 +177,12 @@ import {
   Schema,
   prop,
   createMigration,
-  getModelForHyperschema,
-  select
+  getModelForSchema,
+  select,
+  type Migration
 } from 'typegeese';
 
-import * as UserV0 from './v0.js';
+import UserV0 from './v0.js';
 
 export class User extends Schema(UserV0)<typeof User> {
   static _v = 'v1-add-username';
@@ -190,24 +190,21 @@ export class User extends Schema(UserV0)<typeof User> {
   @prop({ type: String, required: true })
   username!: string;
 
-  static migration: typeof User_migration;
-}
-
-export const User_migration = createMigration<User>()
-  .from(UserV0)
-  .with(async function ({ _id }) {
-    const UserV0Model = getModelForHyperschema(UserV0, { mongoose: this.mongoose });
+  static _migration = (migrate: Migrate<UserV0, User>) => {
+    const { _id, mongoose } = migrate;
+    const UserV0Model = getModelForSchema(UserV0, { mongoose });
     const user = await select(
       UserV0Model.findById(_id),
       { email: true }
     );
-    return user;
-  })
-  .migrate({
-    username() {
-      return this.email.split("@")[0];
-    }
-  });
+
+    if (user === null) return null;
+
+    return migrate({
+      username: email.split('@')[0]
+    })
+  }
+}
 ```
 
 ### Removing a field
@@ -216,7 +213,7 @@ export const User_migration = createMigration<User>()
 // ./user/v1-remove-name.ts
 import { Schema, prop } from 'typegeese';
 
-import * as UserV0 from './v0.js';
+import UserV0 from './v0.js';
 
 export class User extends Schema(
   UserV0
@@ -224,13 +221,8 @@ export class User extends Schema(
 )<typeof User> {
   static _v = 'v1-remove-name';
 
-  static migration: typeof User_migration
+  static _migration = (migrate: Migrate<UserV0, User>) => migrate({})
 }
-
-export const User_migration = createMigration<User>()
-  .from(UserV0)
-  .with(null)
-  .migrate({});
 ```
 
 ### Renaming a field
@@ -241,7 +233,7 @@ import {
   Schema,
   prop,
   createMigration,
-  getModelForHyperschema,
+  getModelForSchema,
   select
 } from 'typegeese';
 
@@ -256,24 +248,21 @@ export class User extends Schema(
   @prop({ type: String, required: false })
   fullName!: string | null;
 
-  static migration: typeof User_migration;
-}
-
-export const User_migration = createMigration<User>()
-  .from(UserV0)
-  .with(async function ({ _id }) {
-    const UserV0Model = getModelForHyperschema(UserV0, { mongoose: this.mongoose });
+  static _migration = (migrate: Migrate<User, UserV0>) => {
+    const { _id, mongoose } = migrate;
+    const UserV0Model = getModelForSchema(UserV0, { mongoose });
     const user = await select(
       UserV0Model.findById(_id),
       { name: true }
     );
-    return user;
-  })
-  .migrate({
-    fullName() {
-      return this.name;
-    }
-  });
+
+    if (user === null) return null;
+
+    return migrate({
+      fullName: name
+    })
+  }
+}
 ```
 
 ### Renaming a schema
@@ -288,20 +277,16 @@ import {
   Schema,
   prop,
   createMigration,
-  getModelForHyperschema,
+  getModelForSchema,
   select
 } from 'typegeese';
+import UserV0 from './v0.js';
 
 export class User extends Schema(UserV0)<typeof User> {
   static _v = 'v1-rename-to-account';
 
-  static migration: typeof User_migration;
+  static _migration = (migrate: Migrate<UserV0, User>) => migrate({})
 }
-
-export const User_migration = createMigration<User>()
-  .from(UserV0)
-  .with(null)
-  .migrate({});
 ```
 
 ```typescript
@@ -319,10 +304,8 @@ export class Account extends Schema('Account', { from: User })<typeof Account> {
 The `Schema(...)` function is used purely for type inference and returns the `Object` constructor at runtime:
 
 ```typescript
-class User extends Schema('User')<typeof User> {}
-class Post extends Schema(PostV0)<typeof Post> {
-  static _v = 'v1';
-}
+class User extends Schema('User')<typeof User> { /* ... */ }
+class Post extends Schema(PostV0)<typeof Post> { /* ... */ }
 
 // Equivalent at runtime to:
 class User extends Object {}
@@ -333,4 +316,4 @@ class Post extends Object {}
 
 By returning the `Object` constructor in the extends clause, we avoid using inheritance for migrations. This reduces the chance of conflicts with typegoose's intended uses of inheritance (e.g. for discriminator types).
 
-Instead, typegeese dynamically constructs schemas at runtime when the functions `getModelForHyperschema` or `loadHyperschemas` are called.
+Instead, typegeese dynamically constructs schemas at runtime when the functions `getModelForSchema` or `loadHyperschemas` are called.
