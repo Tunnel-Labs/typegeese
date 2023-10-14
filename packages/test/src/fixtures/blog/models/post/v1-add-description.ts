@@ -1,4 +1,10 @@
-import { Migrate, Schema, getModelForSchema, prop, select } from 'typegeese';
+import {
+	type Migrate,
+	Schema,
+	getModelForSchema,
+	prop,
+	select
+} from 'typegeese';
 import PostV0 from './v0.js';
 
 export default class Post extends Schema(PostV0)<typeof Post> {

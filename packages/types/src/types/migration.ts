@@ -1,5 +1,4 @@
 import type * as mongoose from 'mongoose';
-import type { DocumentType } from '@typegoose/typegoose';
 import type { Promisable } from 'type-fest';
 import type { CreateType } from './create.js';
 import type { IsVirtualForeignRef, IsVirtualForeignRefArray } from './ref.js';
@@ -91,7 +90,7 @@ export type Migrate<
 	PreviousSchema extends AnySchemaInstance,
 	CurrentSchema extends AnySchemaInstance
 > = {
-	(properties: A<PreviousSchema, CurrentSchema>): AnyMigrationReturn
+	(properties: MigrationValues<PreviousSchema, CurrentSchema>): AnyMigrationReturn
 	_id: string;
 	mongoose: mongoose.Mongoose;
 };

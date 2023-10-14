@@ -1,7 +1,10 @@
-import { IsEqual } from 'type-fest';
-import { BaseSchemaInstance } from '../../../types/src/types/schema.js';
-import type { ArrayInnerValue } from '../../../types/src/types/array.js';
-import type { ForeignRef, VirtualForeignRef } from '../../../types/src/types/refs.js';
+import type { IsEqual } from 'type-fest';
+import type {
+	ArrayInnerValue,
+	BaseSchemaInstance,
+	ForeignRef,
+	VirtualForeignRef
+} from '@typegeese/types';
 
 export function foreignRef<
 	HostSchemaInstance extends BaseSchemaInstance = never,

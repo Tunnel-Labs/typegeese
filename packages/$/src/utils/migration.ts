@@ -2,16 +2,16 @@ import type {
 	AnyMigrationSchemaClass,
 	AnyModelSchemaClass
 } from '@typegeese/types';
-import { models, type Mongoose } from 'mongoose';
+import type * as mongoose from 'mongoose';
 
 import {
 	getVersionFromMigrationSchema,
 	isVersionedDocument
 } from './version.js';
 import { DecoratorKeys } from './decorator-keys.js';
-
 import { getModelForActiveSchema } from './model.js';
 import { getPreviousMigrationSchema } from './schema.js';
+import { getLatestMigrationSchemaOfModelSchema } from './migration-schema.js';
 
 function getForeignSchemaFromForeignPropertyKey({
 	modelSchemas,
@@ -56,7 +56,7 @@ export async function applySchemaMigrationsToDocument({
 	migrationSchema,
 	updatedProperties
 }: {
-	mongoose: Mongoose;
+	mongoose: mongoose.Mongoose;
 	meta: any;
 	documentMetadata: {
 		_id: string;
@@ -108,7 +108,7 @@ export function createMigrateFunction({
 		modelSchema,
 		documents
 	}: {
-		mongoose: Mongoose;
+		mongoose: mongoose.Mongoose;
 		modelSchema: AnyModelSchemaClass;
 		documents: Array<{ _id: string; _v: number }>;
 	}) {
