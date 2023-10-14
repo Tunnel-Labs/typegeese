@@ -74,5 +74,6 @@ export function getModelForSchema<
 		}
 	});
 
-	return model as any;
+	// @ts-expect-error
+	return model;
 }

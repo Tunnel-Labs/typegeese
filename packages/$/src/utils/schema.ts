@@ -71,10 +71,10 @@ export function createModelSchemaFromMigrationSchema(
 	);
 
 	const migrationSchemasMap = getMigrationSchemasMap();
-	let migrationSchemaMap = migrationSchemasMap.get(schemaName);
+	let migrationSchemaMap = migrationSchemasMap.get(modelSchema.name);
 	if (migrationSchemaMap === undefined) {
 		migrationSchemaMap = new Map();
-		migrationSchemasMap.set(schemaName, migrationSchemaMap);
+		migrationSchemasMap.set(modelSchema.name, migrationSchemaMap);
 	}
 
 	migrationSchemaMap.set(migrationSchemaVersion, migrationSchema);
@@ -191,20 +191,21 @@ export async function loadModelSchemas<
 		meta?: any;
 	}
 ): Promise<
-	Schemas & {
+	{
+		[SchemaKey in Exclude<keyof Schemas, `_${string}`>]: Schemas[SchemaKey];
+	} & {
 		// prettier-ignore
-		[SchemaName in keyof Schemas as `${SchemaName & string}Model`]: ReturnType<
-			typeof getModelForSchema<Schemas[SchemaName]>
+		[SchemaKey in Exclude<keyof Schemas, `_${string}`> as `${SchemaKey & string}Model`]: ReturnType<
+			typeof getModelForSchema<Schemas[SchemaKey]>
 		>;
 	}
 > {
 	const modelSchemas = mapObject(
 		latestMigrationSchemas,
 		(_key, latestMigrationSchema) => {
-			const modelSchema = createModelSchemaFromMigrationSchema({
-				schemaName: latestMigrationSchema.name,
-				migrationSchema: latestMigrationSchema
-			});
+			const modelSchema = createModelSchemaFromMigrationSchema(
+				latestMigrationSchema
+			);
 
 			return [modelSchema.name, modelSchema];
 		}

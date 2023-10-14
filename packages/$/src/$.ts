@@ -4,7 +4,11 @@ export type * from '@typegeese/types';
 // This line is needed in order to prevent "type not portable" errors
 export type * from '@typegoose/typegoose/lib/types.js';
 
-export { defineSchemaOptions, Schema } from './utils/schema.js';
+export {
+	defineSchemaOptions,
+	Schema,
+	loadModelSchemas
+} from './utils/schema.js';
 export { getModelForSchema } from './utils/model.js';
 export { foreignRef, virtualForeignRef } from './utils/ref.js';
 export { select, select as applySelect } from './utils/select.js';

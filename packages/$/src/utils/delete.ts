@@ -1,4 +1,4 @@
-import { models, type PreMiddlewareFunction, type Query } from 'mongoose';
+import type * as mongoose from 'mongoose';
 import { AnyModelSchemaClass } from '@typegeese/types';
 import { pre } from '@typegoose/typegoose';
 
@@ -82,9 +82,9 @@ export function registerOnForeignModelDeletedHooks({
 		const onModelDeletedActions =
 			onParentModelDeletedActions[parentModelName] ?? [];
 
-		const preDeleteOne: PreMiddlewareFunction<Query<any, any>> = function (
-			next
-		) {
+		const preDeleteOne: mongoose.PreMiddlewareFunction<
+			mongoose.Query<any, any>
+		> = function (next) {
 			const parentModel = getModelForActiveSchema({
 				schemaName: parentModelName
 			});
@@ -121,7 +121,7 @@ export function registerOnForeignModelDeletedHooks({
 										return;
 									}
 
-									const childModel = getModelForActiveHyperschema({
+									const childModel = getModelForActiveSchema({
 										schemaName: childModelName
 									});
 
@@ -153,10 +153,10 @@ export function registerOnForeignModelDeletedHooks({
 		};
 
 		pre('deleteOne', preDeleteOne, { document: false, query: true })(
-			schema as any
+			modelSchema
 		);
 		pre('findOneAndDelete', preDeleteOne, { document: false, query: true })(
-			schema as any
+			modelSchema
 		);
 	}
 }

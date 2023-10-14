@@ -1,5 +1,3 @@
-import { AnySchemaClass } from "packages/types/src/$.js";
+import { AnyModelSchemaClass } from '@typegeese/types';
 
-export function getRelationsFromModelSchema(modelSchema: AnySchemaClass) {
-
-}
+export function getRelationsFromModelSchema(modelSchema: AnyModelSchemaClass) {}

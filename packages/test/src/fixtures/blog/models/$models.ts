@@ -1,23 +1,23 @@
-import { registerActiveHyperschemas } from 'typegeese';
 import type { Mongoose } from 'mongoose';
-import * as AccountHyperschema from './account/$schema.js';
-import * as CommentHyperschema from './comment/$schema.js';
-import * as PostHyperschema from './post/$schema.js';
-import * as _UserHyperschema from './_user/$schema.js';
+
+import { loadModelSchemas } from 'typegeese';
+import { Account } from './account/$schema.js';
+import { Comment } from './comment/$schema.js';
+import { Post } from './post/$schema.js';
+import { User } from './_user/$schema.js';
 import mem from 'mem';
 
 export const getBlogModels = mem(
 	async ({ mongoose }: { mongoose: Mongoose }) => {
-		const { AccountModel, CommentModel, PostModel } =
-			await registerActiveHyperschemas(
-				{
-					Account: AccountHyperschema,
-					Comment: CommentHyperschema,
-					Post: PostHyperschema,
-					_User: _UserHyperschema
-				},
-				{ mongoose }
-			);
+		const { AccountModel, CommentModel, PostModel } = await loadModelSchemas(
+			{
+				Account,
+				Comment,
+				Post,
+				_User: User
+			},
+			{ mongoose }
+		);
 
 		return {
 			AccountModel,
