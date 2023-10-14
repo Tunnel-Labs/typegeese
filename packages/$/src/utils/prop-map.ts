@@ -139,7 +139,7 @@ export function getModelSchemaPropMapFromMigrationSchema({
 	return modelSchemaPropMap;
 }
 
-export function getPropMapKeysForActiveHyperschema({
+export function getPropMapKeysForActiveSchema({
 	schemaName
 }: {
 	schemaName: string;

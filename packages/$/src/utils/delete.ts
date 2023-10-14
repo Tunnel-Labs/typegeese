@@ -4,6 +4,7 @@ import { pre } from '@typegoose/typegoose';
 
 import { DecoratorKeys } from './decorator-keys.js';
 import { getModelForActiveSchema } from './model.js';
+import { getRelationsFromModelSchema } from 'packages/$/src/utils/relations.js';
 
 export function registerOnForeignModelDeletedHooks({
 	modelSchemas
@@ -25,19 +26,17 @@ export function registerOnForeignModelDeletedHooks({
 			Reflect.getMetadata(DecoratorKeys.PropCache, modelSchema.prototype) ??
 			new Map();
 
-		for (const [childModelField, action] of Object.entries(relations)) {
-			// For each foreign ref field, get the name of the parent model
-			// We want to perform an action based on when the parent model is deleted
-			const parentModelName = propMap.get(childModelField)?.options?.ref;
+		const relations = getRelationsFromModelSchema(modelSchema);
 
-			if (parentModelName === undefined) {
-				throw new Error(
-					`Could not get the foreign model for field "${childModelField}" on "${childModelName}"`
-				);
-			}
-
+		// For each foreign ref field, get the name of the parent model
+		// We want to perform an action based on when the parent model is deleted
+		for (const {
+			foreignModelName: parentModelName,
+			hostField: childModelField,
+			onDelete
+		} of relations) {
 			parentModelOnDeleteActions.push({
-				action: action as any,
+				action: onDelete,
 				childModelName,
 				childModelField,
 				parentModelName

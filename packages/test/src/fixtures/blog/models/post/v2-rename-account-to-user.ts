@@ -6,6 +6,7 @@ import {
 	prop
 } from 'typegeese';
 import PostV1 from './v1-add-description.js';
+
 import type * as $ from '../$schemas.js';
 
 export default class Post extends Schema(PostV1, { omit: { author: true } })<

@@ -1,10 +1,15 @@
-import type { AnySchemaClass } from '../../../types/src/types/schema.js';
-import { Schema } from '../utils/schema.js';
-import { DecoratorKeys } from '../utils/decorator-keys.js';
+import type {
+	AnyMigrationSchemaClass,
+	AnyModelSchemaClass
+} from '@typegeese/types';
+
+import { Schema } from './schema.js';
+import { DecoratorKeys } from './decorator-keys.js';
+import { toVersionNumber } from './version.js';
 
 export function getMigrationSchemasMap(): Map<
 	string,
-	Map<number, AnySchemaClass>
+	Map<number, AnyMigrationSchemaClass>
 > {
 	let migrationsSchemasMap = Reflect.getMetadata(
 		DecoratorKeys.MigrationSchemas,
@@ -27,7 +32,7 @@ export function getMigrationOptionsMap(): Map<
 	string,
 	Map<
 		number,
-		{ omit?: Record<string, true>; from?: AnySchemaClass } | undefined
+		{ omit?: Record<string, true>; from?: AnyMigrationSchemaClass } | undefined
 	>
 > {
 	let migrationsOptionsMap = Reflect.getMetadata(
@@ -45,4 +50,29 @@ export function getMigrationOptionsMap(): Map<
 	}
 
 	return migrationsOptionsMap;
+}
+
+export function getLatestMigrationSchemaOfModelSchema(
+	modelSchema: AnyModelSchemaClass
+): AnyMigrationSchemaClass {
+	const migrationSchemasMap = getMigrationSchemasMap();
+
+	const migrationSchemaMap = migrationSchemasMap.get(modelSchema.name);
+
+	if (migrationSchemaMap === undefined) {
+		throw new Error(
+			`Could not find migration schema map for "${modelSchema.name}"`
+		);
+	}
+
+	const version = toVersionNumber(modelSchema._v);
+	const latestMigrationSchema = migrationSchemaMap.get(version);
+
+	if (latestMigrationSchema === undefined) {
+		throw new Error(
+			`Could not find migration schema for "${modelSchema.name}" with version "${version}"`
+		);
+	}
+
+	return latestMigrationSchema;
 }

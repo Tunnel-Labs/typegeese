@@ -11,10 +11,7 @@ import {
 import { DecoratorKeys } from './decorator-keys.js';
 
 import { getModelForActiveSchema } from './model.js';
-import {
-	getLatestMigrationSchemaForModelSchema,
-	getPreviousMigrationSchema
-} from './schema.js';
+import { getPreviousMigrationSchema } from './schema.js';
 
 function getForeignSchemaFromForeignPropertyKey({
 	modelSchemas,
@@ -116,7 +113,7 @@ export function createMigrateFunction({
 		documents: Array<{ _id: string; _v: number }>;
 	}) {
 		const latestMigrationSchema =
-			getLatestMigrationSchemaForModelSchema(modelSchema);
+			getLatestMigrationSchemaOfModelSchema(modelSchema);
 
 		const documentIdToMigrationPromise = new Map<
 			string,

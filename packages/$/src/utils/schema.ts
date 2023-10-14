@@ -17,7 +17,7 @@ import {
 } from './migration-schema.js';
 import {
 	getModelSchemaPropMapFromMigrationSchema,
-	getPropMapKeysForActiveHyperschema
+	getPropMapKeysForActiveSchema
 } from './prop-map.js';
 import { getVersionFromMigrationSchema, toVersionNumber } from './version.js';
 import { registerOnForeignModelDeletedHooks } from './delete.js';
@@ -240,7 +240,7 @@ export async function loadModelSchemas<
 					const schemaName = baseOptions.from.name;
 
 					const fromModel = getModelForActiveSchema({ schemaName });
-					const propMapKeys = getPropMapKeysForActiveHyperschema({
+					const propMapKeys = getPropMapKeysForActiveSchema({
 						schemaName
 					});
 
@@ -291,7 +291,7 @@ export async function loadModelSchemas<
 					const schemaName = baseOptions.from.name;
 
 					const fromModel = getModelForActiveSchema({ schemaName });
-					const propMapKeys = getPropMapKeysForActiveHyperschema({
+					const propMapKeys = getPropMapKeysForActiveSchema({
 						schemaName
 					});
 
@@ -393,24 +393,4 @@ export async function loadModelSchemas<
 			getModelForSchema(modelSchema, { mongoose })
 		])
 	} as any;
-}
-
-export function getLatestMigrationSchemaForModelSchema(
-	modelSchema: AnyModelSchemaClass
-): AnyMigrationSchemaClass {
-	const migrationSchemasMap = getMigrationSchemasMap();
-
-	const migrationSchemaMap = migrationSchemasMap.get(modelSchema.name);
-
-	if (migrationSchemaMap === undefined) {
-		throw new Error(
-			`Could not find migration schema map for "${modelSchema.name}"`
-		);
-	}
-
-	const latestMigrationSchema = migrationSchemaMap.get(
-		migrationSchemaMap.size - 1
-	);
-
-	return latestMigrationSchema;
 }
