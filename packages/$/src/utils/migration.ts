@@ -1,7 +1,7 @@
 import { getVersionFromSchema, isVersionedDocument } from '../utils/version.js';
 import { DecoratorKeys } from '../utils/decorator-keys.js';
 import type { Mongoose } from 'mongoose';
-import type { AnyHyperschema } from '../../../types/src/types/hyperschema.js';
+import type { AnyHyperschema } from '@typegeese/types';
 
 import { getModelForActiveHyperschema } from '../utils/model.js';
 

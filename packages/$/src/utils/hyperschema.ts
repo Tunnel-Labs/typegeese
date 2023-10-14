@@ -1,26 +1,22 @@
-import type { Hyperschema } from '~/types/hyperschema.js';
-import { pre, post, getModelForClass } from '@typegoose/typegoose';
-import mapObject from 'map-obj';
-import type { Mongoose } from 'mongoose';
-import { createMigrateFunction } from '~/utils/migration.js';
-import { recursivelyAddSelectVersionToPopulateObject } from '~/utils/populate.js';
-import type { PopulateObject } from '~/types/populate.js';
-import { registerOnForeignModelDeletedHooks } from '~/utils/delete.js';
-import {
-	getModelForActiveHyperschema,
-	getModelForSchema
-} from '~/utils/model.js';
 import type {
 	AnyNormalizedHyperschemaModule,
 	AnyUnnormalizedHyperschemaModule,
 	GetUnnormalizedHyperschemaModuleMigrationSchemaKey,
-	NormalizeHyperschemaModule
-} from '~/types/hyperschema-module.js';
-import { normalizeHyperschemaModule } from '~/utils/hyperschema-module.js';
-import { createModelSchemaFromMigrationSchema } from '~/utils/schema.js';
-import { getMigrationOptionsMap } from '~/utils/migration-schema.js';
-import { DecoratorKeys } from '~/utils/decorator-keys.js';
-import { getPropMapKeysForActiveHyperschema } from '~/utils/prop-map.js';
+	NormalizeHyperschemaModule,
+	PopulateObject,
+	Hyperschema
+} from '@typegeese/types';
+import { pre, post, getModelForClass } from '@typegoose/typegoose';
+import mapObject from 'map-obj';
+import type { Mongoose } from 'mongoose';
+import { createMigrateFunction } from './migration.js';
+import { recursivelyAddSelectVersionToPopulateObject } from './populate.js';
+import { registerOnForeignModelDeletedHooks } from './delete.js';
+import { getModelForActiveHyperschema, getModelForSchema } from './model.js';
+import { normalizeHyperschemaModule } from './hyperschema-module.js';
+import { createModelSchemaFromMigrationSchema } from './schema.js';
+import { getMigrationOptionsMap } from './migration-schema.js';
+import { getPropMapKeysForActiveHyperschema } from './prop-map.js';
 
 export function createHyperschema<H extends AnyNormalizedHyperschemaModule>(
 	hyperschemaModule: H

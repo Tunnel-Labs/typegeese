@@ -90,12 +90,11 @@ When the schema change requires a migration, you can export a `Model_migration` 
 ```typescript
 // ./user/v2-add-username.ts
 import {
-  createMigration,
   getModelForSchema,
   select,
   Schema,
   prop,
-  type Migration
+  type Migrate
 } from 'typegeese';
 
 import UserV1 from './v1-add-profile-image.js';
@@ -117,7 +116,7 @@ export default class User extends Schema(UserV1)<typeof User> {
     if (user === null) return null;
 
     return migrate({
-      username: email.split('@')[0]
+      username: user.email.split('@')[0]
     })
   }
 }
@@ -137,8 +136,9 @@ export { default as User } from './v2-add-username.js';
 import type { t } from 'typegeese';
 import type * as $ from '../$schemas.js';
 
-// This type is type-checked by TypeScript to ensure that it always stays up to date with every new migration
-type _User = t.Shape<
+// This type is type-checked by TypeScript to ensure
+// that it always stays up to date with every new migration
+export type $User = t.Shape<
   $.User,
   {
     _id: string;
@@ -148,6 +148,26 @@ type _User = t.Shape<
     username: string;
   }
 >;
+```
+
+```typescript
+// ./user/$shape.ts
+import { t } from '@typegeese/shape'
+
+import type { $User } from './$schema.js';
+
+// Typegeese's `t` helper also lets you declare the shape of
+// your schema at runtime which can be imported from the
+// client side (it's recommended to use a separate file for
+// the runtime definition so your bundler doesn't end up
+// importing server-side code)
+export const User = t.Shape<$User>({
+  _id: t,
+  name: t,
+  email: t,
+  profileImageUrl: t,
+  username: t
+});
 ```
 
 ## Examples
@@ -176,15 +196,14 @@ export default class User extends Schema('User')<typeof User> {
 import {
   Schema,
   prop,
-  createMigration,
   getModelForSchema,
   select,
-  type Migration
+  type Migrate
 } from 'typegeese';
 
 import UserV0 from './v0.js';
 
-export class User extends Schema(UserV0)<typeof User> {
+export default class User extends Schema(UserV0)<typeof User> {
   static _v = 'v1-add-username';
 
   @prop({ type: String, required: true })
@@ -201,7 +220,7 @@ export class User extends Schema(UserV0)<typeof User> {
     if (user === null) return null;
 
     return migrate({
-      username: email.split('@')[0]
+      username: user.email.split('@')[0]
     })
   }
 }
@@ -215,7 +234,7 @@ import { Schema, prop } from 'typegeese';
 
 import UserV0 from './v0.js';
 
-export class User extends Schema(
+export default class User extends Schema(
   UserV0
   { omit: { name: true } }
 )<typeof User> {
@@ -232,14 +251,13 @@ export class User extends Schema(
 import {
   Schema,
   prop,
-  createMigration,
   getModelForSchema,
   select
 } from 'typegeese';
 
-import * as UserV0 from './v0.js';
+import UserV0 from './v0.js';
 
-export class User extends Schema(
+export default class User extends Schema(
   UserV0,
   { omit: { name: true } }
 )<typeof User> {
@@ -259,7 +277,7 @@ export class User extends Schema(
     if (user === null) return null;
 
     return migrate({
-      fullName: name
+      fullName: user.name
     })
   }
 }
@@ -276,13 +294,12 @@ In order to preserve compatibility with a blue/green deployment strategy, typege
 import {
   Schema,
   prop,
-  createMigration,
   getModelForSchema,
   select
 } from 'typegeese';
 import UserV0 from './v0.js';
 
-export class User extends Schema(UserV0)<typeof User> {
+export default class User extends Schema(UserV0)<typeof User> {
   static _v = 'v1-rename-to-account';
 
   static _migration = (migrate: Migrate<UserV0, User>) => migrate({})
