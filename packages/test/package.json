@@ -4,7 +4,10 @@
 	"dependencies": {
 		"mem": "9.0.2",
 		"typegeese": "workspace:*",
-		"@typegeese/shape": "workspace:*",
-		"@typegeese/types": "workspace:*"
+		"@paralleldrive/cuid2": "2.2.2",
+		"@typegeese/shape": "workspace:*"
+	},
+	"devDependencies": {
+		"vitest": "0.34.6"
 	}
 }

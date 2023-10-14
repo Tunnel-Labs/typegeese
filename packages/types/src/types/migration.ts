@@ -84,8 +84,6 @@ export type AnyMigrationReturn = Promisable<{
 	[migrateSymbol]: MigrateSymbolMessage;
 } | null>;
 
-interface A<B, C> extends MigrationValues<B, C> {}
-
 export type Migrate<
 	PreviousSchema extends AnySchemaInstance,
 	CurrentSchema extends AnySchemaInstance

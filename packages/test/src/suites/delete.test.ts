@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from 'vitest';
-import { CreateInput, getModelForSchema } from '~/index.js';
+import { CreateInput } from '@typegeese/types';
 import { createId } from '@paralleldrive/cuid2';
 import { createMongoose } from '../utils/mongoose.js';
 import { Post, Comment, Account } from '../fixtures/blog/models/$schemas.js';

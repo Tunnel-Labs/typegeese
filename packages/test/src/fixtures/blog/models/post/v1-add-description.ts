@@ -18,6 +18,7 @@ export default class Post extends Schema(PostV0)<typeof Post> {
 		const PostV0Model = getModelForSchema(PostV0, { mongoose });
 		const post = await select(PostV0Model.findById(_id), { content: true });
 		if (post === null) return null;
+
 		return migrate({
 			description: post.content.slice(0, 10) + '...'
 		});

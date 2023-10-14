@@ -4,6 +4,7 @@
 	"exports": "./src/$.ts",
 	"dependencies": {
 		"@typegoose/typegoose": "^11.6.0",
-		"mongoose": "^7.6.2"
+		"mongoose": "^7.6.2",
+		"type-fest": "^4.2.0"
 	}
 }

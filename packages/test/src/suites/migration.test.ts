@@ -1,11 +1,11 @@
 import { beforeAll, expect, test } from 'vitest';
-import { CreateInput, getModelForSchema, select } from '~/index.js';
+import { CreateInput, getModelForSchema, select } from 'typegeese';
 import { createId } from '@paralleldrive/cuid2';
-import { createMongoose } from '~test/utils/mongoose.js';
-import * as UserV0 from '../fixtures/blog/models/_user/v0.js';
-import * as PostV0 from '~test/fixtures/blog/models/post/v0.js';
-import * as CommentV0 from '~test/fixtures/blog/models/comment/v0.js';
-import { getBlogModels } from '~test/fixtures/blog/models/$models.js';
+import { createMongoose } from '../utils/mongoose.js';
+import UserV0 from '../fixtures/blog/models/_user/v0.js';
+import PostV0 from '../fixtures/blog/models/post/v0.js';
+import CommentV0 from '../fixtures/blog/models/comment/v0.js';
+import { getBlogModels } from '../fixtures/blog/models/$models.js';
 
 beforeAll(async () => {
 	const mongoose = await createMongoose();
@@ -29,7 +29,7 @@ test('supports migrations using populate', async () => {
 		_id: userId as any,
 		name: 'John Doe',
 		email: 'johndoe@example.com'
-	} satisfies CreateInput<UserV0.User>);
+	} satisfies CreateInput<UserV0>);
 
 	const posts = await PostV0Model.create([
 		{
@@ -50,7 +50,7 @@ test('supports migrations using populate', async () => {
 			author: userId,
 			content: 'This is the third post.'
 		}
-	] satisfies CreateInput<PostV0.Post>[]);
+	] satisfies CreateInput<PostV0>[]);
 
 	await CommentV0Model.create([
 		{
@@ -89,7 +89,7 @@ test('supports migrations using populate', async () => {
 			post: posts[2]!.id,
 			text: 'This is the third comment on the third post.'
 		}
-	] satisfies CreateInput<CommentV0.Comment>[]);
+	] satisfies CreateInput<CommentV0>[]);
 
 	const { PostModel } = await getBlogModels({ mongoose });
 	const post = await select(PostModel.findById(posts[0]!.id), {

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { getBlogModels } from '~test/fixtures/blog/models/$models.js';
-import { createMongoose } from '~test/utils/mongoose.js';
+import { getBlogModels } from '../fixtures/blog/models/$models.js';
+import { createMongoose } from '../utils/mongoose.js';
 
 test('lower indexes', async () => {
 	const mongoose = await createMongoose();

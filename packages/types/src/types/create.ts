@@ -14,15 +14,15 @@ export type CreateType<FieldType> =
 	FieldType
 
 // prettier-ignore
-export type CreateInput<Model> = {
+export type CreateInput<Schema> = {
 	[
-		K in keyof Model as
+		K in keyof Schema as
 			K extends '_v' | '__type__' ?
 				never :
-			IsVirtualForeignRefArray<Model[K]> extends true ?
+			IsVirtualForeignRefArray<Schema[K]> extends true ?
 				never :
-			IsVirtualForeignRef<Model[K]> extends true ?
+			IsVirtualForeignRef<Schema[K]> extends true ?
 				never :
 			K
-	]: CreateType<Model[K]>
+	]: CreateType<Schema[K]>
 };

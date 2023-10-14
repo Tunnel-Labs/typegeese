@@ -11,9 +11,9 @@ export type Relations<Schema> = {
 				K :
 			never
 	]:
-		| (null extends Schema[K] ? 'SetNull' : never)
-		| 'Cascade'
-		| 'Restrict';
+		'Cascade' |
+		'Restrict' |
+		(null extends Schema[K] ? 'SetNull' : never);
 };
 
 export type AnyRelations = Record<string, 'SetNull' | 'Cascade' | 'Restrict'>;

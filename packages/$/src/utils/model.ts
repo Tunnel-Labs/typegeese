@@ -3,12 +3,12 @@ import type {
 	AnyModelSchemaClass,
 	AnySchemaInstance
 } from '@typegeese/types';
+import { getModelForClass, getModelWithString } from '@typegoose/typegoose';
 import type { Mongoose } from 'mongoose';
 
-import { getModelForClass, getModelWithString } from '@typegoose/typegoose';
 import { toVersionNumber } from './version.js';
 import { getMigrationSchemasMap } from './migration-schema.js';
-import { createModelSchemaFromMigrationSchema } from 'packages/$/src/utils/schema.js';
+import { createModelSchemaFromMigrationSchema } from './schema.js';
 
 export function getModelForActiveSchema({
 	schemaName

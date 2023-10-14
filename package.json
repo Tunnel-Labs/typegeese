@@ -1,6 +1,9 @@
 {
 	"name": "@-/monorepo",
 	"type": "module",
+	"dependencies": {
+		"@tunnel/tun": "0.0.10"
+	},
 	"devDependencies": {
 		"lionconfig": "^3.1.1"
 	}

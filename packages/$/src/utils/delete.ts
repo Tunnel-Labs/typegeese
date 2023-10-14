@@ -4,7 +4,7 @@ import { pre } from '@typegoose/typegoose';
 
 import { DecoratorKeys } from './decorator-keys.js';
 import { getModelForActiveSchema } from './model.js';
-import { getRelationsFromModelSchema } from 'packages/$/src/utils/relations.js';
+import { getRelationsFromModelSchema } from './relations.js';
 
 export function registerOnForeignModelDeletedHooks({
 	modelSchemas

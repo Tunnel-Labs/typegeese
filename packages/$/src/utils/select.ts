@@ -1,6 +1,3 @@
-import { includeKeys } from 'filter-obj';
-import mapObject, { mapObjectSkip } from 'map-obj';
-import type { QueryWithHelpers } from 'mongoose';
 import type {
 	IsManyQuery,
 	GetSchemaFromQuery,
@@ -8,8 +5,11 @@ import type {
 	SelectOutput
 } from '@typegeese/types';
 import { setProperty } from 'dot-prop';
+import { includeKeys } from 'filter-obj';
+import mapObject, { mapObjectSkip } from 'map-obj';
+import type { QueryWithHelpers } from 'mongoose';
 
-import { getModelForActiveHyperschema } from '../utils/model.js';
+import { getModelForActiveSchema } from './model.js';
 
 /**
 	@example ```javascript
@@ -108,7 +108,7 @@ export async function select<
 				);
 			}
 
-			const fieldModel = getModelForActiveHyperschema({ schemaName: ref });
+			const fieldModel = getModelForActiveSchema({ schemaName: ref });
 
 			// We can't populate a foreign field to the parent in the same query, so we have to do it in a separate query
 			if (
@@ -177,7 +177,7 @@ export async function select<
 			);
 		}
 
-		const fieldModel = getModelForActiveHyperschema({
+		const fieldModel = getModelForActiveSchema({
 			schemaName: ref
 		});
 		if (fieldModel === undefined) {
