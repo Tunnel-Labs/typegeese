@@ -1,13 +1,14 @@
-import type { PreMiddlewareFunction, Query } from 'mongoose';
+import { models, type PreMiddlewareFunction, type Query } from 'mongoose';
+import { AnyModelSchemaClass } from '@typegeese/types';
 import { pre } from '@typegoose/typegoose';
-import { DecoratorKeys } from '../utils/decorator-keys.js';
-import type { Hyperschema } from '../../../types/src/types/hyperschema.js';
-import { getModelForActiveHyperschema } from '../utils/model.js';
+
+import { DecoratorKeys } from './decorator-keys.js';
+import { getModelForActiveSchema } from './model.js';
 
 export function registerOnForeignModelDeletedHooks({
-	hyperschemas
+	modelSchemas
 }: {
-	hyperschemas: Record<string, Hyperschema<any>>;
+	modelSchemas: Record<string, AnyModelSchemaClass>;
 }) {
 	const parentModelOnDeleteActions: {
 		childModelName: string;
@@ -17,11 +18,11 @@ export function registerOnForeignModelDeletedHooks({
 	}[] = [];
 
 	// Loop through each schema assuming they are the child model
-	for (const { relations, schema, schemaName } of Object.values(hyperschemas)) {
-		const childModelName = schemaName;
+	for (const modelSchema of Object.values(modelSchemas)) {
+		const childModelName = modelSchema.name;
 
 		const propMap =
-			Reflect.getMetadata(DecoratorKeys.PropCache, schema.prototype) ??
+			Reflect.getMetadata(DecoratorKeys.PropCache, modelSchema.prototype) ??
 			new Map();
 
 		for (const [childModelField, action] of Object.entries(relations)) {
@@ -76,15 +77,15 @@ export function registerOnForeignModelDeletedHooks({
 	}
 
 	// We loop through all schemas a second time and this time, assume they are the parent model being deleted
-	for (const { schema, schemaName } of Object.values(hyperschemas)) {
-		const parentModelName = schemaName;
+	for (const modelSchema of Object.values(modelSchemas)) {
+		const parentModelName = modelSchema.name;
 		const onModelDeletedActions =
 			onParentModelDeletedActions[parentModelName] ?? [];
 
 		const preDeleteOne: PreMiddlewareFunction<Query<any, any>> = function (
 			next
 		) {
-			const parentModel = getModelForActiveHyperschema({
+			const parentModel = getModelForActiveSchema({
 				schemaName: parentModelName
 			});
 

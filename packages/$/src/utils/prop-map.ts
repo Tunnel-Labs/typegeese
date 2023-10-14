@@ -1,40 +1,41 @@
 import { toVersionNumber } from '../utils/version.js';
 import { DecoratorKeys } from '../utils/decorator-keys.js';
-import type { AnySchemaClass } from '../../../types/src/types/schema.js';
+import type {
+	AnyMigrationSchemaClass,
+	AnyModelSchemaClass
+} from '@typegeese/types';
 import {
 	getMigrationOptionsMap,
 	getMigrationSchemasMap
-} from '../utils/migration-schema.js';
+} from './migration-schema.js';
 import createClone from 'rfdc';
 
 const clone = createClone();
 
 export function getModelSchemaPropMapFromMigrationSchema({
 	migrationSchema,
-	schemaName,
 	updateTarget
 }: {
-	migrationSchema: AnySchemaClass;
-	schemaName: string;
-	updateTarget:
-		| false
-		| {
-				modelSchema: AnySchemaClass;
-		  };
+	migrationSchema: AnyMigrationSchemaClass;
+	updateTarget: false | { modelSchema: AnyModelSchemaClass };
 }): Map<string, unknown> {
 	const modelSchemaPropMap = new Map();
 
 	const migrationSchemasMap = getMigrationSchemasMap();
 	const migrationOptionsMap = getMigrationOptionsMap();
 
-	const migrationSchemaMap = migrationSchemasMap.get(schemaName);
+	const migrationSchemaMap = migrationSchemasMap.get(migrationSchema.name);
 	if (migrationSchemaMap === undefined) {
-		throw new Error(`Could not find migration schema map for "${schemaName}"`);
+		throw new Error(
+			`Could not find migration schema map for "${migrationSchema.name}"`
+		);
 	}
 
-	const migrationOptionMap = migrationOptionsMap.get(schemaName);
+	const migrationOptionMap = migrationOptionsMap.get(migrationSchema.name);
 	if (migrationOptionMap === undefined) {
-		throw new Error(`Could not find migration option map for "${schemaName}"`);
+		throw new Error(
+			`Could not find migration option map for "${migrationSchema.name}"`
+		);
 	}
 
 	const migrationSchemaVersion = toVersionNumber(migrationSchema._v);
@@ -55,7 +56,6 @@ export function getModelSchemaPropMapFromMigrationSchema({
 		if (currentMigrationSchemaOptions?.from !== undefined) {
 			const fromModelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
 				migrationSchema: currentMigrationSchemaOptions.from,
-				schemaName: currentMigrationSchemaOptions.from.name,
 				updateTarget
 			});
 
@@ -82,7 +82,7 @@ export function getModelSchemaPropMapFromMigrationSchema({
 		);
 		if (currentMigrationSchema === undefined) {
 			throw new Error(
-				`Could not find migration schema "${schemaName}" for version "${currentMigrationSchemaVersion}"`
+				`Could not find migration schema "${migrationSchema.name}" for version "${currentMigrationSchemaVersion}"`
 			);
 		}
 
@@ -117,7 +117,6 @@ export function getModelSchemaPropMapFromMigrationSchema({
 		) {
 			const fromModelSchemaPropMap = getModelSchemaPropMapFromMigrationSchema({
 				migrationSchema: currentMigrationSchemaOptions.from,
-				schemaName: currentMigrationSchemaOptions.from.name,
 				updateTarget
 			});
 
@@ -164,7 +163,6 @@ export function getPropMapKeysForActiveHyperschema({
 
 	const propMap = getModelSchemaPropMapFromMigrationSchema({
 		migrationSchema: latestMigrationSchema,
-		schemaName,
 		updateTarget: false
 	});
 

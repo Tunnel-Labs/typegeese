@@ -3,8 +3,7 @@ import type { DocumentType } from '@typegoose/typegoose';
 import type { Promisable } from 'type-fest';
 import type { CreateType } from './create.js';
 import type { IsVirtualForeignRef, IsVirtualForeignRefArray } from './ref.js';
-import type { AnyHyperschema } from './hyperschema.js';
-import { AnySchemaInstance } from './schema.js';
+import type { AnySchemaInstance } from './schema.js';
 
 export type Diff<T, V> = {
 	[P in Exclude<keyof T, keyof V>]: T[P];
@@ -54,25 +53,16 @@ export interface NotSupersetError<Message, _Keys> {
 }
 
 // prettier-ignore
-export type MigrationValues<PreviousSchema, CurrentSchema> = {
+export type MigrationValues<
+	PreviousSchema extends AnySchemaInstance,
+	CurrentSchema extends AnySchemaInstance
+> = {
 	[
 		K in keyof Diff<
 			ExcludeVirtualForeignRefs<CurrentSchema>,
 			ExcludeVirtualForeignRefs<PreviousSchema>
 		>
 	]: CreateType<CurrentSchema[K]>;
-}
-
-export interface MigrationData {
-	previousHyperschema: AnyHyperschema;
-	migrationFunctions: Record<string, (this: DocumentType<any>) => void>;
-	getData:
-		| null
-		| ((this: { meta: any }, args: { _id: any }) => Promisable<any>);
-	initialize?(args: {
-		mongoose: mongoose.Mongoose;
-		meta: any;
-	}): Promisable<void>;
 }
 
 export interface MigrationOptions {
@@ -82,26 +72,41 @@ export interface MigrationOptions {
 	}): Promisable<void>;
 }
 
+export type MigrationFunction<
+	PreviousSchema extends AnySchemaInstance,
+	CurrentSchema extends AnySchemaInstance
+> = (
+	properties: MigrationValues<PreviousSchema, CurrentSchema>
+) => AnyMigrationReturn;
+
+export type AnyMigrationFunction = (migrate: any) => AnyMigrationReturn;
+
+export type AnyMigrationReturn = Promisable<{
+	[migrateSymbol]: MigrateSymbolMessage;
+} | null>;
+
+interface A<B, C> extends MigrationValues<B, C> {}
+
 export type Migrate<
 	PreviousSchema extends AnySchemaInstance,
 	CurrentSchema extends AnySchemaInstance
 > = {
+	(properties: A<PreviousSchema, CurrentSchema>): AnyMigrationReturn
 	_id: string;
 	mongoose: mongoose.Mongoose;
-	(
-		properties: MigrationValues<PreviousSchema, CurrentSchema>
-	): MigrateReturn<PreviousSchema, CurrentSchema>;
 };
 
 declare const migrateSymbol: /* unique symbol */ '__migrate__';
-export type MigrateReturn<PreviousSchema, CurrentSchema> = Promisable<{
-	readonly [migrateSymbol]: Promisable<
-		{ [migrateSymbol]: MigrateSymbolMessage } & MigrationValues<
+export type MigrateReturn<
+	PreviousSchema extends AnySchemaInstance,
+	CurrentSchema extends AnySchemaInstance
+> = Promisable<
+	| ({ [migrateSymbol]: MigrateSymbolMessage } & MigrationValues<
 			PreviousSchema,
 			CurrentSchema
-		>
-	>;
-} | null>;
+	  >)
+	| null
+>;
 
 export type MigrateSymbolMessage =
-	'The return type of `_migration` must be either be null or a call to `migrate({ ... })`';
+	'The `_migration` function must return `migrate({ ... })` or `null`';

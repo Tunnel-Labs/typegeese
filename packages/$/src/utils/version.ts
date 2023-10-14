@@ -1,4 +1,4 @@
-import type { AnySchemaClass } from '@typegeese/types';
+import type { AnyMigrationSchemaClass } from '@typegeese/types';
 
 export function toVersionNumber(
 	versionStringOrNumber: string | number
@@ -25,11 +25,15 @@ export function toVersionNumber(
 	return versionNumber;
 }
 
-export function getVersionFromSchema(schema: AnySchemaClass): number {
-	const version = schema._v;
+export function getVersionFromMigrationSchema(
+	migrationSchema: AnyMigrationSchemaClass
+): number {
+	const version = migrationSchema._v;
 
 	if (version === undefined) {
-		throw new Error(`Could not determine version from schema: ${schema}`);
+		throw new Error(
+			`Could not determine version from schema: ${migrationSchema}`
+		);
 	}
 
 	return toVersionNumber(version);

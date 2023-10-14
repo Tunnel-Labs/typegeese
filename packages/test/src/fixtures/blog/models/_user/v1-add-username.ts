@@ -1,5 +1,5 @@
 import {
-	Migrate,
+	type Migrate,
 	Schema,
 	getModelForSchema,
 	index,

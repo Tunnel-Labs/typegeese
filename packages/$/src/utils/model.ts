@@ -1,11 +1,16 @@
-import { getModelForClass, getModelWithString } from '@typegoose/typegoose';
+import type {
+	AnyMigrationSchemaClass,
+	AnyModelSchemaClass,
+	AnySchemaInstance
+} from '@typegeese/types';
 import type { Mongoose } from 'mongoose';
-import { toVersionNumber } from '../utils/version.js';
-import { getMigrationSchemasMap } from '../utils/migration-schema.js';
-import { createModelSchemaFromMigrationSchema } from '../utils/schema.js';
-import type { AnySchemaClass, AnySchemaInstance } from '../../../types/src/types/schema.js';
 
-export function getModelForActiveHyperschema({
+import { getModelForClass, getModelWithString } from '@typegoose/typegoose';
+import { toVersionNumber } from './version.js';
+import { getMigrationSchemasMap } from './migration-schema.js';
+import { createModelSchemaFromMigrationSchema } from 'packages/$/src/utils/schema.js';
+
+export function getModelForActiveSchema({
 	schemaName
 }: {
 	schemaName: string;
@@ -31,24 +36,21 @@ export function getModelForActiveHyperschema({
 		);
 	}
 
-	const modelSchema = createModelSchemaFromMigrationSchema({
-		migrationSchema: latestMigrationSchema,
-		schemaName
-	});
-
-	const version = toVersionNumber(modelSchema._v);
+	const version = toVersionNumber(latestMigrationSchema._v);
 
 	const model = getModelWithString(schemaName + '-' + version);
 	if (model === undefined) {
 		throw new Error(
-			`Could not find model for active hyperschema "${schemaName}" (version: ${version})`
+			`Could not find model for active schema "${schemaName}" (version: ${version})`
 		);
 	}
 
 	return model as any;
 }
 
-export function getModelForSchema<Schema extends AnySchemaClass>(
+export function getModelForSchema<
+	Schema extends AnyMigrationSchemaClass | AnyModelSchemaClass
+>(
 	schema: Schema,
 	{ mongoose }: { mongoose: Mongoose }
 ): ReturnType<
@@ -57,8 +59,12 @@ export function getModelForSchema<Schema extends AnySchemaClass>(
 	}>
 > {
 	const version = toVersionNumber(schema._v);
+	const modelSchema =
+		'__isModelSchema' in schema
+			? schema
+			: createModelSchemaFromMigrationSchema(schema);
 
-	const model = getModelForClass(schema, {
+	const model = getModelForClass(modelSchema, {
 		existingMongoose: mongoose,
 		schemaOptions: {
 			collection: schema.name

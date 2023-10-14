@@ -1,8 +1,8 @@
 import {
-	Migrate,
+	type Migrate,
 	PropType,
 	Schema,
-	VirtualForeignRef,
+	type VirtualForeignRef,
 	modelOptions,
 	prop,
 	virtualForeignRef

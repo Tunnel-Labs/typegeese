@@ -5,11 +5,6 @@ export type * from '@typegeese/types';
 export type * from '@typegoose/typegoose/lib/types.js';
 
 export { defineSchemaOptions, Schema } from './utils/schema.js';
-export {
-	createHyperschema,
-	registerActiveHyperschemas
-} from './utils/hyperschema.js';
-export { normalizeHyperschemaModule } from './utils/hyperschema-module.js';
 export { getModelForSchema } from './utils/model.js';
 export { foreignRef, virtualForeignRef } from './utils/ref.js';
 export { select, select as applySelect } from './utils/select.js';

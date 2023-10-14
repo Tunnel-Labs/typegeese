@@ -34,7 +34,5 @@ export default class Comment extends Schema(CommentV0)<typeof Comment> {
 	replies!: VirtualForeignRef<Comment, $.Comment, 'parentComment'>[];
 
 	static _migration = (migrate: Migrate<CommentV0, Comment>) =>
-		migrate({
-			parentComment: null
-		});
+		migrate({ parentComment: null });
 }

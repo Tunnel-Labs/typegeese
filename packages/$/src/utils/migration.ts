@@ -1,55 +1,62 @@
-import { getVersionFromSchema, isVersionedDocument } from '../utils/version.js';
-import { DecoratorKeys } from '../utils/decorator-keys.js';
-import type { Mongoose } from 'mongoose';
-import type { AnyHyperschema } from '@typegeese/types';
+import type {
+	AnyMigrationSchemaClass,
+	AnyModelSchemaClass
+} from '@typegeese/types';
+import { models, type Mongoose } from 'mongoose';
 
-import { getModelForActiveHyperschema } from '../utils/model.js';
+import {
+	getVersionFromMigrationSchema,
+	isVersionedDocument
+} from './version.js';
+import { DecoratorKeys } from './decorator-keys.js';
 
-function getForeignHyperschemaFromForeignPropertyKey({
-	hyperschemas,
-	hyperschema,
+import { getModelForActiveSchema } from './model.js';
+import {
+	getLatestMigrationSchemaForModelSchema,
+	getPreviousMigrationSchema
+} from './schema.js';
+
+function getForeignSchemaFromForeignPropertyKey({
+	modelSchemas,
+	modelSchema,
 	foreignPropertyKey
 }: {
-	hyperschemas: Record<string, AnyHyperschema>;
-	hyperschema: AnyHyperschema;
+	modelSchemas: Record<string, AnyModelSchemaClass>;
+	modelSchema: AnyModelSchemaClass;
 	foreignPropertyKey: string;
-}): AnyHyperschema {
+}): AnyModelSchemaClass {
 	const propMap =
-		Reflect.getMetadata(
-			DecoratorKeys.PropCache,
-			hyperschema.schema.prototype
-		) ?? new Map();
+		Reflect.getMetadata(DecoratorKeys.PropCache, modelSchema.prototype) ??
+		new Map();
 
 	const foreignSchemaName = propMap.get(foreignPropertyKey)?.options?.ref;
 
 	if (foreignSchemaName === undefined) {
 		throw new Error(
-			`Could not find model name for property "${foreignPropertyKey}" on model "${hyperschema.schemaName}"`
+			`Could not find model name for property "${foreignPropertyKey}" on model "${modelSchema.name}"`
 		);
 	}
 
-	const foreignHyperschema = hyperschemas[foreignSchemaName];
+	const foreignModelSchema = modelSchemas[foreignSchemaName];
 
-	if (foreignHyperschema === undefined) {
-		throw new Error(
-			`Could not find hyperschema for model "${foreignSchemaName}"`
-		);
+	if (foreignModelSchema === undefined) {
+		throw new Error(`Could not find schema for model "${foreignSchemaName}"`);
 	}
 
-	return foreignHyperschema;
+	return foreignModelSchema;
 }
 
 /**
-	Applies the migrations of hyperschemas in order
+	Applies the migrations of a model schema's migrations in order
 
 	@param args
 	@param args.result - The result returned from mongoose (the raw object; only updated if the projections include those results)
 */
-export async function applyHyperschemaMigrationsToDocument({
+export async function applySchemaMigrationsToDocument({
 	mongoose,
 	meta,
 	documentMetadata,
-	hyperschema,
+	migrationSchema,
 	updatedProperties
 }: {
 	mongoose: Mongoose;
@@ -58,38 +65,34 @@ export async function applyHyperschemaMigrationsToDocument({
 		_id: string;
 		_v: number;
 	};
-	hyperschema: AnyHyperschema;
+	migrationSchema: AnyMigrationSchemaClass;
 	updatedProperties: Record<string, unknown>;
 }): Promise<{ updatedProperties: Record<string, unknown> }> {
-	const hyperschemaVersion = getVersionFromSchema(hyperschema.schema);
+	const schemaVersion = getVersionFromMigrationSchema(migrationSchema);
 
-	// If the hyperschema version is more than one greater than the document version, then we should apply the previous hyperschema migration before the current one
-	if (hyperschemaVersion - 1 > documentMetadata._v) {
-		await applyHyperschemaMigrationsToDocument({
+	// If the schema version is more than one greater than the document version, then we should apply the previous schema migration before the current one
+	if (schemaVersion - 1 > documentMetadata._v) {
+		await applySchemaMigrationsToDocument({
 			mongoose,
 			meta,
 			updatedProperties,
-			hyperschema: hyperschema.migration.previousHyperschema,
+			migrationSchema: getPreviousMigrationSchema(migrationSchema)!,
 			documentMetadata
 		});
 	}
 
-	const data =
-		hyperschema.migration === undefined ||
-		hyperschema.migration.getData === null
-			? null
-			: await hyperschema.migration.getData.call(
-					{ meta, mongoose },
-					{ _id: documentMetadata._id }
-			  );
+	if (migrationSchema._migration !== undefined) {
+		const migrationValues = await migrationSchema._migration({
+			_id: documentMetadata._id,
+			mongoose,
+			meta
+		});
 
-	if (data !== null) {
-		// Applying the hyperschema's migrations
-		for (const [property, getProperty] of Object.entries(
-			hyperschema.migration.migrationFunctions
-		)) {
-			const value = await (getProperty as any).call(data);
-			updatedProperties[property] = value;
+		if (migrationValues !== null) {
+			// Applying the schema's migrations
+			for (const [key, value] of Object.entries(migrationValues)) {
+				updatedProperties[key] = value;
+			}
 		}
 	}
 
@@ -97,21 +100,24 @@ export async function applyHyperschemaMigrationsToDocument({
 }
 
 export function createMigrateFunction({
-	hyperschemas,
+	modelSchemas,
 	meta
 }: {
-	hyperschemas: Record<string, AnyHyperschema>;
+	modelSchemas: Record<string, AnyModelSchemaClass>;
 	meta: any;
 }) {
 	return async function migrate({
 		mongoose,
-		hyperschema,
+		modelSchema,
 		documents
 	}: {
 		mongoose: Mongoose;
-		hyperschema: AnyHyperschema;
+		modelSchema: AnyModelSchemaClass;
 		documents: Array<{ _id: string; _v: number }>;
 	}) {
+		const latestMigrationSchema =
+			getLatestMigrationSchemaForModelSchema(modelSchema);
+
 		const documentIdToMigrationPromise = new Map<
 			string,
 			Promise<{ updatedProperties: Record<string, unknown> }>
@@ -144,16 +150,15 @@ export function createMigrateFunction({
 						_v: number;
 					};
 
-					const foreignHyperschema =
-						getForeignHyperschemaFromForeignPropertyKey({
-							foreignPropertyKey: propertyKey,
-							hyperschemas,
-							hyperschema
-						});
+					const foreignSchema = getForeignSchemaFromForeignPropertyKey({
+						foreignPropertyKey: propertyKey,
+						modelSchemas,
+						modelSchema
+					});
 
 					await migrate({
 						mongoose,
-						hyperschema: foreignHyperschema,
+						modelSchema: foreignSchema,
 						documents: [document]
 					});
 				} else if (Array.isArray(propertyValue)) {
@@ -162,38 +167,39 @@ export function createMigrateFunction({
 					);
 
 					if (versionedDocuments.length > 0) {
-						const foreignHyperschema =
-							getForeignHyperschemaFromForeignPropertyKey({
-								foreignPropertyKey: propertyKey,
-								hyperschemas,
-								hyperschema
-							});
+						const foreignSchema = getForeignSchemaFromForeignPropertyKey({
+							foreignPropertyKey: propertyKey,
+							modelSchemas,
+							modelSchema
+						});
 
 						await migrate({
 							mongoose,
-							hyperschema: foreignHyperschema,
+							modelSchema: foreignSchema,
 							documents: versionedDocuments
 						});
 					}
 				}
 			}
 
-			if (document._v !== getVersionFromSchema(hyperschema.schema)) {
+			if (
+				document._v !== getVersionFromMigrationSchema(latestMigrationSchema)
+			) {
 				if (documentIdToMigrationPromise.has(document._id)) {
 					// Prevents an infinite loop with this migration hook
 					continue;
 				} else {
-					const migrationPromise = applyHyperschemaMigrationsToDocument({
+					const migrationPromise = applySchemaMigrationsToDocument({
 						mongoose,
 						meta,
 						documentMetadata: {
 							_id: document._id,
 							_v: document._v
 						},
-						hyperschema,
+						migrationSchema: latestMigrationSchema,
 						/**
-								Keeps track of the all the properties that have been updated so we can update the result array with them (if they have been selected).
-							*/
+							Keeps track of the all the properties that have been updated so we can update the result array with them (if they have been selected).
+						*/
 						updatedProperties: {}
 					});
 
@@ -228,12 +234,12 @@ export function createMigrateFunction({
 							// }
 						}
 
-						const hyperschemaModel = getModelForActiveHyperschema({
-							schemaName: hyperschema.schemaName
+						const schemaModel = getModelForActiveSchema({
+							schemaName: modelSchema.name
 						});
 
 						// Update the documents in MongoDB
-						await hyperschemaModel.findOneAndUpdate(
+						await schemaModel.findOneAndUpdate(
 							{
 								_id: result._id,
 								// We explicitly specify `_v` here in case the document has already been migrated by another process
@@ -242,13 +248,13 @@ export function createMigrateFunction({
 							{
 								$set: {
 									...updatedProperties,
-									_v: getVersionFromSchema(hyperschema.schema)
+									_v: getVersionFromMigrationSchema(latestMigrationSchema)
 								}
 							}
 						);
 
 						documentIdToMigrationPromise.delete(result._id);
-						result._v = getVersionFromSchema(hyperschema.schema);
+						result._v = getVersionFromMigrationSchema(latestMigrationSchema);
 					}
 				)
 			);

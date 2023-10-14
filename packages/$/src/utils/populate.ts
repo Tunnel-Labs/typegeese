@@ -1,4 +1,4 @@
-import { PopulateObject } from '~/types/populate.js';
+import type { PopulateObject } from '@typegeese/types';
 
 export function recursivelyAddSelectVersionToPopulateObject(
 	populateObject: PopulateObject

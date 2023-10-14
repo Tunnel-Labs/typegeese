@@ -1,6 +1,7 @@
+import * as mongoose from 'mongoose';
 import type { QueryWithHelpers } from 'mongoose';
 import type { Class, RequiredKeysOf } from 'type-fest';
-import type { MigrateReturn } from './migration.js';
+import type { AnyMigrationFunction } from './migration.js';
 import type { ArrayInnerValue } from './array.js';
 
 export type GetSchemaFromQuery<Query extends QueryWithHelpers<any, any>> =
@@ -12,7 +13,28 @@ export interface AnySchemaInstance {
 	// _id: string;
 }
 
-export type AnySchemaClass = Class<AnySchemaInstance> & { _v: number | string };
+export type AnyMigrationSchemaClass = Class<AnySchemaInstance> & {
+	_v: number | string;
+	_migration?: AnyMigrationFunction;
+	_init?: ({
+		mongoose,
+		meta
+	}: {
+		mongoose: mongoose.Mongoose;
+		meta: any;
+	}) => void | Promise<void>;
+};
+
+export type AnyModelSchemaClass = Class<AnySchemaInstance> & {
+	_v: number | string;
+	_init?: ({
+		mongoose,
+		meta
+	}: {
+		mongoose: mongoose.Mongoose;
+		meta: any;
+	}) => void | Promise<void>;
+};
 
 export type BaseSchemaInstance = {
 	_id: string;
@@ -43,22 +65,22 @@ export interface BaseSchemaExtends<
 }
 
 export interface MigrationSchemaExtends<
-	PreviousSchema extends AnySchemaClass,
+	PreviousSchema extends AnyMigrationSchemaClass,
 	Options extends {
 		omit: {
-			[K in keyof PreviousSchema]?: true;
+			[K in keyof InstanceType<PreviousSchema>]?: true;
 		};
 	}
 > {
 	// prettier-ignore
 	new <T extends {
 		_v: string;
-		_migration(migrate: any): MigrateReturn<any, any>
 		new (): any
+		_migration(args: any): any
 	}>(): Omit<
 		InstanceType<PreviousSchema>,
 		| '_v'
-		| '_migrate'
+		| '_migration'
 		| '__type__'
 		| (
 				Options extends Record<string, any> ?
