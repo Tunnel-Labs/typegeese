@@ -88,22 +88,16 @@ export type Migrate<
 	PreviousSchema extends AnySchemaInstance,
 	CurrentSchema extends AnySchemaInstance
 > = {
-	(properties: MigrationValues<PreviousSchema, CurrentSchema>): AnyMigrationReturn
+	(
+		properties: MigrationValues<PreviousSchema, CurrentSchema>
+	): AnyMigrationReturn;
 	_id: string;
 	mongoose: mongoose.Mongoose;
 };
 
 declare const migrateSymbol: /* unique symbol */ '__migrate__';
-export type MigrateReturn<
-	PreviousSchema extends AnySchemaInstance,
-	CurrentSchema extends AnySchemaInstance
-> = Promisable<
-	| ({ [migrateSymbol]: MigrateSymbolMessage } & MigrationValues<
-			PreviousSchema,
-			CurrentSchema
-	  >)
-	| null
->;
 
 export type MigrateSymbolMessage =
 	'The `_migration` function must return `migrate({ ... })` or `null`';
+
+export type Migration = (migrate: any) => AnyMigrationReturn;

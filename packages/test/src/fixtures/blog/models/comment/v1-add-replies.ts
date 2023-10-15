@@ -5,7 +5,8 @@ import {
 	prop,
 	foreignRef,
 	virtualForeignRef,
-	Migrate,
+	type Migrate,
+	type Migration,
 	type VirtualForeignRef
 } from 'typegeese';
 import CommentV0 from './v0.js';
@@ -27,6 +28,6 @@ export default class Comment extends Schema(CommentV0)<typeof Comment> {
 	)
 	replies!: VirtualForeignRef<Comment, Comment, 'parentComment'>[];
 
-	static _migration = (migrate: Migrate<CommentV0, Comment>) =>
+	static _migration: Migration = (migrate: Migrate<CommentV0, Comment>) =>
 		migrate({ parentComment: null });
 }

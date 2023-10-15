@@ -1,9 +1,10 @@
 import {
 	type Migrate,
+	type Migration,
 	Schema,
 	getModelForSchema,
 	prop,
-	select
+	select,
 } from 'typegeese';
 import CommentV2 from './v2-add-votes.js';
 
@@ -18,7 +19,9 @@ export default class Comment extends Schema(CommentV2, {
 	})
 	rawText!: string;
 
-	static _migration = async (migrate: Migrate<CommentV2, Comment>) => {
+	static _migration: Migration = async (
+		migrate: Migrate<CommentV2, Comment>
+	) => {
 		const { _id, mongoose } = migrate;
 		const CommentV2Model = getModelForSchema(CommentV2, { mongoose });
 		const comment = await select(CommentV2Model.findById(_id), { text: true });
