@@ -25,7 +25,7 @@ export default class CommentDownvote extends Schema(CommentDownvoteV0, {
 	)
 	account!: ForeignRef<CommentDownvote, $.Account, 'commentDownvotes'>;
 
-	static _migration = async (
+	static _migration: Migrate = async (
 		migrate: Migrate<CommentDownvoteV0, CommentDownvote>
 	) => {
 		const { _id, mongoose } = migrate;

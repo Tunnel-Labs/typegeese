@@ -40,5 +40,5 @@ export default class User extends Schema(UserV3)<typeof User> {
 	// @ts-ignore: renamed
 	commentUpvotes!: VirtualForeignRef<User, $.CommentUpvote, 'user'>[];
 
-	static _migration = (migrate: Migrate<UserV3, User>) => migrate({});
+	static _migration: Migrate = (migrate: Migrate<UserV3, User>) => migrate({});
 }

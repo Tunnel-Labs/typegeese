@@ -1,6 +1,5 @@
 import {
 	type Migrate,
-	type Migration,
 	PropType,
 	Schema,
 	prop,
@@ -34,6 +33,6 @@ export default class Comment extends Schema(CommentV1)<typeof Comment> {
 	)
 	downvotes!: VirtualForeignRef<Comment, $.CommentDownvote, 'comment'>[];
 
-	static _migration: Migration = (migrate: Migrate<CommentV1, Comment>) =>
+	static _migration: Migrate = (migrate: Migrate<CommentV1, Comment>) =>
 		migrate({});
 }

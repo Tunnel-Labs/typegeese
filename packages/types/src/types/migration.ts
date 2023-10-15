@@ -1,5 +1,5 @@
 import type * as mongoose from 'mongoose';
-import type { Promisable } from 'type-fest';
+import type { IsNever, Promisable } from 'type-fest';
 import type { CreateType } from './create.js';
 import type { IsVirtualForeignRef, IsVirtualForeignRefArray } from './ref.js';
 import type { AnySchemaInstance } from './schema.js';
@@ -85,19 +85,19 @@ export type AnyMigrationReturn = Promisable<{
 } | null>;
 
 export type Migrate<
-	PreviousSchema extends AnySchemaInstance,
-	CurrentSchema extends AnySchemaInstance
-> = {
-	(
-		properties: MigrationValues<PreviousSchema, CurrentSchema>
-	): AnyMigrationReturn;
-	_id: string;
-	mongoose: mongoose.Mongoose;
-};
+	PreviousSchema extends AnySchemaInstance | void = void,
+	CurrentSchema extends AnySchemaInstance = never
+> = PreviousSchema extends AnySchemaInstance
+	? {
+			(
+				properties: MigrationValues<PreviousSchema, CurrentSchema>
+			): AnyMigrationReturn;
+			_id: string;
+			mongoose: mongoose.Mongoose;
+	  }
+	: (migrate: any) => AnyMigrationReturn;
 
 declare const migrateSymbol: /* unique symbol */ '__migrate__';
 
 export type MigrateSymbolMessage =
 	'The `_migration` function must return `migrate({ ... })` or `null`';
-
-export type Migration = (migrate: any) => AnyMigrationReturn;

@@ -1,6 +1,5 @@
 import {
 	type Migrate,
-	type Migration,
 	Schema,
 	getModelForSchema,
 	prop,
@@ -19,7 +18,7 @@ export default class Comment extends Schema(CommentV2, {
 	})
 	rawText!: string;
 
-	static _migration: Migration = async (
+	static _migration: Migrate = async (
 		migrate: Migrate<CommentV2, Comment>
 	) => {
 		const { _id, mongoose } = migrate;

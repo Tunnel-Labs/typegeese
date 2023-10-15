@@ -65,7 +65,7 @@ When you want to add a new property, you extend the previous version of your sch
 
 ```typescript
 // ./user/v1-add-profile-image.ts
-import { Schema, prop } from "typegeese";
+import { type Migrate, Schema, prop } from "typegeese";
 
 import UserV0 from './v0.js';
 
@@ -75,7 +75,7 @@ export default class User extends Schema(UserV0)<typeof User> {
   @prop({ type: String, required: false })
   profileImageUrl!: string | null;
 
-  static _migration = (migrate: Migrate<UserV0, User>) =>
+  static _migration: Migrate = (migrate: Migrate<UserV0, User>) =>
     migrate({ profileImageUrl: null });
 }
 ```
@@ -90,6 +90,7 @@ When the schema change requires a migration, you can export a `Model_migration` 
 ```typescript
 // ./user/v2-add-username.ts
 import {
+  type Migrate,
   getModelForSchema,
   select,
   Schema,
@@ -105,7 +106,7 @@ export default class User extends Schema(UserV1)<typeof User> {
   @prop({ type: String, required: true })
   username!: string;
 
-  static _migration = async (migrate: Migrate<UserV1, User>) => {
+  static _migration: Migrate = async (migrate: Migrate<UserV1, User>) => {
     const { _id, mongoose } = migrate;
     const UserV1Model = getModelForSchema(UserV1, { mongoose });
     const user = await select(
@@ -194,6 +195,7 @@ export default class User extends Schema('User')<typeof User> {
 ```typescript
 // ./user/v1-add-username.ts
 import {
+  type Migrate,
   Schema,
   prop,
   getModelForSchema,
@@ -209,7 +211,7 @@ export default class User extends Schema(UserV0)<typeof User> {
   @prop({ type: String, required: true })
   username!: string;
 
-  static _migration = (migrate: Migrate<UserV0, User>) => {
+  static _migration: Migrate = (migrate: Migrate<UserV0, User>) => {
     const { _id, mongoose } = migrate;
     const UserV0Model = getModelForSchema(UserV0, { mongoose });
     const user = await select(
@@ -230,7 +232,7 @@ export default class User extends Schema(UserV0)<typeof User> {
 
 ```typescript
 // ./user/v1-remove-name.ts
-import { Schema, prop } from 'typegeese';
+import { type Migrate, Schema, prop } from 'typegeese';
 
 import UserV0 from './v0.js';
 
@@ -240,7 +242,7 @@ export default class User extends Schema(
 )<typeof User> {
   static _v = 'v1-remove-name';
 
-  static _migration = (migrate: Migrate<UserV0, User>) => migrate({})
+  static _migration: Migrate = (migrate: Migrate<UserV0, User>) => migrate({})
 }
 ```
 
@@ -249,6 +251,7 @@ export default class User extends Schema(
 ```typescript
 // ./user/v1-rename-name-to-full-name.ts
 import {
+  type Migrate,
   Schema,
   prop,
   getModelForSchema,
@@ -266,7 +269,7 @@ export default class User extends Schema(
   @prop({ type: String, required: false })
   fullName!: string | null;
 
-  static _migration = (migrate: Migrate<User, UserV0>) => {
+  static _migration: Migrate = (migrate: Migrate<User, UserV0>) => {
     const { _id, mongoose } = migrate;
     const UserV0Model = getModelForSchema(UserV0, { mongoose });
     const user = await select(
@@ -292,6 +295,7 @@ In order to preserve compatibility with a blue/green deployment strategy, typege
 // ^ We rename the folder to use an underscore prefix to indicate that it was renamed
 
 import {
+  type Migrate,
   Schema,
   prop,
   getModelForSchema,
@@ -302,7 +306,7 @@ import UserV0 from './v0.js';
 export default class User extends Schema(UserV0)<typeof User> {
   static _v = 'v1-rename-to-account';
 
-  static _migration = (migrate: Migrate<UserV0, User>) => migrate({})
+  static _migration: Migrate = (migrate: Migrate<UserV0, User>) => migrate({})
 }
 ```
 

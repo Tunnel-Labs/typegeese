@@ -16,7 +16,7 @@ export default class User extends Schema(UserV0)<typeof User> {
 	@prop({ type: () => String, required: true })
 	username!: string;
 
-	static _migration = async (migrate: Migrate<UserV0, User>) => {
+	static _migration: Migrate = async (migrate: Migrate<UserV0, User>) => {
 		const { _id, mongoose } = migrate;
 		const UserV0Model = getModelForSchema(UserV0, { mongoose });
 		const user = await select(UserV0Model.findById(_id), { email: true });

@@ -21,5 +21,6 @@ export default class Comment extends Schema(CommentV3, {
 	)
 	author!: ForeignRef<Comment, $.Account, 'authoredComments'>;
 
-	static _migration = (migrate: Migrate<Comment, CommentV3>) => migrate({});
+	static _migration: Migrate = (migrate: Migrate<Comment, CommentV3>) =>
+		migrate({});
 }

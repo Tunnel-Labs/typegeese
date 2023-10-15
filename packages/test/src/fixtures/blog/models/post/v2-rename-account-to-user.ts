@@ -22,5 +22,6 @@ export default class Post extends Schema(PostV1, { omit: { author: true } })<
 	)
 	author!: ForeignRef<Post, $.Account, 'posts'>;
 
-	static _migration = async (migrate: Migrate<PostV1, Post>) => migrate({});
+	static _migration: Migrate = async (migrate: Migrate<PostV1, Post>) =>
+		migrate({});
 }
