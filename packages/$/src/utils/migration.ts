@@ -79,11 +79,13 @@ export async function applySchemaMigrationsToDocument({
 	}
 
 	if (migrationSchema._migration !== undefined) {
-		const migrationValues = await migrationSchema._migration({
-			_id: documentMetadata._id,
-			mongoose,
-			meta
-		});
+		const migrationValues = await migrationSchema._migration(
+			Object.assign((properties) => properties, {
+				_id: documentMetadata._id,
+				mongoose,
+				meta
+			})
+		);
 
 		if (migrationValues !== null) {
 			// Applying the schema's migrations

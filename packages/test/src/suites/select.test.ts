@@ -1,9 +1,9 @@
 import { beforeAll, expect, test } from 'vitest';
-import { CreateInput, select } from '~/index.js';
+import { CreateInput, select } from 'typegeese';
 import { createId } from '@paralleldrive/cuid2';
-import { getBlogModels } from '~test/fixtures/blog/models/$models.js';
-import { createMongoose } from '~test/utils/mongoose.js';
-import * as Blog from '~test/fixtures/blog/models/$schemas.js';
+import { getBlogModels } from '../fixtures/blog/models/$models.js';
+import { createMongoose } from '../utils/mongoose.js';
+import * as Blog from '../fixtures/blog/models/$schemas.js';
 
 beforeAll(async () => {
 	const mongoose = await createMongoose();
@@ -12,7 +12,7 @@ beforeAll(async () => {
 
 test('supports nested self-referential select', async () => {
 	const mongoose = await createMongoose();
-	const { PostModel, AccountModel } = await getBlogModels({ mongoose })
+	const { PostModel, AccountModel } = await getBlogModels({ mongoose });
 
 	const accountId = createId();
 	await AccountModel.create({

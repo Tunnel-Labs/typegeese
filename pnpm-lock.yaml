@@ -85,18 +85,21 @@ importers:
       '@typegeese/shape':
         specifier: workspace:*
         version: link:../shape
-      '@typegeese/types':
-        specifier: workspace:*
-        version: link:../types
       mem:
         specifier: 9.0.2
         version: 9.0.2
+      mongoose:
+        specifier: ^7.6.2
+        version: 7.6.2
       typegeese:
         specifier: workspace:*
         version: link:../$
     devDependencies:
+      rollup-plugin-tilde-imports:
+        specifier: ^1.0.3
+        version: 1.0.3(rollup@3.28.1)
       vitest:
-        specifier: 0.34.6
+        specifier: ^0.34.6
         version: 0.34.6
 
   packages/types:
@@ -4073,7 +4076,6 @@ packages:
     resolution: {integrity: sha512-xKYQsKvivJZCIe9DPAok/tgQvAYkfG9Zz4RQ8j0p3xQMJOakOYLJoH5xVSnE3ArfOfE+JGn6kipJ4jGoGAW6Gw==}
     dependencies:
       pathe: 1.1.1
-    dev: false
 
   /get-set-props@0.1.0:
     resolution: {integrity: sha512-7oKuKzAGKj0ag+eWZwcGw2fjiZ78tXnXQoBgY0aU7ZOxTu4bB7hSuQSDgtKy978EDH062P5FmD2EWiDpQS9K9Q==}
@@ -6900,6 +6902,16 @@ packages:
       tilde-imports: 2.0.0
     dev: true
 
+  /rollup-plugin-tilde-imports@1.0.3(rollup@3.28.1):
+    resolution: {integrity: sha512-/LN/R7pEvB7oUs14jIkNEF318Uysmu4xPRzcRKlVBCBv/R7kMJEq4CYu7+Wd4hPeXXftPoF6XwP27S1GLi4K/Q==}
+    peerDependencies:
+      rollup: ^3.25.3
+    dependencies:
+      get-monorepo-root: 1.1.0
+      rollup: 3.28.1
+      tilde-imports: 3.1.2
+    dev: true
+
   /rollup-plugin-workspace-imports@0.1.6:
     resolution: {integrity: sha512-cdngLUn9YnPIBM2Aw15njCQM9ih1xZ/yuEKt8WGuaiSGPvUsr2zZoOiMZ/RXxAI3uT1nrZTX5z4gFjx5HxInQw==}
     dependencies:
@@ -7395,7 +7407,6 @@ packages:
       fast-glob: 3.3.1
       pathe: 1.1.1
       yaml: 2.3.2
-    dev: false
 
   /tiny-invariant@1.3.1:
     resolution: {integrity: sha512-AD5ih2NlSssTCwsMznbvwMZpJ1cbhkGd2uueNxzv2jDlEeZdU04JQfRnggJQ8DrcVBGjAsCKwFBbDlVNtEMlzw==}

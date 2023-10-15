@@ -1,13 +1,18 @@
 {
 	"name": "@-/test",
 	"type": "module",
+	"scripts": {
+		"test": "vitest run"
+	},
 	"dependencies": {
 		"mem": "9.0.2",
+		"mongoose": "^7.6.2",
 		"typegeese": "workspace:*",
 		"@paralleldrive/cuid2": "2.2.2",
 		"@typegeese/shape": "workspace:*"
 	},
 	"devDependencies": {
-		"vitest": "0.34.6"
+		"rollup-plugin-tilde-imports": "^1.0.3",
+		"vitest": "^0.34.6"
 	}
 }
