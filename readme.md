@@ -85,17 +85,16 @@ export default class User extends Schema(UserV0)<typeof User> {
 export * from './v1-add-profile-image.js';
 ```
 
-When the schema change requires a migration, you can export a `Model_migration` function from the file to apply those migrations:
+The static `_migration` property can handle arbitrarily complex migrations:
 
 ```typescript
 // ./user/v2-add-username.ts
 import {
-  type Migrate,
   getModelForSchema,
-  select,
-  Schema,
+  type Migrate,
   prop,
-  type Migrate
+  Schema,
+  select
 } from 'typegeese';
 
 import UserV1 from './v1-add-profile-image.js';
@@ -128,13 +127,13 @@ export default class User extends Schema(UserV1)<typeof User> {
 export { default as User } from './v2-add-username.js';
 ```
 
-For readability, typegeese exports a `t` helper that uses TypeScript inference to help you define a type containing all of your schema's properties in one place:
+If you want to be able to view all your schema's properties in one place, you can install and use `@typegeese/shape`, which comes with a `t` helper that leverages TypeScript inference to define a type containing your schema's properties:
 
 ```typescript
 // ./user/$schema.ts
 export { default as User } from './v2-add-username.js';
 
-import type { t } from 'typegeese';
+import type { t } from '@typegeese/shape';
 import type * as $ from '../$schemas.js';
 
 // This type is type-checked by TypeScript to ensure
@@ -150,6 +149,8 @@ export type $User = t.Shape<
   }
 >;
 ```
+
+The `t` helper can also be used to define the shape of your schema at runtime:
 
 ```typescript
 // ./user/$shape.ts
