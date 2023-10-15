@@ -43,9 +43,9 @@ export function createModelSchemaFromMigrationSchema(
 	});
 	Object.defineProperty(modelSchema, '__isModelSchema', { value: true });
 
-	if (migrationSchema._init !== undefined) {
-		Object.defineProperty(modelSchema, '_init', {
-			value: migrationSchema._init
+	if (migrationSchema._initialize !== undefined) {
+		Object.defineProperty(modelSchema, '_initialize', {
+			value: migrationSchema._initialize
 		});
 	}
 
@@ -381,8 +381,8 @@ export async function loadModelSchemas<
 
 	// Run any migration initialization functions
 	for (const modelSchema of Object.values(modelSchemas)) {
-		if (modelSchema._init !== undefined) {
-			await modelSchema._init({ mongoose, meta });
+		if (modelSchema._initialize !== undefined) {
+			await modelSchema._initialize({ mongoose, meta });
 		}
 	}
 

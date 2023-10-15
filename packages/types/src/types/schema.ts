@@ -16,7 +16,7 @@ export interface AnySchemaInstance {
 export type AnyMigrationSchemaClass = Class<AnySchemaInstance> & {
 	_v: number | string;
 	_migration?: AnyMigrationFunction;
-	_init?: ({
+	_initialize?: ({
 		mongoose,
 		meta
 	}: {
@@ -27,7 +27,7 @@ export type AnyMigrationSchemaClass = Class<AnySchemaInstance> & {
 
 export type AnyModelSchemaClass = Class<AnySchemaInstance> & {
 	_v: number | string;
-	_init?: ({
+	_initialize?: ({
 		mongoose,
 		meta
 	}: {

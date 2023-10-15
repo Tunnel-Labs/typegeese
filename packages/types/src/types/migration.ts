@@ -94,6 +94,7 @@ export type Migrate<
 			): AnyMigrationReturn;
 			_id: string;
 			mongoose: mongoose.Mongoose;
+			meta: any;
 	  }
 	: (migrate: any) => AnyMigrationReturn;
 
