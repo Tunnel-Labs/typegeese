@@ -1,8 +1,16 @@
 {
 	"name": "@typegeese/shape",
+	"version": "0.0.94",
 	"type": "module",
-	"exports": "./src/$.ts",
+	"exports": "./src/index.ts",
+	"scripts": {
+		"build": "ts-node ./scripts/build.ts"
+	},
 	"dependencies": {
+		"type-fest": "^4.4.0",
 		"@typegeese/types": "workspace:*"
+	},
+	"devDependencies": {
+		"typescript": "^5.2.2"
 	}
 }

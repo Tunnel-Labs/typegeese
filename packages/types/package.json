@@ -9,7 +9,7 @@
 	"dependencies": {
 		"@typegoose/typegoose": "^11.6.0",
 		"mongoose": "^7.6.2",
-		"type-fest": "^4.2.0",
+		"type-fest": "^4.4.0",
 		"typescript": "^5.2.2"
 	}
 }
