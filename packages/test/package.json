@@ -2,7 +2,7 @@
 	"name": "@-/test",
 	"type": "module",
 	"scripts": {
-		"test": "vitest run"
+		"test": "vitest run --no-threads"
 	},
 	"dependencies": {
 		"mem": "9.0.2",

@@ -141,6 +141,8 @@ export function registerOnForeignModelDeletedHooks({
 							}
 						)
 					);
+
+					next();
 				}
 			} catch (error: any) {
 				next(error);
