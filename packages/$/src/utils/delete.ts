@@ -83,71 +83,67 @@ export function registerOnForeignModelDeletedHooks({
 
 		const preDeleteOne: mongoose.PreMiddlewareFunction<
 			mongoose.Query<any, any>
-		> = function (next) {
-			const parentModel = getModelForActiveSchema({
-				schemaName: parentModelName
-			});
+		> = async function (next) {
+			try {
+				const parentModel = getModelForActiveSchema({
+					schemaName: parentModelName
+				});
 
-			const isDeleteRestricted = onModelDeletedActions.some(
-				({ action }) => action === 'Restrict'
-			);
+				const isDeleteRestricted = onModelDeletedActions.some(
+					({ action }) => action === 'Restrict'
+				);
 
-			if (isDeleteRestricted) {
-				// We deliberately do not call `next` here because we want to prevent the deletion
-				parentModel
-					.findOne(this.getQuery(), { _id: 1 })
-					.exec()
-					.then((model: any) => {
-						console.error(
-							`Deleting "${parentModelName} ${
-								model._id as string
-							}" is restricted.`
-						);
-					})
-					.catch((error: any) => {
-						console.error(error);
-					});
-			} else {
-				parentModel
-					.findOne(this.getQuery(), { _id: 1 })
-					.exec()
-					.then(async (model) =>
-						// Delete every child dependency first
-						Promise.all(
-							onModelDeletedActions.map(
-								async ({ action, childModelName, childModelField }) => {
-									if (model === null) {
-										return;
-									}
+				if (isDeleteRestricted) {
+					// We deliberately do not call `next` here because we want to prevent the deletion
+					const model = await parentModel
+						.findOne(this.getQuery(), { _id: 1 })
+						.exec();
 
-									const childModel = getModelForActiveSchema({
-										schemaName: childModelName
-									});
+					if (model !== null) {
+						const errorMessage = `Deleting "${parentModelName} ${
+							model._id as string
+						}" is restricted.`;
+						next(new Error(errorMessage));
+					}
+				} else {
+					const model = await parentModel
+						.findOne(this.getQuery(), { _id: 1 })
+						.exec();
 
-									if (action === 'Cascade') {
-										await childModel.deleteMany({
-											[childModelField]: model._id
-										});
-									} else if (action === 'SetNull') {
-										await childModel.updateMany(
-											{
-												[childModelField]: model._id
-											},
-											{
-												$set: {
-													[childModelField]: null
-												}
-											}
-										);
-									}
+					// Delete every child dependency first
+					await Promise.all(
+						onModelDeletedActions.map(
+							async ({ action, childModelName, childModelField }) => {
+								if (model === null) {
+									return;
 								}
-							)
+
+								const childModel = getModelForActiveSchema({
+									schemaName: childModelName
+								});
+
+								if (action === 'Cascade') {
+									await childModel.deleteMany({
+										[childModelField]: model._id
+									});
+								} else if (action === 'SetNull') {
+									await childModel.updateMany(
+										{
+											[childModelField]: model._id
+										},
+										{
+											$set: {
+												[childModelField]: null
+											}
+										}
+									);
+								}
+							}
 						)
-					)
-					.then(() => next())
-					.catch((error) => {
-						console.error('Typegeese delete hook failed:', error);
-					});
+					);
+				}
+			} catch (error: any) {
+				next(error);
 			}
 		};
 
