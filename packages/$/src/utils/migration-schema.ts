@@ -22,7 +22,7 @@ export function getMigrationSchemasMap(): Map<
 			migrationsSchemasMap,
 			Schema
 		);
-		(globalThis as any)[DecoratorKeys.MigrationOptions] = migrationsSchemasMap;
+		(globalThis as any)[DecoratorKeys.MigrationSchemas] = migrationsSchemasMap;
 	}
 
 	return migrationsSchemasMap;
