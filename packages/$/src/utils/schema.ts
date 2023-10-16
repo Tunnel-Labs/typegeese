@@ -381,12 +381,7 @@ export async function loadModelSchemas<
 
 	// Register the models for each schema (this is intentionally done after processing all the schemas so that all the hooks have been registered by now)
 	for (const modelSchema of Object.values(modelSchemas)) {
-		getModelForClass(modelSchema, {
-			existingMongoose: mongoose,
-			schemaOptions: {
-				collection: modelSchema.name
-			}
-		});
+		getModelForSchema(modelSchema, { mongoose });
 	}
 
 	// Run any migration initialization functions

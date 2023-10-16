@@ -1,6 +1,7 @@
 export * from './types/array.js';
 export * from './types/create.js';
 export * from './types/find.js';
+export * from './types/initialize.js';
 export * from './types/instance-type.js';
 export * from './types/migration.js';
 export * from './types/populate.js';

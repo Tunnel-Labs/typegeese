@@ -64,15 +64,17 @@ export function getModelForSchema<
 			? schema
 			: createModelSchemaFromMigrationSchema(schema);
 
-	const model = getModelForClass(modelSchema, {
-		existingMongoose: mongoose,
-		schemaOptions: {
-			collection: schema.name
-		},
-		options: {
-			customName: schema.name + '-' + version
-		}
-	});
+	const model =
+		getModelWithString(schema.name + '-' + version) ??
+		getModelForClass(modelSchema, {
+			existingMongoose: mongoose,
+			schemaOptions: {
+				collection: schema.name
+			},
+			options: {
+				customName: schema.name + '-' + version
+			}
+		});
 
 	// @ts-expect-error
 	return model;

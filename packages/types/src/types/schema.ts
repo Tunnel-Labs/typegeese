@@ -1,14 +1,9 @@
 import * as mongoose from 'mongoose';
 import type { QueryWithHelpers } from 'mongoose';
-import type {
-	Class,
-	EmptyObject,
-	Exact,
-	IsNever,
-	RequiredKeysOf
-} from 'type-fest';
+import type { Class, RequiredKeysOf } from 'type-fest';
 import type { AnyMigrationFunction } from './migration.js';
 import type { ArrayInnerValue } from './array.js';
+import type { Initialize } from './initialize.js';
 
 export type GetSchemaFromQuery<Query extends QueryWithHelpers<any, any>> =
 	NonNullable<
@@ -22,24 +17,12 @@ export interface AnySchemaInstance {
 export type AnyMigrationSchemaClass = Class<AnySchemaInstance> & {
 	_v: number | string;
 	_migration?: AnyMigrationFunction;
-	_initialize?: ({
-		mongoose,
-		meta
-	}: {
-		mongoose: mongoose.Mongoose;
-		meta: any;
-	}) => void | Promise<void>;
+	_initialize?: Initialize;
 };
 
 export type AnyModelSchemaClass = Class<AnySchemaInstance> & {
 	_v: number | string;
-	_initialize?: ({
-		mongoose,
-		meta
-	}: {
-		mongoose: mongoose.Mongoose;
-		meta: any;
-	}) => void | Promise<void>;
+	_initialize?: Initialize;
 };
 
 export type BaseSchemaInstance = {
