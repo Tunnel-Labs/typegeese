@@ -211,13 +211,27 @@ export async function loadModelSchemas<
 		}
 	);
 
-	registerOnForeignModelDeletedHooks({ modelSchemas });
+	const migrationOptionsMap = getMigrationOptionsMap();
+	const renamedSchemaNames = new Set<string>();
+	for (const modelSchema of Object.values(modelSchemas)) {
+		const migrationOptionMap = migrationOptionsMap.get(modelSchema.name);
+		const baseOptions = migrationOptionMap?.get(0);
+		if (baseOptions?.from !== undefined) {
+			renamedSchemaNames.add(baseOptions.from.name);
+		}
+	}
+
+	registerOnForeignModelDeletedHooks({ modelSchemas, renamedSchemaNames });
 
 	const migrate = createMigrateFunction({ modelSchemas, meta });
 
 	// Register a migration hook for all the model schemas
 	for (const modelSchema of Object.values(modelSchemas)) {
-		const migrationOptionsMap = getMigrationOptionsMap();
+		// Do not register migration hooks for renamed schemas
+		if (renamedSchemaNames.has(modelSchema.name)) {
+			continue;
+		}
+
 		const migrationOptionMap = migrationOptionsMap.get(modelSchema.name);
 		const baseOptions = migrationOptionMap?.get(0);
 
@@ -267,7 +281,8 @@ export async function loadModelSchemas<
 							);
 						} catch (error: any) {
 							if (error.code !== 11000) {
-								throw error;
+								next(error);
+								return;
 							}
 						}
 					}
@@ -319,7 +334,8 @@ export async function loadModelSchemas<
 							} as any);
 						} catch (error: any) {
 							if (error.code !== 11000) {
-								throw error;
+								next(error);
+								return;
 							}
 						}
 					}
@@ -395,6 +411,11 @@ export async function loadModelSchemas<
 
 	// Run any migration initialization functions
 	for (const modelSchema of Object.values(modelSchemas)) {
+		// skip the initialization functions of schemas which have been renamed
+		if (renamedSchemaNames.has(modelSchema.name)) {
+			continue;
+		}
+
 		if (modelSchema._initialize !== undefined) {
 			await modelSchema._initialize({ mongoose, meta });
 		}

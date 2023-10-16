@@ -7,9 +7,11 @@ import { getModelForActiveSchema } from './model.js';
 import { getRelationsFromModelSchema } from './relations.js';
 
 export function registerOnForeignModelDeletedHooks({
-	modelSchemas
+	modelSchemas,
+	renamedSchemaNames
 }: {
 	modelSchemas: Record<string, AnyModelSchemaClass>;
+	renamedSchemaNames: Set<string>
 }) {
 	const parentModelOnDeleteActions: {
 		childModelName: string;
