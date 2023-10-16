@@ -4,9 +4,9 @@ import type { $Post } from './$schema.js';
 
 export const Post = t.Shape<$Post>({
 	_id: t,
-	author: t.ForeignRef,
+	author: t.ForeignRef('Account'),
 	title: t,
-	comments: t.VirtualForeignRef,
+	comments: t.VirtualForeignRef('Comment'),
 	content: t,
 	description: t
 });

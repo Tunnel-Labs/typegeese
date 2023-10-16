@@ -1,5 +1,9 @@
 import type { ForeignRef, VirtualForeignRef } from '@typegeese/types';
 import * as t from '../utils/t.js';
+import {
+	ShapeForeignRef,
+	ShapeVirtualForeignRef
+} from 'packages/shape/src/types/ref.js';
 
 // prettier-ignore
 export type ShapeTypeProperties<Schema> = {
@@ -31,9 +35,15 @@ export type ShapeTypeProperties<Schema> = {
 // prettier-ignore
 export type ShapeObjectProperties<ShapeType> = {
 	[K in keyof ShapeType]:
-		NonNullable<ShapeType[K]> extends t.ForeignRef<any> | t.ForeignRef<any>[] ?
-			typeof t.ForeignRef :
-		NonNullable<ShapeType[K]> extends t.VirtualForeignRef<any> | t.VirtualForeignRef<any>[] ?
-			typeof t.VirtualForeignRef :
+		NonNullable<ShapeType[K]> extends t.ForeignRef<infer Schema> | t.ForeignRef< infer Schema>[] ?
+			ShapeForeignRef<
+				// @ts-expect-error: works
+				NonNullable<Schema['__name__']>
+			> :
+		NonNullable<ShapeType[K]> extends t.VirtualForeignRef<infer Schema> | t.VirtualForeignRef<infer Schema>[] ?
+			ShapeVirtualForeignRef<
+				// @ts-expect-error: works
+				NonNullable<Schema['__name__']>
+			> :
 		typeof t
 }

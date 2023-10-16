@@ -1,6 +1,6 @@
 {
 	"name": "@typegeese/shape",
-	"version": "0.0.99",
+	"version": "0.0.100",
 	"type": "module",
 	"exports": "./src/index.ts",
 	"scripts": {

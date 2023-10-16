@@ -3,6 +3,7 @@ import {
 	ShapeObjectProperties,
 	ShapeTypeProperties
 } from '../types/properties.js';
+import type { ShapeForeignRef, ShapeVirtualForeignRef } from '../types/ref.js';
 
 export function type<T>(): T;
 export function type(): any {}
@@ -13,17 +14,24 @@ export function Shape<ShapeType>(
 ): ShapeObjectProperties<ShapeType>;
 export function Shape(): any {}
 
-export type ForeignRef<ForeignSchema> = typeof ForeignRef<ForeignSchema>;
+export type ForeignRef<ForeignSchema> = ShapeForeignRef<
+	// @ts-expect-error: works
+	NonNullable<ForeignSchema['__name__']>
+>;
 export const ForeignRef = Object.assign(
-	<ForeignSchema>(_foreignRefMarker: Opaque<ForeignSchema, 'ForeignRef'>) => {},
+	<ForeignSchemaName extends string>(
+		foreignSchemaName: ForeignSchemaName
+	): ShapeForeignRef<ForeignSchemaName> => foreignSchemaName,
 	{ __foreignRef__: true }
 );
 
-export type VirtualForeignRef<ForeignSchema> =
-	typeof VirtualForeignRef<ForeignSchema>;
+export type VirtualForeignRef<ForeignSchema> = ShapeVirtualForeignRef<
+	// @ts-expect-error: works
+	NonNullable<ForeignSchema['__name__']>
+>;
 export const VirtualForeignRef = Object.assign(
-	<ForeignSchema>(
-		_virtualForeignRefMarker: Opaque<ForeignSchema, 'VirtualForeignRef'>
-	) => {},
+	<ForeignSchemaName extends string>(
+		virtualForeignSchemaName: ForeignSchemaName
+	): ShapeVirtualForeignRef<ForeignSchemaName> => virtualForeignSchemaName,
 	{ __virtualForeignRef__: true }
 );

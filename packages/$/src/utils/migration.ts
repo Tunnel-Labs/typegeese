@@ -182,7 +182,7 @@ export function createMigrateFunction({
 			}
 
 			if (
-				document._v !== getVersionFromMigrationSchema(latestMigrationSchema)
+				document._v < getVersionFromMigrationSchema(latestMigrationSchema)
 			) {
 				if (documentIdToMigrationPromise.has(document._id)) {
 					// Prevents an infinite loop with this migration hook
