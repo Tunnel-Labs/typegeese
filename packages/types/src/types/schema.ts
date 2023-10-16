@@ -1,4 +1,3 @@
-import * as mongoose from 'mongoose';
 import type { QueryWithHelpers } from 'mongoose';
 import type { Class, RequiredKeysOf } from 'type-fest';
 import type { AnyMigrationFunction } from './migration.js';

@@ -15,15 +15,12 @@ import {
 	getMigrationOptionsMap,
 	getMigrationSchemasMap
 } from './migration-schema.js';
-import {
-	getModelSchemaPropMapFromMigrationSchema,
-	getPropMapKeysForActiveSchema
-} from './prop-map.js';
+import { getModelSchemaPropMapFromMigrationSchema } from './prop-map.js';
 import { getVersionFromMigrationSchema, toVersionNumber } from './version.js';
 import { registerOnForeignModelDeletedHooks } from './delete.js';
 import { createMigrateFunction } from './migration.js';
 import { recursivelyAddSelectVersionToPopulateObject } from './populate.js';
-import { getModelForActiveSchema, getModelForSchema } from './model.js';
+import { getModelForSchema } from './model.js';
 
 /**
 	Dynamically creates a full schema by going up the migration chain from a specified migration schema.
@@ -244,45 +241,6 @@ export async function loadModelSchemas<
 					);
 				}
 
-				// If the collection was renamed using `from`, run the query in the old collection and copy all the result documents into the new collection (before re-running the query on the new collection)
-				if (baseOptions?.from !== undefined) {
-					const schemaName = baseOptions.from.name;
-
-					const fromModel = getModelForActiveSchema({ schemaName });
-					const propMapKeys = getPropMapKeysForActiveSchema({
-						schemaName
-					});
-
-					const fullProjection = Object.fromEntries(
-						propMapKeys.map((key) => [key, 1])
-					);
-
-					const oldDocuments = await fromModel
-						.find(this.getQuery(), fullProjection)
-						.lean()
-						.exec();
-
-					if (oldDocuments.length > 0) {
-						const model = getModelForSchema(modelSchema, { mongoose });
-						try {
-							await model.collection.insertMany(
-								oldDocuments.map(
-									(oldDocument) => ({ ...oldDocument, _v: 0 }) as any
-								),
-								{
-									// This is needed to avoid erroring on documents with duplicate IDs
-									ordered: false
-								}
-							);
-						} catch (error: any) {
-							if (error.code !== 11000) {
-								next(error);
-								return;
-							}
-						}
-					}
-				}
-
 				next();
 			})().catch((error) => {
 				console.error('Unexpected error in pre find hook:', error);
@@ -302,40 +260,6 @@ export async function loadModelSchemas<
 					);
 				}
 
-				// If the collection was renamed using `from`, run the query in the old collection and copy all the result documents into the new collection (before re-running the query on the new collection)
-				if (baseOptions?.from !== undefined) {
-					const schemaName = baseOptions.from.name;
-
-					const fromModel = getModelForActiveSchema({ schemaName });
-					const propMapKeys = getPropMapKeysForActiveSchema({
-						schemaName
-					});
-
-					const fullProjection = Object.fromEntries(
-						propMapKeys.map((key) => [key, 1])
-					);
-
-					const oldDocument = await fromModel
-						.findOne(this.getQuery(), fullProjection)
-						.lean()
-						.exec();
-
-					if (oldDocument !== null) {
-						const model = getModelForSchema(modelSchema, { mongoose });
-						try {
-							await model.collection.insertOne({
-								...oldDocument,
-								_v: 0
-							} as any);
-						} catch (error: any) {
-							if (error.code !== 11000) {
-								next(error);
-								return;
-							}
-						}
-					}
-				}
-
 				next();
 			})().catch((error) => {
 				console.error('Unexpected error in pre findOne hook:', error);
@@ -345,9 +269,6 @@ export async function loadModelSchemas<
 
 		post('findOne', function (result, next) {
 			(async () => {
-				if (result === null && baseOptions?.from !== undefined) {
-				}
-
 				try {
 					await migrate({
 						mongoose,
