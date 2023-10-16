@@ -381,6 +381,15 @@ export async function loadModelSchemas<
 
 	// Register the models for each schema (this is intentionally done after processing all the schemas so that all the hooks have been registered by now)
 	for (const modelSchema of Object.values(modelSchemas)) {
+		// TODO: figure out why removing this code causes mongoose to error with "MissingSchemaError: Schema hasn't been registered for model \"TunnelInstance\""
+		// (likely due to some code trying to load the unsuffixed version of the model somewhere)
+		getModelForClass(modelSchema, {
+			existingMongoose: mongoose,
+			schemaOptions: {
+				collection: modelSchema.name
+			}
+		});
+
 		getModelForSchema(modelSchema, { mongoose });
 	}
 

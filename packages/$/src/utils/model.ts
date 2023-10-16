@@ -39,11 +39,11 @@ export function getModelForActiveSchema({
 	const version = toVersionNumber(latestMigrationSchema._v);
 
 	const model = getModelWithString(schemaName + '-' + version);
-	if (model === undefined) {
+	if (model === undefined)
 		throw new Error(
 			`Could not find model for active schema "${schemaName}" (version: ${version})`
 		);
-	}
+
 
 	return model as any;
 }
