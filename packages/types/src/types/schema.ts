@@ -1,6 +1,12 @@
 import * as mongoose from 'mongoose';
 import type { QueryWithHelpers } from 'mongoose';
-import type { Class, RequiredKeysOf } from 'type-fest';
+import type {
+	Class,
+	EmptyObject,
+	Exact,
+	IsNever,
+	RequiredKeysOf
+} from 'type-fest';
 import type { AnyMigrationFunction } from './migration.js';
 import type { ArrayInnerValue } from './array.js';
 
@@ -52,7 +58,7 @@ export interface BaseSchemaExtends<
 	SchemaName extends string,
 	Options extends NewSchemaOptions
 > {
-	new <T extends { _v: number; new (): any,}>():
+	new <T extends { _v: number; new (): any }>():
 		(
 			Options['from'] extends new () => infer Schema ?
 				Omit<Schema, '_v' | '__type__' | '__name__'> :
@@ -61,7 +67,7 @@ export interface BaseSchemaExtends<
 			__type__?: InstanceType<T>;
 			__name__?: SchemaName;
 			_id: string;
-		};
+		}
 }
 
 export interface MigrationSchemaExtends<

@@ -255,10 +255,15 @@ export async function loadModelSchemas<
 					if (oldDocuments.length > 0) {
 						const model = getModelForSchema(modelSchema, { mongoose });
 						try {
-							await model.collection.insertMany(oldDocuments as any, {
-								// This is needed to avoid erroring on documents with duplicate IDs
-								ordered: false
-							});
+							await model.collection.insertMany(
+								oldDocuments.map(
+									(oldDocument) => ({ ...oldDocument, _v: 0 }) as any
+								),
+								{
+									// This is needed to avoid erroring on documents with duplicate IDs
+									ordered: false
+								}
+							);
 						} catch (error: any) {
 							if (error.code !== 11000) {
 								throw error;
@@ -306,7 +311,10 @@ export async function loadModelSchemas<
 					if (oldDocument !== null) {
 						const model = getModelForSchema(modelSchema, { mongoose });
 						try {
-							await model.collection.insertOne(oldDocument as any);
+							await model.collection.insertOne({
+								...oldDocument,
+								_v: 0
+							} as any);
 						} catch (error: any) {
 							if (error.code !== 11000) {
 								throw error;

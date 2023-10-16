@@ -11,10 +11,9 @@ export function getMigrationSchemasMap(): Map<
 	string,
 	Map<number, AnyMigrationSchemaClass>
 > {
-	let migrationsSchemasMap = Reflect.getMetadata(
-		DecoratorKeys.MigrationSchemas,
-		Schema
-	);
+	let migrationsSchemasMap =
+		Reflect.getMetadata(DecoratorKeys.MigrationSchemas, Schema) ??
+		(globalThis as any)[DecoratorKeys.MigrationSchemas];
 
 	if (migrationsSchemasMap === undefined) {
 		migrationsSchemasMap = new Map();
@@ -23,6 +22,7 @@ export function getMigrationSchemasMap(): Map<
 			migrationsSchemasMap,
 			Schema
 		);
+		(globalThis as any)[DecoratorKeys.MigrationOptions] = migrationsSchemasMap;
 	}
 
 	return migrationsSchemasMap;
@@ -35,10 +35,9 @@ export function getMigrationOptionsMap(): Map<
 		{ omit?: Record<string, true>; from?: AnyMigrationSchemaClass } | undefined
 	>
 > {
-	let migrationsOptionsMap = Reflect.getMetadata(
-		DecoratorKeys.MigrationOptions,
-		Schema
-	);
+	let migrationsOptionsMap =
+		Reflect.getMetadata(DecoratorKeys.MigrationOptions, Schema) ??
+		(globalThis as any)[DecoratorKeys.MigrationOptions];
 
 	if (migrationsOptionsMap === undefined) {
 		migrationsOptionsMap = new Map();
@@ -47,6 +46,7 @@ export function getMigrationOptionsMap(): Map<
 			migrationsOptionsMap,
 			Schema
 		);
+		(globalThis as any)[DecoratorKeys.MigrationOptions] = migrationsOptionsMap;
 	}
 
 	return migrationsOptionsMap;
