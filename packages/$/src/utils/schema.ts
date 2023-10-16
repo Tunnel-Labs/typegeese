@@ -224,9 +224,6 @@ export async function loadModelSchemas<
 
 	// Register a migration hook for all the model schemas
 	for (const modelSchema of Object.values(modelSchemas)) {
-		const migrationOptionMap = migrationOptionsMap.get(modelSchema.name);
-		const baseOptions = migrationOptionMap?.get(0);
-
 		// Make sure that we always select the `_v` field (since we need this field in our migration hook)
 		pre('find', function (this: any, next) {
 			(async () => {

@@ -8,6 +8,7 @@ import { setProperty } from 'dot-prop';
 import { includeKeys } from 'filter-obj';
 import mapObject, { mapObjectSkip } from 'map-obj';
 import type { QueryWithHelpers } from 'mongoose';
+import type { Exact } from 'type-fest';
 
 import { getModelForActiveSchema } from './model.js';
 
@@ -30,14 +31,22 @@ import { getModelForActiveSchema } from './model.js';
 */
 export async function select<
 	Query extends QueryWithHelpers<any, any>,
-	const Select extends SelectInput<GetSchemaFromQuery<Query>>
+	const Select extends Exact<SelectInput<GetSchemaFromQuery<Query>>, Select>
 >(
 	query: Query,
 	topLevelSelect: Select
 ): Promise<
 	IsManyQuery<Query> extends true
-		? SelectOutput<GetSchemaFromQuery<Query>, Select>[]
-		: SelectOutput<GetSchemaFromQuery<Query>, Select> | null
+		? SelectOutput<
+				GetSchemaFromQuery<Query>,
+				// @ts-expect-error: works
+				Select
+		  >[]
+		: SelectOutput<
+				GetSchemaFromQuery<Query>,
+				// @ts-expect-error: works
+				Select
+		  > | null
 > {
 	const topLevelFieldsToSelect = {
 		...mapObject(topLevelSelect, (key) =>
