@@ -250,6 +250,7 @@ export async function loadModelSchemas<
 
 					const oldDocuments = await fromModel
 						.find(this.getQuery(), fullProjection)
+						.lean()
 						.exec();
 
 					if (oldDocuments.length > 0) {
@@ -306,6 +307,7 @@ export async function loadModelSchemas<
 
 					const oldDocument = await fromModel
 						.findOne(this.getQuery(), fullProjection)
+						.lean()
 						.exec();
 
 					if (oldDocument !== null) {

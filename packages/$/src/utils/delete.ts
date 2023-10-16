@@ -97,6 +97,7 @@ export function registerOnForeignModelDeletedHooks({
 					// We deliberately do not call `next` here because we want to prevent the deletion
 					const model = await parentModel
 						.findOne(this.getQuery(), { _id: 1 })
+						.lean()
 						.exec();
 
 					if (model !== null) {
@@ -108,6 +109,7 @@ export function registerOnForeignModelDeletedHooks({
 				} else {
 					const model = await parentModel
 						.findOne(this.getQuery(), { _id: 1 })
+						.lean()
 						.exec();
 
 					// Delete every child dependency first
