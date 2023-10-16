@@ -227,11 +227,6 @@ export async function loadModelSchemas<
 
 	// Register a migration hook for all the model schemas
 	for (const modelSchema of Object.values(modelSchemas)) {
-		// Do not register migration hooks for renamed schemas
-		if (renamedSchemaNames.has(modelSchema.name)) {
-			continue;
-		}
-
 		const migrationOptionMap = migrationOptionsMap.get(modelSchema.name);
 		const baseOptions = migrationOptionMap?.get(0);
 
