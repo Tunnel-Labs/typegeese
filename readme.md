@@ -339,3 +339,7 @@ class Post extends Object {}
 By returning the `Object` constructor in the extends clause, we avoid using inheritance for migrations. This reduces the chance of conflicts with typegoose's intended uses of inheritance (e.g. for discriminator types).
 
 Instead, typegeese dynamically constructs schemas at runtime when the functions `getModelForSchema` or `loadModelSchemas` are called.
+
+## Limitations
+
+Currently, typegeese expects that there exists only one reference to its internal functions (since it uses `Reflect#getMetadata` and `Reflect#defineMetadata`). This means that you must mark typegeese as external when using a bundler like Webpack.
