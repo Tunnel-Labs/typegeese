@@ -1,9 +1,6 @@
 import type { ForeignRef, VirtualForeignRef } from '@typegeese/types';
 import * as t from '../utils/t.js';
-import {
-	ShapeForeignRef,
-	ShapeVirtualForeignRef
-} from 'packages/shape/src/types/ref.js';
+import type { ShapeForeignRef, ShapeVirtualForeignRef } from './ref.js';
 
 // prettier-ignore
 export type ShapeTypeProperties<Schema> = {

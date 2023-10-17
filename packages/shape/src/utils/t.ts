@@ -5,14 +5,13 @@ import {
 } from '../types/properties.js';
 import type { ShapeForeignRef, ShapeVirtualForeignRef } from '../types/ref.js';
 
-export function type<T>(): T;
-export function type(): any {}
-
 export type Shape<Schema, T extends Exact<ShapeTypeProperties<Schema>, T>> = T;
 export function Shape<ShapeType>(
 	properties: ShapeObjectProperties<ShapeType>
 ): ShapeObjectProperties<ShapeType>;
-export function Shape(): any {}
+export function Shape(shape: any): any {
+	return shape;
+}
 
 export type ForeignRef<ForeignSchema> = ShapeForeignRef<
 	// @ts-expect-error: works
