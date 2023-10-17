@@ -4,11 +4,11 @@ import type { $Comment } from './$schema.js';
 
 export const Comment = t.Shape<$Comment>({
 	_id: t,
-	author: t.ForeignRef,
-	downvotes: t.VirtualForeignRef,
-	parentComment: t.ForeignRef,
-	post: t.ForeignRef,
+	author: t.ForeignRef('Account'),
+	downvotes: t.VirtualForeignRef('CommentDownvote'),
+	parentComment: t.ForeignRef('Comment'),
+	post: t.ForeignRef('Post'),
 	rawText: t,
-	replies: t.VirtualForeignRef,
-	upvotes: t.VirtualForeignRef
+	replies: t.VirtualForeignRef('Comment'),
+	upvotes: t.VirtualForeignRef('CommentUpvote')
 });

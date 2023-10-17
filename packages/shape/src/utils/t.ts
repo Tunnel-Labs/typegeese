@@ -21,7 +21,7 @@ export type ForeignRef<ForeignSchema> = ShapeForeignRef<
 export const ForeignRef = Object.assign(
 	<ForeignSchemaName extends string>(
 		foreignSchemaName: ForeignSchemaName
-	): ShapeForeignRef<ForeignSchemaName> => foreignSchemaName,
+	): ShapeForeignRef<ForeignSchemaName> => foreignSchemaName as any,
 	{ __foreignRef__: true }
 );
 
@@ -32,6 +32,7 @@ export type VirtualForeignRef<ForeignSchema> = ShapeVirtualForeignRef<
 export const VirtualForeignRef = Object.assign(
 	<ForeignSchemaName extends string>(
 		virtualForeignSchemaName: ForeignSchemaName
-	): ShapeVirtualForeignRef<ForeignSchemaName> => virtualForeignSchemaName,
+	): ShapeVirtualForeignRef<ForeignSchemaName> =>
+		virtualForeignSchemaName as any,
 	{ __virtualForeignRef__: true }
 );
