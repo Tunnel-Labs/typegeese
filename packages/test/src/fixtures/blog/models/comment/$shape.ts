@@ -1,8 +1,8 @@
 import { t } from '@typegeese/shape';
 
-import type { $Comment } from './$schema.js';
+import type { CommentShape } from './$schema.js';
 
-export const Comment = t.Shape<$Comment>({
+export const Comment = t.Shape<CommentShape>({
 	_id: t,
 	author: t.ForeignRef('Account'),
 	downvotes: t.VirtualForeignRef('CommentDownvote'),

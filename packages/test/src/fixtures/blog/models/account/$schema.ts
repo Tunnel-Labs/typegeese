@@ -3,7 +3,7 @@ export { default as Account } from './v0.js';
 import { t } from '@typegeese/shape';
 import type * as $ from '../$schemas.js';
 
-export type $Account = t.Shape<
+export type AccountShape = t.Shape<
 	$.Account,
 	{
 		_id: string;

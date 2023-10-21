@@ -3,7 +3,7 @@ export { default as Post } from './v2-rename-account-to-user.js';
 import { t } from '@typegeese/shape';
 import type * as $ from '../$schemas.js';
 
-export type $Post = t.Shape<
+export type PostShape = t.Shape<
 	$.Post,
 	{
 		_id: string;

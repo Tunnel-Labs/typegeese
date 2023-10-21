@@ -1,8 +1,8 @@
 import { t } from '@typegeese/shape';
 
-import type { $Post } from './$schema.js';
+import type { PostShape } from './$schema.js';
 
-export const Post = t.Shape<$Post>({
+export const Post = t.Shape<PostShape>({
 	_id: t,
 	author: t.ForeignRef('Account'),
 	title: t,

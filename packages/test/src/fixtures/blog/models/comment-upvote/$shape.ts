@@ -1,7 +1,7 @@
 import { t } from '@typegeese/shape';
-import type { $CommentUpvote } from './$schema.js';
+import type { CommentUpvoteShape } from './$schema.js';
 
-export const CommentUpvote = t.Shape<$CommentUpvote>({
+export const CommentUpvote = t.Shape<CommentUpvoteShape>({
 	_id: t,
 	account: t.ForeignRef('Account'),
 	comment: t.ForeignRef('Comment')

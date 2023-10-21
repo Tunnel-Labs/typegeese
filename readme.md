@@ -138,7 +138,7 @@ import type * as $ from '../$schemas.js';
 
 // This type is type-checked by TypeScript to ensure
 // that it always stays up to date with every new migration
-export type $User = t.Shape<
+export type UserShape = t.Shape<
   $.User,
   {
     _id: string;
@@ -156,14 +156,14 @@ The `t` helper can also be used to define the shape of your schema at runtime:
 // ./user/$shape.ts
 import { t } from '@typegeese/shape'
 
-import type { $User } from './$schema.js';
+import type { UserShape } from './$schema.js';
 
 // Typegeese's `t` helper also lets you declare the shape of
 // your schema at runtime which can be imported from the
 // client side (it's recommended to use a separate file for
 // the runtime definition so your bundler doesn't end up
 // importing server-side code)
-export const User = t.Shape<$User>({
+export const User = t.Shape<UserShape>({
   _id: t,
   name: t,
   email: t,

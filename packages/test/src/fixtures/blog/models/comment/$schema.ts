@@ -3,7 +3,7 @@ export { default as Comment } from './v4-rename-user-to-account.js';
 import { t } from '@typegeese/shape';
 import type * as $ from '../$schemas.js';
 
-export type $Comment = t.Shape<
+export type CommentShape = t.Shape<
 	$.Comment,
 	{
 		_id: string;
